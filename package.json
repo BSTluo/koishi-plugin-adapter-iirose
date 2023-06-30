@@ -24,5 +24,12 @@
   },
   "peerDependencies": {
     "koishi": "^4.13.1"
+  },
+  "contributors": [
+    "BSTluo <1946831552@qq.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BSTluo/koishi-plugin-adapter-iirose.git"
   }
 }
