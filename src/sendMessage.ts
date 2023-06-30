@@ -3,6 +3,10 @@ import { IIROSE_Bot } from './bot'
 import pako from 'pako'
 import PublicMessage from './encoder/messages/PublicMessage'
 import PrivateMessage from './encoder/messages/PrivateMessage'
+import axios from "axios"
+import fs from "fs"
+import path from "path"
+import FormData from 'form-data'
 
 export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
   private outDataOringin: string = ''
@@ -43,8 +47,23 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       }
 
       case "image": {
-        console.log(attrs.url)
-        this.outDataOringin += `[${attrs.url}]`
+        try {
+          // 创建一个FormData实例
+          const formData = new FormData()
+          const base64ImgStr = attrs.url.replace(/^data:image\/[a-z]+base64,/, '')
+          formData.append('file', Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' })
+          formData.append('timeOut', 1)
+
+          // 发送formData到后端
+          const response = await axios.post('https://zerfile.bstluo.top/upload', formData, {
+            headers: formData.getHeaders()
+          })
+
+          this.outDataOringin += `[https://zerfile.bstluo.top/public/${response.data}]`
+        } catch (error) {
+          this.outDataOringin += '[图片显示异常]'
+          console.error(error)
+        }
       }
 
       default: {
