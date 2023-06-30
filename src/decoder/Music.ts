@@ -1,10 +1,10 @@
 export interface Music {
-  url: string,
-  link: string,
-  duration: number,
-  title: string,
-  singer: string,
-  owner: string,
+  url: string
+  link: string
+  duration: number
+  title: string
+  singer: string
+  owner: string
   pic: string
 }
 
@@ -19,7 +19,7 @@ export const music = (message: string) => {
         title: tmp[2],
         singer: tmp[3].substr(2),
         owner: tmp[4],
-        pic: `http${tmp[6]}`
+        pic: `http${tmp[6]}`,
       }
 
       // music

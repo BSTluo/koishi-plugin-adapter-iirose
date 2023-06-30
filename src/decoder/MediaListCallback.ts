@@ -1,13 +1,13 @@
 import { decode } from 'html-entities'
 
 export interface MediaListCallback {
-  id: string,
-  length: number,
-  title: string,
-  color: string,
-  name: string,
-  type: number,
-  avatar: string,
+  id: string
+  length: number
+  title: string
+  color: string
+  name: string
+  type: number
+  avatar: string
   cover: string
 }
 
@@ -23,10 +23,10 @@ export const mediaListCallback = (message: string) => {
         name: tmp[2].substr(6),
         type: Number(tmp[3]),
         avatar: tmp[4],
-        cover: `http${tmp[5]}`
+        cover: `http${tmp[5]}`,
       }
     })
     // MediaListCallback
-    return result  
+    return result
   }
 }

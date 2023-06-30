@@ -1,11 +1,11 @@
 export interface SwitchRoom {
-  timestamp: number,
-  avatar: string,
-  username: string,
-  color: string,
-  uid: string,
-  title: string,
-  room: string,
+  timestamp: number
+  avatar: string
+  username: string
+  color: string
+  uid: string
+  title: string
+  room: string
   targetRoom: string
 }
 
@@ -22,7 +22,7 @@ export const switchRoom = (message: string) => {
           uid: tmp[8],
           title: tmp[9] === "'108" ? '花瓣' : tmp[9],
           room: tmp[10],
-          targetRoom: tmp[3].substr(2)
+          targetRoom: tmp[3].substr(2),
         }
 
         // SwitchRoom

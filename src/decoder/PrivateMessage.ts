@@ -3,12 +3,12 @@ import { decode } from 'html-entities'
 // import config from '../../config'
 
 interface data {
-  timestamp: Number,
-  uid: string,
-  username: string,
-  avatar: string,
-  message: string,
-  color: string,
+  timestamp: Number
+  uid: string
+  username: string
+  avatar: string
+  message: string
+  color: string
   messageId: Number
 }
 
@@ -21,7 +21,7 @@ export class PrivateMessage {
   public color: string
   public messageId: Number
 
-  constructor (data: data) {
+  constructor(data: data) {
     this.timestamp = data.timestamp
     this.uid = data.uid
     this.username = data.username
@@ -34,8 +34,6 @@ export class PrivateMessage {
 
 export const privateMessage = (message: string) => {
   if (message.substr(0, 2) === '""') {
-    let flag = false
-
     const item = message.substr(2).split('<')
 
     for (const msg of item) {
@@ -50,11 +48,10 @@ export const privateMessage = (message: string) => {
             avatar: tmp[3],
             message: decode(tmp[4]),
             color: tmp[5],
-            messageId: Number(tmp[10])
+            messageId: Number(tmp[10]),
           })
           // PrivateMessage
           return msg
-          flag = true
         }
       }
     }

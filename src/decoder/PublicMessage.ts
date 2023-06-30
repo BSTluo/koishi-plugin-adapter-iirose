@@ -1,20 +1,20 @@
 import { decode } from 'html-entities'
 
 export interface replyMessage {
-  message: string,
-  username: string,
+  message: string
+  username: string
   time: number
 }
 
 interface data {
-  timestamp: number,
-  avatar: string,
-  username: string,
-  message: string,
-  color: string,
-  uid: string,
-  title: string,
-  messageId: number,
+  timestamp: number
+  avatar: string
+  username: string
+  message: string
+  color: string
+  uid: string
+  title: string
+  messageId: number
   replyMessage: replyMessage[] | null
 }
 
@@ -54,7 +54,7 @@ const replyMsg = (msg: string): replyMessage[] | null => {
         replies.unshift({
           message: decode(tmp[0]),
           username: decode(user[0]),
-          time: Number(user[1])
+          time: Number(user[1]),
         })
 
         replies.sort((a, b) => {
@@ -78,14 +78,11 @@ export const publicMessage = (input: string) => {
   const message: string = input.substring(1)
 
   if (message.indexOf('<') !== -1) {
-    let parser = false
-
     const tmp1 = message.split('<')
     tmp1.forEach(e => {
       const tmp = e.split('>')
       if (/^\d+$/.test(tmp[0])) {
         if (tmp.length === 11) {
-          parser = true
           const reply = replyMsg(tmp[3])
           // PublicMessage
           return new PublicMessage({
@@ -97,25 +94,10 @@ export const publicMessage = (input: string) => {
             uid: tmp[8],
             title: tmp[9] === "'108" ? '花瓣' : tmp[9],
             messageId: Number(tmp[10]),
-            replyMessage: reply
+            replyMessage: reply,
           })
-
         } else if (tmp.length === 12) {
           if (tmp[3] === "'1") {
-            parser = true
-            const msg = {
-              timestamp: Number(tmp[0]),
-              avatar: tmp[1],
-              username: decode(tmp[2]),
-              color: tmp[5],
-              uid: tmp[8],
-              title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-              room: tmp[10]
-            }
-            // JoinRoom
-            return msg
-          } else if (tmp[3].substr(0, 2) === "'2") {
-            parser = true
             const msg = {
               timestamp: Number(tmp[0]),
               avatar: tmp[1],
@@ -124,12 +106,10 @@ export const publicMessage = (input: string) => {
               uid: tmp[8],
               title: tmp[9] === "'108" ? '花瓣' : tmp[9],
               room: tmp[10],
-              targetRoom: tmp[3].substr(2)
             }
-            // SwitchRoom
+            // JoinRoom
             return msg
-          } else if (tmp[3] === "'3") {
-            parser = true
+          } else if (tmp[3].substr(0, 2) === "'2") {
             const msg = {
               timestamp: Number(tmp[0]),
               avatar: tmp[1],
@@ -137,7 +117,20 @@ export const publicMessage = (input: string) => {
               color: tmp[5],
               uid: tmp[8],
               title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-              room: tmp[10]
+              room: tmp[10],
+              targetRoom: tmp[3].substr(2),
+            }
+            // SwitchRoom
+            return msg
+          } else if (tmp[3] === "'3") {
+            const msg = {
+              timestamp: Number(tmp[0]),
+              avatar: tmp[1],
+              username: decode(tmp[2]),
+              color: tmp[5],
+              uid: tmp[8],
+              title: tmp[9] === "'108" ? '花瓣' : tmp[9],
+              room: tmp[10],
             }
             // LeaveRoom
             return msg
@@ -163,7 +156,7 @@ export const publicMessage = (input: string) => {
           uid: tmp[8],
           title: tmp[9] === "'108" ? '花瓣' : tmp[9],
           messageId: Number(tmp[10]),
-          replyMessage: reply
+          replyMessage: reply,
         }
         // PublicMessage
         return new PublicMessage(msg)

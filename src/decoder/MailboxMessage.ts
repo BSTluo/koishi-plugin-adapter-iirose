@@ -49,7 +49,7 @@ export const mailboxMessage = (message: string) => {
         return {
           notice: decode(tmp[0]),
           background: tmp[1],
-          timestamp: Number(tmp[2])
+          timestamp: Number(tmp[2]),
         }
       }
       if (tmp.length === 7) {
@@ -61,7 +61,7 @@ export const mailboxMessage = (message: string) => {
             gender: tmp[2],
             background: tmp[4],
             timestamp: Number(tmp[5]),
-            color: tmp[6]
+            color: tmp[6],
           }
           // follower
           return data
@@ -74,7 +74,7 @@ export const mailboxMessage = (message: string) => {
             background: tmp[4],
             timestamp: Number(tmp[5]),
             color: tmp[6],
-            message: decode(tmp[3].substr(3))
+            message: decode(tmp[3].substr(3)),
           }
           // like
           return data
@@ -88,7 +88,7 @@ export const mailboxMessage = (message: string) => {
             message: decode(tmp[3].split(' ')[1] || ''),
             background: tmp[4],
             timestamp: Number(tmp[5]),
-            color: tmp[6]
+            color: tmp[6],
           }
           // payment
           return data

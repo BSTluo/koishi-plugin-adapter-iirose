@@ -3,6 +3,6 @@ export default (uid: string, message: string, color: string) => {
     g: uid,
     m: message,
     mc: color,
-    i: Math.random().toString().substr(2, 12)
+    i: Math.random().toString().substr(2, 12),
   })
 }

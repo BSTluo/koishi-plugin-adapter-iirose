@@ -1,12 +1,12 @@
 import { decode } from 'html-entities'
 
 export interface SystemMessage {
-  timestamp: number,
-  avatar: string,
-  username: string,
-  color: string,
-  uid: string,
-  title: string,
+  timestamp: number
+  avatar: string
+  username: string
+  color: string
+  uid: string
+  title: string
   room: string
 }
 
@@ -22,7 +22,7 @@ export const joinRoom = (message: string) => {
           color: tmp[5],
           uid: tmp[8],
           title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-          room: tmp[10]
+          room: tmp[10],
         }
         // JoinRoom
         return msg

@@ -1,9 +1,9 @@
 export interface GetUserListCallback {
-  avatar: string;
-  username: string;
-  color: string;
-  room: string;
-  uid: string;
+  avatar: string
+  username: string
+  color: string
+  room: string
+  uid: string
 }
 
 export const getUserListCallback = (message: string) => {
@@ -17,7 +17,7 @@ export const getUserListCallback = (message: string) => {
           username: tmp[2],
           color: tmp[3],
           room: tmp[4],
-          uid: tmp[8]
+          uid: tmp[8],
         })
       }
     })

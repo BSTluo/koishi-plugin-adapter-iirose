@@ -1,8 +1,8 @@
 export interface Damaku {
-  username: string,
-  avatar: string,
-  message: string,
-  color: string,
+  username: string
+  avatar: string
+  message: string
+  color: string
 }
 
 export const damaku = (message: string) => {
@@ -15,7 +15,7 @@ export const damaku = (message: string) => {
           username: item[0],
           avatar: item[5],
           message: item[1],
-          color: item[2]
+          color: item[2],
         }
         // damaku
         return msg

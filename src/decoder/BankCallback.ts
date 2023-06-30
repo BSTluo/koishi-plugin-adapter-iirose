@@ -1,8 +1,8 @@
 export interface BankCallback {
-  total: number;
-  income: number;
-  deposit: number;
-  interestRate: [number, number];
+  total: number
+  income: number
+  deposit: number
+  interestRate: [number, number]
   balance: number
 }
 

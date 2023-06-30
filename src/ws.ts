@@ -1,17 +1,17 @@
-import { Adapter, Schema, Context, Logger } from '@satorijs/satori'
+import { Adapter, Context, Logger, Schema } from '@satorijs/satori'
 import { IIROSE_Bot } from './bot'
 import pako from 'pako'
 import { decoder } from './decoder'
 import { decoderMessage } from './decoderMessage'
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const logger = new Logger('IIROSE-BOT')
 
 export class WsClient extends Adapter.Client<IIROSE_Bot> {
-  WSurl:string = 'wss://m2.iirose.com:8778'
+  WSurl: string = 'wss://m2.iirose.com:8778'
 
-  constructor(ctx:Context, bot:IIROSE_Bot) {
+  constructor(ctx: Context, bot: IIROSE_Bot) {
     super(ctx, bot)
     ctx.on('ready', () => {
       // 在插件启动时监听端口
@@ -25,15 +25,14 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
   }
 
   async start(bot: IIROSE_Bot): Promise<void> {
-    if (this.bot.socket) {return}
-    
+    if (this.bot.socket) { return }
+
     const retryTimes = 6 // 初次连接时的最大重试次数。
     const retryInterval = 5000 // 初次连接时的重试时间间隔。
     const retryLazy = 60000 // 连接关闭后的重试时间间隔。
-    
 
     let _retryCount = 0
-    
+
     const reconnect = async (initial = false) => {
       logger.debug('websocket client opening')
       const socket = await this.prepare()
@@ -79,13 +78,11 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
     }
 
     reconnect(true)
-    return
   }
 
   stop(bot: IIROSE_Bot): Promise<void> {
     this.bot.socket?.close()
     this.bot.socket = null
-    return
   }
 
   async prepare() {
@@ -108,7 +105,6 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
     const loginPack = '*' + JSON.stringify(obj)
     this.send(this.bot, loginPack)
 
-    
     this.bot.socket.onmessage = (event) => {
       // @ts-ignore
       const array = new Uint8Array(event.data)
@@ -116,13 +112,13 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       let message
       if (array[0] === 1) {
         message = pako.inflate(array.slice(1), {
-          to: 'string'
+          to: 'string',
         })
       } else {
         message = Buffer.from(array).toString('utf8')
       }
       const funcObj = decoder(this.bot, message)
-      
+
       // 将会话上报
       decoderMessage(funcObj, this.bot)
     }

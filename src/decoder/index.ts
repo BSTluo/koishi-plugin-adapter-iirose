@@ -12,13 +12,13 @@ import { userProfileCallback, UserProfileCallback } from './UserProfileCallback'
 import { bankCallback, BankCallback } from './BankCallback'
 import { mediaListCallback, MediaListCallback } from './MediaListCallback'
 import { selfMove, SelfMove } from './SelfMove'
-import { mailboxMessage, Follower, Like, RoomNotice, Payment } from './MailboxMessage'
+import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './MailboxMessage'
 import { IIROSE_Bot } from '../bot'
 
-export const decoder = (bot:IIROSE_Bot, msg: string): MessageType => {
-  let len: any = {}
+export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
+  const len: any = {}
 
-  // len.userlist = userList(msg)
+  len.userlist = userList(msg)
   len.publicMessage = publicMessage(msg)
   len.leaveRoom = leaveRoom(msg)
   len.joinRoom = joinRoom(msg)
@@ -33,10 +33,10 @@ export const decoder = (bot:IIROSE_Bot, msg: string): MessageType => {
   len.mediaListCallback = mediaListCallback(msg)
   len.selfMove = selfMove(msg)
   len.mailboxMessage = mailboxMessage(msg)
-  
-  let newObj = {};
+
+  const newObj = {}
   for (const key in len) {
-    //如果对象属性的值不为空，就保存该属性（如果属性的值为0 false，保存该属性。如果属性的值全部是空格，属于为空。）
+    // 如果对象属性的值不为空，就保存该属性（如果属性的值为0 false，保存该属性。如果属性的值全部是空格，属于为空。）
     if ((len[key] === 0 || len[key] === false || len[key]) && len[key].toString().replace(/(^\s*)|(\s*$)/g, '') !== '') {
       if (len[key].uid) {
         if (len[key].uid !== bot.ctx.config.uid) { newObj[key] = len[key] }

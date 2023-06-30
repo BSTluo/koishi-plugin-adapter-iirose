@@ -1,35 +1,35 @@
 export interface UserProfileCallback {
-  email:string,
-  location:string,
-  website:string,
-  hobby:string,
-  intro:string,
-  background: string,
-  music: string,
-  lastLoginTime: Date,
-  visits: string,
-  title: string,
-  rooms: string[],
-  tags: string,
-  regTime: Date,
-  online: string,
-  credit: string,
+  email: string
+  location: string
+  website: string
+  hobby: string
+  intro: string
+  background: string
+  music: string
+  lastLoginTime: Date
+  visits: string
+  title: string
+  rooms: string[]
+  tags: string
+  regTime: Date
+  online: string
+  credit: string
   life: {
-    image: string,
-    time: Date,
+    image: string
+    time: Date
     desc: string
-  }[],
+  }[]
   mate: {
-    username: string | null,
-    avatar: string | null,
+    username: string | null
+    avatar: string | null
     color: string | null
-  },
+  }
   money: {
-    hold: string,
+    hold: string
     bank: string
-  },
+  }
   like: {
-    times: number,
+    times: number
     users: string[]
   }
 }
@@ -57,23 +57,23 @@ export const userProfileCallback = (message: string) => {
         const data = {
           image: `http${e.split(' ')[0]}`,
           time: new Date(Number(e.split(' ')[1]) * 1e3),
-          desc: e.split(' ').splice(2).join(' ')
+          desc: e.split(' ').splice(2).join(' '),
         }
         return data
       }),
       mate: {
         username: tmp[23] ? tmp[23].split('<')[0] : null,
         avatar: tmp[23] ? tmp[23].split('<')[1] : null,
-        color: tmp[23] ? tmp[23].split('<')[2] : null
+        color: tmp[23] ? tmp[23].split('<')[2] : null,
       },
       money: {
         hold: tmp[17],
-        bank: tmp[33]
+        bank: tmp[33],
       },
       like: {
         times: Number(tmp[16].split('"')[0]),
-        users: tmp[16].split('"')[1].split("'")
-      }
+        users: tmp[16].split('"')[1].split("'"),
+      },
     }
     // UserProfileCallback
     return msg

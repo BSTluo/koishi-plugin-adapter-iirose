@@ -6,11 +6,9 @@ import { IIROSE_BotMessageEncoder } from './sendMessage'
 export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
   constructor(ctx: Context, config: IIROSE_Bot.Config) {
     super(ctx, config)
-
     ctx.plugin(WsClient, this)
   }
 
-  
   sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]> {
     return new IIROSE_BotMessageEncoder(this, `${channelId}:` + guildId, guildId, options).send(content)
   }

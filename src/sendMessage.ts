@@ -1,11 +1,11 @@
-import { Dict, h, Logger, MessageEncoder, Quester } from '@satorijs/satori'
+import { h, MessageEncoder } from '@satorijs/satori'
 import { IIROSE_Bot } from './bot'
 import pako from 'pako'
 import PublicMessage from './encoder/messages/PublicMessage'
 import PrivateMessage from './encoder/messages/PrivateMessage'
-import axios from "axios"
-import fs from "fs"
-import path from "path"
+import axios from 'axios'
+import fs from 'fs'
+import path from 'path'
 import FormData from 'form-data'
 
 export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
@@ -13,12 +13,12 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
   private outDataOringinObj: string = ''
 
   async flush(): Promise<void> {
-    let buffer = Buffer.from(this.outDataOringinObj)
-    let unintArray = Uint8Array.from(buffer)
+    const buffer = Buffer.from(this.outDataOringinObj)
+    const unintArray = Uint8Array.from(buffer)
 
     if (unintArray.length > 256) {
-      let deflatedData = pako.gzip(this.outDataOringinObj)
-      let deflatedArray = new Uint8Array(deflatedData.length + 1)
+      const deflatedData = pako.gzip(this.outDataOringinObj)
+      const deflatedArray = new Uint8Array(deflatedData.length + 1)
       deflatedArray[0] = 1
       deflatedArray.set(deflatedData, 1)
 
@@ -29,24 +29,24 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
   }
 
   async visit(element: h): Promise<void> {
-    const { type, attrs, children } = element
+    const { type, attrs/*, children */ } = element
     switch (type) {
-      case "text": {
+      case 'text': {
         this.outDataOringin += attrs.content
         break
       }
 
-      case "at": {
+      case 'at': {
         this.outDataOringin += ` [*${attrs.content}*] `
         break
       }
 
-      case "markdown": {
+      case 'markdown': {
         this.outDataOringin += `\`\`\`\n${attrs.content}`
         break
       }
 
-      case "image": {
+      case 'image': {
         try {
           // 创建一个FormData实例
           const formData = new FormData()
@@ -64,6 +64,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
           this.outDataOringin += '[图片显示异常]'
           console.error(error)
         }
+
+        break
       }
 
       default: {
@@ -71,9 +73,9 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       }
     }
 
-    if (this.channelId.startsWith("public:")) {
+    if (this.channelId.startsWith('public:')) {
       this.outDataOringinObj = PublicMessage(this.outDataOringin, '66ccff')
-    } else if (this.channelId.startsWith("private:")) {
+    } else if (this.channelId.startsWith('private:')) {
       this.outDataOringinObj = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, '66ccff')
     }
   }
