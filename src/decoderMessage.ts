@@ -15,19 +15,21 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         obj.publicMessage.message = clearMsg(obj.publicMessage.message)
         const session = bot.session({
           type: 'message',
+          userId: obj.publicMessage.uid,
           messageId: String(obj.publicMessage.messageId),
           timestamp: Number(obj.publicMessage.timestamp),
           content: obj.publicMessage.message,
           elements: h.parse(obj.publicMessage.message),
-          subtype: 'group',
           author: {
             userId: obj.publicMessage.uid,
             avatar: obj.publicMessage.avatar,
             username: obj.publicMessage.username,
             nickname: obj.publicMessage.username,
           },
+          platform: 'iirose',
         })
-
+        session.subtype = 'group'
+        session.subsubtype = 'group'
         session.guildId = obj.publicMessage.uid
         session.content = obj.publicMessage.message
         session.channelId = 'public'
@@ -50,22 +52,25 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         const session = bot.session({
           type: 'message',
+          userId: obj.privateMessage.uid,
           messageId: String(obj.privateMessage.messageId),
           timestamp: Number(obj.privateMessage.timestamp),
           elements: h.parse(obj.privateMessage.message),
-          subtype: 'private',
           author: {
             userId: obj.privateMessage.uid,
             avatar: obj.privateMessage.avatar,
             username: obj.privateMessage.username,
             nickname: obj.privateMessage.username,
           },
+          platform: 'iirose',
         })
+        session.subtype = 'private'
+        session.subsubtype = 'private'
         session.guildId = obj.privateMessage.uid
         session.content = obj.privateMessage.message
-        session.channelId = 'private'
+        session.channelId = `private:${obj.privateMessage.uid}`
         session.selfId = bot.ctx.config.uid
-
+        
         bot.dispatch(session)
         break
       }
