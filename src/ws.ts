@@ -95,6 +95,7 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
   }
 
   accept() {
+    // 花园登陆报文
     const obj = {
       r: this.bot.ctx.config.roomId,
       n: this.bot.ctx.config.usename,
