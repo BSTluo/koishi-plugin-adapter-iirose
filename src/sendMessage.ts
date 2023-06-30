@@ -50,7 +50,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         try {
           // 创建一个FormData实例
           const formData = new FormData()
-          const base64ImgStr = attrs.url.replace(/^data:image\/[a-z]+base64,/, '')
+          const base64ImgStr = attrs.url.replace(/^data:image\/[a-z]+;base64,/, '')
           formData.append('file', Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' })
           formData.append('timeOut', 1)
 
