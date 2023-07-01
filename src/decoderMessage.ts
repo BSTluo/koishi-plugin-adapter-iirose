@@ -8,30 +8,33 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
   for (const key in obj) {
     switch (key) {
       case 'userlist': {
+        bot.socket.send('')
         break
       }
 
       case 'publicMessage': {
         obj.publicMessage.message = clearMsg(obj.publicMessage.message)
+        const data = obj.publicMessage
+
         const session = bot.session({
           type: 'message',
-          userId: obj.publicMessage.uid,
-          messageId: String(obj.publicMessage.messageId),
-          timestamp: Number(obj.publicMessage.timestamp),
-          content: obj.publicMessage.message,
-          elements: h.parse(obj.publicMessage.message),
+          userId: data.uid,
+          messageId: String(data.messageId),
+          timestamp: Number(data.timestamp),
+          content: data.message,
+          elements: h.parse(data.message),
           author: {
-            userId: obj.publicMessage.uid,
-            avatar: obj.publicMessage.avatar,
-            username: obj.publicMessage.username,
-            nickname: obj.publicMessage.username,
+            userId: data.uid,
+            avatar: data.avatar,
+            username: data.username,
+            nickname: data.username,
           },
           platform: 'iirose',
         })
         session.subtype = 'group'
         session.subsubtype = 'group'
-        session.guildId = obj.publicMessage.uid
-        session.content = obj.publicMessage.message
+        session.guildId = data.uid
+        session.content = data.message
         session.channelId = 'public'
         session.selfId = bot.ctx.config.uid
 
@@ -49,28 +52,27 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'privateMessage': {
         obj.privateMessage.message = clearMsg(obj.privateMessage.message)
+        const data = obj.privateMessage
 
         const session = bot.session({
           type: 'message',
-          userId: obj.privateMessage.uid,
-          messageId: String(obj.privateMessage.messageId),
-          timestamp: Number(obj.privateMessage.timestamp),
-          elements: h.parse(obj.privateMessage.message),
+          userId: data.uid,
+          messageId: String(data.messageId),
+          timestamp: Number(data.timestamp),
+          elements: h.parse(data.message),
           author: {
-            userId: obj.privateMessage.uid,
-            avatar: obj.privateMessage.avatar,
-            username: obj.privateMessage.username,
-            nickname: obj.privateMessage.username,
+            userId: data.uid,
+            avatar: data.avatar,
+            username: data.username,
+            nickname: data.username,
           },
           platform: 'iirose',
         })
         session.subtype = 'private'
         session.subsubtype = 'private'
-        session.guildId = obj.privateMessage.uid
-        session.content = obj.privateMessage.message
-        session.channelId = `private:${obj.privateMessage.uid}`
+        session.content = data.message
+        session.channelId = `private:${data.uid}`
         session.selfId = bot.ctx.config.uid
-        
         bot.dispatch(session)
         break
       }
