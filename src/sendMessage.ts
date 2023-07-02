@@ -68,10 +68,20 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         break
       }
 
+      case '' : {
+        break
+      }
+
+      case 'p' : {
+        this.outDataOringin += '\n\n'
+        break
+      }
+
       default: {
         break
       }
     }
+    if (this.outDataOringin.length <= 0) { return }
 
     if (this.channelId.startsWith('public:')) {
       this.outDataOringinObj = PublicMessage(this.outDataOringin, '66ccff')
