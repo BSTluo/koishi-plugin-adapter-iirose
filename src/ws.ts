@@ -74,7 +74,7 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
         bot.socket = socket
         logger.info('connect to server: %c', url)
         setInterval(()=>{
-          this.bot.socket.send('')
+          socket.send('')
         }, 60 * 1000) // 两分钟发一次包保活
         this.accept()
       })
