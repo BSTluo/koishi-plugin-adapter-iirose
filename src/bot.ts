@@ -45,12 +45,19 @@ export namespace IIROSE_Bot {
     roomId: string
   }
 
-  export const Config: Schema<Config> = Schema.object({
-    usename: Schema.string().required().description('BOT昵称'),
-    uid: Schema.string().required().description('BOT的唯一标识'),
-    password: Schema.string().required().description('BOT的密码的md5'),
-    roomId: Schema.string().required().description('BOT的初始群号'),
-  }).description('BOT配置')
+  export const Config: Schema<Config> = Schema.intersect([
+    Schema.object({
+      usename: Schema.string().required().description('BOT昵称'),
+      uid: Schema.string().required().description('BOT的唯一标识'),
+      password: Schema.string().required().description('BOT的密码的md5'),
+      roomId: Schema.string().required().description('BOT的初始群号'),
+    }).description('BOT配置'),
+    Schema.object({
+      picLink: Schema.string().description('图床接口').default('https://zerfile.bstluo.top/upload'),
+      picBackLink: Schema.string().description('图床返回url(data为接口返回的data)').default('https://zerfile.bstluo.top/public/[data]'),
+      musicLink: Schema.string().description('网易云音乐解析接口').default('https://api.xiaobaibk.com/api/music.163/?id=[musicid]'),
+    }).description('其他配置'),
+  ])
 }
 
 IIROSE_Bot.prototype.platform = 'IIROSE_Bot'
