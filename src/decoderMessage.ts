@@ -43,10 +43,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       }
 
       case 'leaveRoom': {
+        // 作为为事件
         break
       }
 
       case 'joinRoom': {
+        // 作为事件
         break
       }
 
@@ -78,6 +80,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       }
 
       case 'damaku': {
+        // 获取到弹幕
         break
       }
 
@@ -86,6 +89,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       }
 
       case 'music': {
+        // 音乐
         break
       }
 
@@ -110,6 +114,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       }
 
       case 'selfMove': {
+        // 自身移动房间
         break
       }
 
