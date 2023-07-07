@@ -48,8 +48,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
 
   async visit(element: h): Promise<void> {
     const { type, attrs, children } = element
-    console.log('type', type)
-    console.log('attrs', attrs)
+    // console.log('type', type)
+    // console.log('attrs', attrs)
 
     switch (type) {
       case 'text': {
