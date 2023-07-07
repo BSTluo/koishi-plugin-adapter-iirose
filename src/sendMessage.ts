@@ -48,7 +48,9 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
 
   async visit(element: h): Promise<void> {
     const { type, attrs, children } = element
-    
+    console.log('type', type)
+    console.log('attrs', attrs)
+
     switch (type) {
       case 'text': {
         this.outDataOringin += attrs.content
@@ -66,15 +68,17 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       }
 
       case 'image': {
+        let i = 0
         if (attrs.url.startsWith('http')) {
-          let arr = ['jpg','jpeg','png','gif']
+          let arr = ['jpg', 'jpeg', 'png', 'gif']
           for (const iterator of arr) {
             if (attrs.url.endsWith(`.${iterator}`)) {
               this.outDataOringin += `[${attrs.url}]`
+              i = 1
               break
             }
           }
-
+          if (i > 0) { break }
           this.outDataOringin += `\\\\\\*\n![](${attrs.url})`
           break
         }
@@ -112,7 +116,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         const response = await axios.get((this.bot.ctx.config.musicLink).replace('[musicid]', attrs.id))
         if (response.data.code !== 200) { break }
         const musicData = response.data.data[0]
-        if (musicData.br === 0) { 
+        if (musicData.br === 0) {
           this.outDataOringin += `[歌曲点播失败,可能为VIP歌曲]`
           break
         }
