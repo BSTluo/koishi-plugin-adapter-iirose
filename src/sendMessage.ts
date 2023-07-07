@@ -79,17 +79,26 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
             }
           }
           if (i > 0) { break }
-          this.outDataOringin += `\\\\\\*\n![](${attrs.url})`
+          this.outDataOringin = '\\\\\\*\n' + this.outDataOringin
+          this.outDataOringin += `![](${attrs.url})`
           break
         }
 
-        try {
+        const formData = new FormData()
+        if (attrs.url.startsWith('file://')) {
+          const fileUrl = new URL(attrs.url)
+          formData.append('file', fs.createReadStream(fileUrl))
+          formData.append('timeOut', 1)
+        }
+
+        if (attrs.url.startsWith('data:image')) {
           // 创建一个FormData实例
-          const formData = new FormData()
           const base64ImgStr = attrs.url.replace(/^data:image\/[a-z]+;base64,/, '')
           formData.append('file', Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' })
           formData.append('timeOut', 1)
+        }
 
+        try {
           // 发送formData到后端
           const response = await axios.post(this.bot.ctx.config.picLink, formData, {
             headers: formData.getHeaders()
