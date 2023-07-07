@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-adapter-iirose",
   "description": "IIROSE-蔷薇花园适配器",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
