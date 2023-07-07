@@ -48,8 +48,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
 
   async visit(element: h): Promise<void> {
     const { type, attrs, children } = element
-    // console.log('type', type)
-    // console.log('attrs', attrs)
+    console.log('type', type)
+    console.log('attrs', attrs)
     
     switch (type) {
       case 'text': {
@@ -68,6 +68,19 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       }
 
       case 'image': {
+        if (attrs.url.startsWith('http')) {
+          let arr = ['jpg','jpeg','png','gif']
+          for (const iterator of arr) {
+            if (attrs.url.endsWith(`.${iterator}`)) {
+              this.outDataOringin += `[${attrs.url}]`
+              break
+            }
+          }
+
+          this.outDataOringin += `\\\\\\*\n![](${attrs.url})`
+          break
+        }
+
         try {
           // 创建一个FormData实例
           const formData = new FormData()
