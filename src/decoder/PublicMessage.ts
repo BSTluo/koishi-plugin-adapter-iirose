@@ -7,15 +7,16 @@ export interface replyMessage {
 }
 
 interface data {
+  type?: string
   timestamp: number
   avatar: string
   username: string
-  message: string
+  message?: string
   color: string
   uid: string
   title: string
-  messageId: number
-  replyMessage: replyMessage[] | null
+  messageId?: number
+  replyMessage?: replyMessage[] | null
 }
 
 export class PublicMessage {
@@ -77,70 +78,7 @@ export const publicMessage = (input: string) => {
 
   const message: string = input.substring(1)
 
-  if (message.indexOf('<') !== -1) {
-    const tmp1 = message.split('<')
-    tmp1.forEach(e => {
-      const tmp = e.split('>')
-      if (/^\d+$/.test(tmp[0])) {
-        if (tmp.length === 11) {
-          const reply = replyMsg(tmp[3])
-          // PublicMessage
-          return new PublicMessage({
-            timestamp: Number(tmp[0]),
-            avatar: tmp[1],
-            username: decode(tmp[2]),
-            message: decode(reply ? String(reply.shift()) : tmp[3]),
-            color: tmp[5],
-            uid: tmp[8],
-            title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-            messageId: Number(tmp[10]),
-            replyMessage: reply,
-          })
-        } else if (tmp.length === 12) {
-          if (tmp[3] === "'1") {
-            const msg = {
-              timestamp: Number(tmp[0]),
-              avatar: tmp[1],
-              username: decode(tmp[2]),
-              color: tmp[5],
-              uid: tmp[8],
-              title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-              room: tmp[10],
-            }
-            // JoinRoom
-            return msg
-          } else if (tmp[3].substr(0, 2) === "'2") {
-            const msg = {
-              timestamp: Number(tmp[0]),
-              avatar: tmp[1],
-              username: decode(tmp[2]),
-              color: tmp[5],
-              uid: tmp[8],
-              title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-              room: tmp[10],
-              targetRoom: tmp[3].substr(2),
-            }
-            // SwitchRoom
-            return msg
-          } else if (tmp[3] === "'3") {
-            const msg = {
-              timestamp: Number(tmp[0]),
-              avatar: tmp[1],
-              username: decode(tmp[2]),
-              color: tmp[5],
-              uid: tmp[8],
-              title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-              room: tmp[10],
-            }
-            // LeaveRoom
-            return msg
-          }
-        }
-      }
-    })
-
-    return null
-  } else {
+  if (message.indexOf('<') === -1) {
     const tmp = message.split('>')
     if (tmp.length === 11) {
       if (/^\d+$/.test(tmp[0])) {

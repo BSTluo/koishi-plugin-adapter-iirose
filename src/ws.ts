@@ -73,7 +73,7 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
         _retryCount = 0
         bot.socket = socket
         logger.info('connect to server: %c', url)
-        setInterval(()=>{
+        setInterval(() => {
           socket.send('')
         }, 60 * 1000) // 两分钟发一次包保活
         this.accept()
@@ -122,9 +122,18 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
         message = Buffer.from(array).toString('utf8')
       }
       const funcObj = decoder(this.bot, message)
-
       // 将会话上报
-      decoderMessage(funcObj, this.bot)
+      if (funcObj.hasOwnProperty('manyMessage')) {
+        funcObj.manyMessage.forEach(element => {
+          let test = {}
+          let type = element.type
+          test[type] = element
+
+          decoderMessage(test, this.bot)
+        })
+      } else {
+        decoderMessage(funcObj, this.bot)
+      }
     }
   }
 
