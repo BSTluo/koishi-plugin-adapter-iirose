@@ -18,7 +18,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         const session = bot.session({
           type: 'message',
-          userId: data.uid,
+          userId: data.username,
           messageId: String(data.messageId),
           timestamp: Number(data.timestamp),
           content: data.message,

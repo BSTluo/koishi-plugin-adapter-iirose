@@ -58,10 +58,13 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       }
 
       case 'at': {
-        this.outDataOringin += ` [*${attrs.content}*] `
+        this.outDataOringin += ` [*${attrs.id}*] `
         break
       }
-
+      case 'a': {
+        this.outDataOringin += attrs.href
+        break
+      }
       case 'markdown': {
         this.outDataOringin += `\`\`\`\n${attrs.content}`
         break
@@ -79,7 +82,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
             }
           }
           if (i > 0) { break }
-          this.outDataOringin = '\\\\\\*\n' + this.outDataOringin
+          if (!this.outDataOringin.startsWith('\\\\\\*\n')) { this.outDataOringin = '\\\\\\*\n' + this.outDataOringin }
           this.outDataOringin += `![](${attrs.url})`
           break
         }
