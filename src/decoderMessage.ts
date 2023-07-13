@@ -1,6 +1,7 @@
 import { IIROSE_Bot } from './bot'
 import { MessageType } from './decoder'
 import { h } from '@satorijs/satori'
+import * as Events from './event'
 
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
   // 定义会话列表
@@ -43,12 +44,16 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       }
 
       case 'leaveRoom': {
-        // 作为为事件
+        // 作为事件
+        const data = obj.leaveRoom
+        bot.ctx.emit('iirose/leaveRoom', data)
         break
       }
 
       case 'joinRoom': {
         // 作为事件
+        const data = obj.joinRoom
+        bot.ctx.emit('iirose/joinRoom', data)
         break
       }
 
