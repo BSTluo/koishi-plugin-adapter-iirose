@@ -124,6 +124,10 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         break
       }
 
+      case '': {
+        break
+      }
+      
       case 'onebot:music': {
         const response = await axios.get((this.bot.ctx.config.musicLink).replace('[musicid]', attrs.id))
         if (response.data.code !== 200) { break }

@@ -2,7 +2,6 @@ import { Bot, Context, Fragment, Schema, SendOptions, Universal, h } from '@sato
 import { WsClient } from './ws'
 import pako from 'pako'
 import { IIROSE_BotMessageEncoder } from './sendMessage'
-import * as IIROSE from './event'
 
 export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
   constructor(ctx: Context, config: IIROSE_Bot.Config) {
@@ -22,7 +21,9 @@ export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
   }
 
   async getGuildList(): Promise<Universal.Guild[]> {
-    return []
+    return [
+      this.ctx.config.roomId
+    ]
   }
 
   send(data: string) {

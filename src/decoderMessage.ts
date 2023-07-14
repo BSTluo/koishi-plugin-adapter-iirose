@@ -85,45 +85,63 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       }
 
       case 'damaku': {
-        // 获取到弹幕
+        const data = obj.damaku
+        bot.ctx.emit('iirose/newDamaku', data)
         break
       }
 
       case 'switchRoom': {
+        // 这玩意真的是机器人能够拥有的吗
         break
       }
 
       case 'music': {
         // 音乐
+        const data = obj.music
+        bot.ctx.emit('iirose/newMusic', data)
         break
       }
 
       case 'paymentCallback': {
+        const data = obj.paymentCallback
+        bot.ctx.emit('iirose/before-payment', data)
         break
       }
 
       case 'getUserListCallback': {
+        const data = obj.getUserListCallback
+        bot.ctx.emit('iirose/before-getUserList', data)
         break
       }
 
       case 'userProfileCallback': {
+        const data = obj.userProfileCallback
+        bot.ctx.emit('iirose/before-userProfile', data)
         break
       }
 
       case 'bankCallback': {
+        const data = obj.bankCallback
+        bot.ctx.emit('iirose/before-bank', data)
         break
       }
 
       case 'mediaListCallback': {
+        const data = obj.mediaListCallback
+        bot.ctx.emit('iirose/before-mediaList', data)
         break
       }
 
       case 'selfMove': {
+        const data = obj.selfMove
+        bot.ctx.emit('iirose/selfMove', data)
         // 自身移动房间
         break
       }
 
       case 'mailboxMessage': {
+        const data = obj.mailboxMessage
+        bot.ctx.emit('iirose/mailboxMessage', data)
         break
       }
 

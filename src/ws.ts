@@ -3,6 +3,7 @@ import { IIROSE_Bot } from './bot'
 import pako from 'pako'
 import { decoder } from './decoder'
 import { decoderMessage } from './decoderMessage'
+import { EventsServer } from './utils'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -73,6 +74,8 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
         _retryCount = 0
         bot.socket = socket
         logger.info('connect to server: %c', url)
+        EventsServer(bot)
+
         setInterval(() => {
           socket.send('')
         }, 60 * 1000) // 两分钟发一次包保活
