@@ -108,6 +108,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
           })
           this.outDataOringin += `[${(this.bot.ctx.config.picBackLink).replace('[data]', response.data)}]`
         } catch (error) {
+          console.log(error)
           this.outDataOringin += '[图片显示异常]'
           console.error(error)
         }
