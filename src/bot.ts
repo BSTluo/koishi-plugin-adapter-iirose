@@ -53,10 +53,10 @@ export namespace IIROSE_Bot {
 
   export const Config: Schema<Config> = Schema.intersect([
     Schema.object({
-      usename: Schema.string().required().description('BOT昵称'),
+      usename: Schema.string().required().description('BOT用户名'),
       uid: Schema.string().required().description('BOT的唯一标识'),
-      password: Schema.string().required().description('BOT的密码的md5'),
-      roomId: Schema.string().required().description('BOT的初始群号'),
+      password: Schema.string().required().description('BOT的密码的32位md5'),
+      roomId: Schema.string().required().description('BOT的初始房间地址'),
     }).description('BOT配置'),
     Schema.object({
       picLink: Schema.string().description('图床接口').default('https://zerfile.bstluo.top/upload'),

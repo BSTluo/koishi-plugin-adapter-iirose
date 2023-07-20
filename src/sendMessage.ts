@@ -116,10 +116,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         break
       }
 
-      case '': {
-        break
-      }
-
       case 'p': {
         this.outDataOringin += '\n\n'
         break
