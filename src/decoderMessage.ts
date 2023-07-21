@@ -155,16 +155,35 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 }
 
 function clearMsg(msg: string) {
-  const result = /https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif)(#e)*/g
+  /*
+  result规则：
+  [
+    匹配规则,
+    koishi元素前缀,
+    koishi元素后缀,
+    若干个文字过滤项..
+  ]
+  */
+  const result = [
+    [/\s\[\*(\S+)\*\]\s/g, '<at id="', '"></at>'],
+    [/https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif)(#e)*/g, '<image url="', '"></image>', /\[/g, /]/g]
+  ]
+
   let msg1 = msg
-  const arr = msg1.match(result)
-
-  if (arr) {
-    msg1 = msg1.replace(/\[/g, '').replace(/]/g, '')
-
-    arr.forEach(element => {
-      msg1 = msg1.replace(new RegExp(element, 'g'), `<image url="${element}"></image>`)
-    })
+  for (let reg of result) {
+    const arr = msg1.match(reg[0])
+    if (arr) {
+      if (reg.length > 3) {
+        for(let i = 4; i < reg.length; i++) {
+          msg1 = msg1.replace(reg[i], '')
+        }
+      }
+  
+      arr.forEach(element => {
+        msg1 = msg1.replace(new RegExp(element, 'g'), reg[1] + element + reg[2])
+      })
+    }
   }
+
   return msg1
 }
