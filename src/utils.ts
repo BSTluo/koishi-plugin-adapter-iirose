@@ -1,48 +1,48 @@
 import { IIROSE_Bot } from './bot'
-import kick from './encoder/admin/kick'
-import cutOne from './encoder/admin/media_cut'
-import cutAll from './encoder/admin/media_clear'
-import setMaxUser from './encoder/admin/setMaxUser'
-import whiteList from './encoder/admin/whiteList'
-import damaku from './encoder/messages/damaku'
+import kickFunction from './encoder/admin/kick'
+import cutOneFunction from './encoder/admin/media_cut'
+import cutAllFunction from './encoder/admin/media_clear'
+import setMaxUserFunction from './encoder/admin/setMaxUser'
+import whiteListFunction from './encoder/admin/whiteList'
+import damakuFunction from './encoder/messages/damaku'
 
 export const EventsServer = (bot: IIROSE_Bot) => {
-  bot.ctx.on('iirose/kick', data => {
+  bot.ctx.on('iirose/kick', kickData => {
     /* 示例data
-    data: {
+    kickData: {
         username: '用户名'
     }
     */
-    bot.send(kick(data.username))
+    bot.send(kickFunction(kickData.username))
   })
 
-  bot.ctx.on('iirose/cut-one', data => {
+  bot.ctx.on('iirose/cut-one', cutOne => {
     /* 示例data
-    data: {
+    cutOneData: {
         id: '歌曲id'
     }
     */
-    (data.hasOwnProperty('id')) ? bot.send(cutOne(data.id)) : bot.send(cutOne())
+    (cutOne.hasOwnProperty('id')) ? bot.send(cutOneFunction(cutOne.id)) : bot.send(cutOneFunction())
   })
 
   bot.ctx.on('iirose/cut-all', () => {
     /* 示例data
     （无）
     */
-    bot.send(cutAll())
+    bot.send(cutAllFunction())
   })
 
 
-  bot.ctx.on('iirose/setMaxUser', data => {
+  bot.ctx.on('iirose/setMaxUser', setMaxUser => {
     /* 示例data
-    data: {
-      number: 人数（为空则清除限制？）
+    setMaxUser: {
+      maxMember: 人数（为空则清除限制？）
     }
     */
-    (data.hasOwnProperty('number')) ? bot.send(setMaxUser(data.number)) : bot.send(setMaxUser())
+    (setMaxUser.hasOwnProperty('number')) ? bot.send(setMaxUserFunction(setMaxUser.maxMember)) : bot.send(setMaxUserFunction())
   })
 
-  bot.ctx.on('iirose/whiteList', data => {
+  bot.ctx.on('iirose/whiteList', whiteList => {
     /* 示例data
     data: {
       username: 用户名,
@@ -50,17 +50,18 @@ export const EventsServer = (bot: IIROSE_Bot) => {
       intro: 大抵是备注？可忽略不填这一项
     }
     */
-    (data.hasOwnProperty('intro')) ? bot.send(whiteList(data.username, data.time, data.intro)) : bot.send(whiteList(data.username, data.time))
+    
+    (whiteList.hasOwnProperty('intro')) ? bot.send(whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : bot.send(whiteListFunction(whiteList.username, whiteList.time))
   })
 
-  bot.ctx.on('iirose/damaku', data => {
+  bot.ctx.on('iirose/damaku', damaku => {
     /* 示例data
     data: {
       message: 弹幕内容,
       color: 16进制颜色代码（不带#）
     }
     */
-    bot.send(damaku(data.message, data.color))
+    bot.send(damakuFunction(damaku.message, damaku.color))
   })
 
   // 发音频视频的果然还是直接sendMessage.ts里面改好...
