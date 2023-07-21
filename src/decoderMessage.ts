@@ -1,7 +1,7 @@
 import { IIROSE_Bot } from './bot'
 import { MessageType } from './decoder'
 import { h } from '@satorijs/satori'
-import * as Events from './event'
+import { Events } from './event'
 
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
   // 定义会话列表
@@ -46,14 +46,51 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'leaveRoom': {
         // 作为事件
         const data = obj.leaveRoom
-        bot.ctx.emit('iirose/leaveRoom', data)
+
+        const session = bot.session({
+          // 开启兼容
+          // type: 'guild-deleted',
+          type: 'room-leave',
+          userId: data.uid,
+          timestamp: Number(data.timestamp),
+          author: {
+            userId: data.uid,
+            avatar: data.avatar,
+            username: data.username,
+          },
+          platform: 'iirose',
+        })
+
+        // 房间地址
+        session.guildId = data.room
+        session.selfId = bot.ctx.config.uid
+
+        bot.ctx.emit('iirose/leaveRoom', session, data)
         break
       }
 
       case 'joinRoom': {
         // 作为事件
         const data = obj.joinRoom
-        bot.ctx.emit('iirose/joinRoom', data)
+
+        const session = bot.session({
+          // 开启兼容
+          // type: 'guild-added',
+          type: 'room-join',
+          userId: data.uid,
+          timestamp: Number(data.timestamp),
+          author: {
+            userId: data.uid,
+            avatar: data.avatar,
+            username: data.username,
+          },
+          platform: 'iirose',
+        })
+        // 房间地址
+        session.guildId = data.room
+        session.selfId = bot.ctx.config.uid
+
+        bot.ctx.emit('iirose/joinRoom', session, data)
         break
       }
 
@@ -88,7 +125,22 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'damaku': {
         const data = obj.damaku
-        bot.ctx.emit('iirose/newDamaku', data)
+
+        const session = bot.session({
+          type: 'damaku',
+          userId: data.username,
+          author: {
+            userId: data.username,
+            avatar: data.avatar,
+            username: data.username,
+          },
+          platform: 'iirose',
+        })
+        // 房间地址
+        session.guildId = 'damaku'
+        session.selfId = bot.ctx.config.uid
+
+        bot.ctx.emit('iirose/newDamaku', session, data)
         break
       }
 
@@ -100,50 +152,98 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'music': {
         // 音乐
         const data = obj.music
-        bot.ctx.emit('iirose/newMusic', data)
+
+        const session = bot.session({
+          type: 'music',
+          platform: 'iirose',
+        })
+
+        bot.ctx.emit('iirose/newMusic', session, data)
         break
       }
 
       case 'paymentCallback': {
         const data = obj.paymentCallback
-        bot.ctx.emit('iirose/before-payment', data)
+
+        const session = bot.session({
+          type: 'paymentCallback',
+          platform: 'iirose',
+        })
+
+        bot.ctx.emit('iirose/before-payment', session, data)
         break
       }
 
       case 'getUserListCallback': {
         const data = obj.getUserListCallback
-        bot.ctx.emit('iirose/before-getUserList', data)
+
+        const session = bot.session({
+          type: 'getUserListCallback',
+          platform: 'iirose',
+        })
+
+        bot.ctx.emit('iirose/before-getUserList', session, data)
         break
       }
 
       case 'userProfileCallback': {
         const data = obj.userProfileCallback
-        bot.ctx.emit('iirose/before-userProfile', data)
+
+        const session = bot.session({
+          type: 'userProfileCallback',
+          platform: 'iirose',
+        })
+
+        bot.ctx.emit('iirose/before-userProfile', session, data)
         break
       }
 
       case 'bankCallback': {
         const data = obj.bankCallback
-        bot.ctx.emit('iirose/before-bank', data)
+
+        const session = bot.session({
+          type: 'bankCallback',
+          platform: 'iirose',
+        })
+
+        bot.ctx.emit('iirose/before-bank', session, data)
         break
       }
 
       case 'mediaListCallback': {
         const data = obj.mediaListCallback
-        bot.ctx.emit('iirose/before-mediaList', data)
+
+        const session = bot.session({
+          type: 'mediaListCallback',
+          platform: 'iirose',
+        })
+
+        bot.ctx.emit('iirose/before-mediaList', session, data)
         break
       }
 
       case 'selfMove': {
         const data = obj.selfMove
-        bot.ctx.emit('iirose/selfMove', data)
+
+        const session = bot.session({
+          type: 'selfMove',
+          platform: 'iirose',
+        })
+
+        bot.ctx.emit('iirose/selfMove', session, data)
         // 自身移动房间
         break
       }
 
       case 'mailboxMessage': {
         const data = obj.mailboxMessage
-        bot.ctx.emit('iirose/mailboxMessage', data)
+
+        const session = bot.session({
+          type: 'mailboxMessage',
+          platform: 'iirose',
+        })
+
+        bot.ctx.emit('iirose/mailboxMessage', session, data)
         break
       }
 
@@ -174,11 +274,11 @@ function clearMsg(msg: string) {
     const arr = msg1.match(reg[0])
     if (arr) {
       if (reg.length > 3) {
-        for(let i = 4; i < reg.length; i++) {
+        for (let i = 4; i < reg.length; i++) {
           msg1 = msg1.replace(reg[i], '')
         }
       }
-  
+
       arr.forEach(element => {
         msg1 = msg1.replace(new RegExp(element, 'g'), reg[1] + element + reg[2])
       })
