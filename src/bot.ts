@@ -13,6 +13,10 @@ export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
     return new IIROSE_BotMessageEncoder(this, `${channelId}:` + guildId, guildId, options).send(content)
   }
 
+  async sendPrivateMessage(channelId: string, content: Fragment, options?: SendOptions): Promise<string[]> {
+    return this.sendMessage(`private:${channelId}`, content)
+  }
+
   async getSelf(): Promise<Universal.User> {
     return {
       userId: this.ctx.config.uid,

@@ -19,7 +19,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         const session = bot.session({
           type: 'message',
-          userId: data.username,
+          userId: data.uid,
           messageId: String(data.messageId),
           timestamp: Number(data.timestamp),
           content: data.message,
@@ -80,6 +80,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         session.content = data.message
         session.channelId = `private:${data.uid}`
         session.selfId = bot.ctx.config.uid
+
+        console.log(session)
         bot.dispatch(session)
         break
       }
