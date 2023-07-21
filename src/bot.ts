@@ -1,7 +1,9 @@
 import { Bot, Context, Fragment, Schema, SendOptions, Universal, h } from '@satorijs/satori'
 import { WsClient } from './ws'
-import pako from 'pako'
 import { IIROSE_BotMessageEncoder } from './sendMessage'
+import kick from './encoder/admin/kick'
+import mute from './encoder/admin/mute'
+import pako from 'pako'
 
 export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
   constructor(ctx: Context, config: IIROSE_Bot.Config) {
@@ -26,8 +28,28 @@ export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
 
   async getGuildList(): Promise<Universal.Guild[]> {
     return [
-      this.ctx.config.roomId
+      {
+        guildId: this.ctx.config.roomId,
+        guildName: 'IIROSE 群聊'
+      }
     ]
+  }
+
+  async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void> {
+    this.send(kick(userName))
+  }
+
+  async muteGuildMember(guildId: string, userName: string, duration: number, reason?: string): Promise<void> {
+    let time: string
+
+    // 永久禁言
+    if ((duration / 1000) > 99999) {
+      time = '&'
+    } else {
+      time = String(duration / 1000)
+    }
+
+    this.send(mute('all', userName, time, reason))
   }
 
   send(data: string) {

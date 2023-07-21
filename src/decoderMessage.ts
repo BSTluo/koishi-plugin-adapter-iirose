@@ -34,7 +34,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         })
         session.subtype = 'group'
         session.subsubtype = 'group'
-        session.guildId = data.uid
+        session.guildId = bot.ctx.config.roomId
         session.content = data.message
         session.channelId = 'public'
         session.selfId = bot.ctx.config.uid
