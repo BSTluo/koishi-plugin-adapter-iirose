@@ -117,7 +117,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         session.content = data.message
         session.channelId = `private:${data.uid}`
         session.selfId = bot.ctx.config.uid
-
+        
         console.log(session)
         bot.dispatch(session)
         break
