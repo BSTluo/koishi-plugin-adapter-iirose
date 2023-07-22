@@ -48,10 +48,15 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
 
   async visit(element: h): Promise<void> {
     const { type, attrs, children } = element
-    console.log('type', type)
-    console.log('attrs', attrs)
+    // console.log('type', type)
+    // console.log('attrs', attrs)
 
     switch (type) {
+      case 'quote': {
+        // this.outDataOringin =   `测试 (_hr) 测试用户名_${Math.round(new Date().getTime() / 1e3)} (hr_) GLM回复啦！` + this.outDataOringin
+        break
+      }
+
       case 'text': {
         this.outDataOringin += attrs.content
         break
