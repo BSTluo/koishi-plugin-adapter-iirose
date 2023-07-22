@@ -2,6 +2,7 @@ import { IIROSE_Bot } from './bot'
 import { MessageType } from './decoder'
 import { h } from '@satorijs/satori'
 import { Events } from './event'
+import { messageObjList } from './messageTemp'
 
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
   // 定义会话列表
@@ -14,6 +15,19 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       }
 
       case 'publicMessage': {
+        messageObjList[obj.publicMessage.messageId] = {
+          messageId: String(obj.publicMessage.messageId),
+          isDirect: true,
+          content: obj.publicMessage.message,
+          timestamp: obj.publicMessage.timestamp,
+          author: {
+            userId: obj.publicMessage.uid,
+            avatar: obj.publicMessage.avatar,
+            username: obj.publicMessage.username,
+            nickname: obj.publicMessage.username,
+          }
+        }
+        
         obj.publicMessage.message = clearMsg(obj.publicMessage.message)
         const data = obj.publicMessage
 
@@ -38,7 +52,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         session.content = data.message
         session.channelId = 'public'
         session.selfId = bot.ctx.config.uid
-
+        
         bot.dispatch(session)
         break
       }
@@ -95,6 +109,19 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       }
 
       case 'privateMessage': {
+        messageObjList[obj.publicMessage.messageId] = {
+          messageId: String(obj.publicMessage.messageId),
+          isDirect: true,
+          content: obj.publicMessage.message,
+          timestamp: obj.publicMessage.timestamp,
+          author: {
+            userId: obj.publicMessage.uid,
+            avatar: obj.publicMessage.avatar,
+            username: obj.publicMessage.username,
+            nickname: obj.publicMessage.username,
+          }
+        }
+        
         obj.privateMessage.message = clearMsg(obj.privateMessage.message)
         const data = obj.privateMessage
 

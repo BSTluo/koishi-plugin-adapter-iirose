@@ -4,11 +4,15 @@ import { IIROSE_BotMessageEncoder } from './sendMessage'
 import kick from './encoder/admin/kick'
 import mute from './encoder/admin/mute'
 import pako from 'pako'
+import { messageObjList } from './messageTemp'
 
 export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
   constructor(ctx: Context, config: IIROSE_Bot.Config) {
     super(ctx, config)
     ctx.plugin(WsClient, this)
+    this.nickname = ctx.config.usename
+    this.username = ctx.config.usename
+    this.userId = ctx.config.uid
   }
 
   sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]> {
@@ -33,6 +37,10 @@ export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
         guildName: 'IIROSE 群聊'
       }
     ]
+  }
+
+  async getMessage(channelId: string, messageId: string) {
+    return messageObjList[messageId]
   }
 
   async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void> {
