@@ -57,6 +57,11 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         break
       }
 
+      case 'p': {
+        this.outDataOringin += attrs.content
+        break
+      }
+
       case 'text': {
         this.outDataOringin += attrs.content
         break
