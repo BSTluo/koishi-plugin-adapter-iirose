@@ -33,7 +33,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         const session = bot.session({
           type: 'message',
-          userId: data.uid,
+          userId: data.username,
           messageId: String(data.messageId),
           timestamp: Number(data.timestamp),
           content: data.message,
@@ -65,7 +65,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           // 开启兼容
           // type: 'guild-deleted',
           type: 'room-leave',
-          userId: data.uid,
+          userId: data.username,
           timestamp: Number(data.timestamp),
           author: {
             userId: data.uid,
@@ -91,7 +91,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           // 开启兼容
           // type: 'guild-added',
           type: 'room-join',
-          userId: data.uid,
+          userId: data.username,
           timestamp: Number(data.timestamp),
           author: {
             userId: data.uid,
@@ -127,7 +127,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         const session = bot.session({
           type: 'message',
-          userId: data.uid,
+          userId: data.username,
           messageId: String(data.messageId),
           timestamp: Number(data.timestamp),
           elements: h.parse(data.message),
