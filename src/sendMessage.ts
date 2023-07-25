@@ -9,6 +9,7 @@ import PublicMessage from './encoder/messages/PublicMessage'
 import PrivateMessage from './encoder/messages/PrivateMessage'
 import mediaCard from './encoder/messages/media_card'
 import mediaData from './encoder/messages/media_data'
+import Like from './encoder/system/Like'
 
 export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
   private outDataOringin: string = ''
@@ -125,6 +126,12 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
 
       case 'p': {
         this.outDataOringin += '\n\n'
+        break
+      }
+
+      case 'like': {
+        // 点赞事件
+        this.bot.send(Like(attrs.uid, attrs.message))
         break
       }
 
