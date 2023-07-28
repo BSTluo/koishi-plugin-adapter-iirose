@@ -1,5 +1,6 @@
-import { Session } from "@satorijs/satori"
+import { Session, Fragment } from "@satorijs/satori"
 import { MessageType } from "./decoder"
+import { IIROSE_Bot } from "./bot"
 
 export interface kickData {
   username: string
@@ -24,18 +25,43 @@ export interface damaku {
   color: string | '66ccff'
 }
 
+export interface EventsCallBackOrigin {
+  type: string
+  userId?: string
+  timestamp?: number
+  author?: {
+    userId: string,
+    avatar: string,
+    username: string,
+  }
+  platform: 'iirose'
+  guildId?: string
+  selfId?: string
+  bot?: IIROSE_Bot
+  channelId?: string
+  send: (data:{
+    public?: {
+      message: Fragment
+    }
+    private?: {
+      message: Fragment
+      userId: string
+    }
+  }) => void
+}
+
 export interface Events {
-  'iirose/leaveRoom'(session: Session, data: MessageType['leaveRoom']): void
-  'iirose/joinRoom'(session: Session, data: MessageType['joinRoom']): void
-  'iirose/newDamaku'(session: Session, data: MessageType['damaku']): void
-  'iirose/newMusic'(session: Session, data: MessageType['music']): void
-  'iirose/before-payment'(session: Session, data: MessageType['paymentCallback']): void
-  'iirose/before-getUserList'(session: Session, data: MessageType['getUserListCallback']): void
-  'iirose/before-userProfile'(session: Session, data: MessageType['userProfileCallback']): void
-  'iirose/before-bank'(session: Session, data: MessageType['bankCallback']): void
-  'iirose/before-mediaList'(session: Session, data: MessageType['mediaListCallback']): void
-  'iirose/selfMove'(session: Session, data: MessageType['selfMove']): void
-  'iirose/mailboxMessage'(session: Session, data: MessageType['mailboxMessage']): void
+  'iirose/leaveRoom'(session: EventsCallBackOrigin, data: MessageType['leaveRoom']): void
+  'iirose/joinRoom'(session: EventsCallBackOrigin, data: MessageType['joinRoom']): void
+  'iirose/newDamaku'(session: EventsCallBackOrigin, data: MessageType['damaku']): void
+  'iirose/newMusic'(session: EventsCallBackOrigin, data: MessageType['music']): void
+  'iirose/before-payment'(session: EventsCallBackOrigin, data: MessageType['paymentCallback']): void
+  'iirose/before-getUserList'(session: EventsCallBackOrigin, data: MessageType['getUserListCallback']): void
+  'iirose/before-userProfile'(session: EventsCallBackOrigin, data: MessageType['userProfileCallback']): void
+  'iirose/before-bank'(session: EventsCallBackOrigin, data: MessageType['bankCallback']): void
+  'iirose/before-mediaList'(session: EventsCallBackOrigin, data: MessageType['mediaListCallback']): void
+  'iirose/selfMove'(session: EventsCallBackOrigin, data: MessageType['selfMove']): void
+  'iirose/mailboxMessage'(session: EventsCallBackOrigin, data: MessageType['mailboxMessage']): void
   'iirose/kick'(kickData: kickData): void
   'iirose/cut-one'(cutOne: cutOne): void
   'iirose/cut-all'(): void

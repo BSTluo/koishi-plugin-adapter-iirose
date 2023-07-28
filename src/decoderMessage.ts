@@ -1,7 +1,7 @@
 import { IIROSE_Bot } from './bot'
 import { MessageType } from './decoder'
 import { h } from '@satorijs/satori'
-import { Events } from './event'
+import { Events, EventsCallBackOrigin } from './event'
 import { messageObjList } from './messageTemp'
 
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
@@ -27,7 +27,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             nickname: obj.publicMessage.username,
           }
         }
-        
+
         obj.publicMessage.message = clearMsg(obj.publicMessage.message)
         const data = obj.publicMessage
 
@@ -52,7 +52,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         session.content = data.message
         session.channelId = `public:${bot.ctx.config.roomId}`
         session.selfId = bot.ctx.config.uid
-        
+
         bot.dispatch(session)
         break
       }
@@ -61,7 +61,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         // 作为事件
         const data = obj.leaveRoom
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           // 开启兼容
           // type: 'guild-deleted',
           type: 'room-leave',
@@ -73,11 +73,14 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             username: data.username,
           },
           platform: 'iirose',
-        })
-
-        // 房间地址
-        session.guildId = data.room
-        session.selfId = bot.ctx.config.uid
+          guildId: data.room,
+          selfId: bot.ctx.config.uid,
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
 
         bot.ctx.emit('iirose/leaveRoom', session, data)
         break
@@ -87,7 +90,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         // 作为事件
         const data = obj.joinRoom
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           // 开启兼容
           // type: 'guild-added',
           type: 'room-join',
@@ -99,11 +102,14 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             username: data.username,
           },
           platform: 'iirose',
-        })
-        // 房间地址
-        session.guildId = data.room
-        session.selfId = bot.ctx.config.uid
-
+          guildId: data.room,
+          selfId: bot.ctx.config.uid,
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
         bot.ctx.emit('iirose/joinRoom', session, data)
         break
       }
@@ -121,7 +127,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             nickname: obj.publicMessage.username,
           }
         }
-        
+
         obj.privateMessage.message = clearMsg(obj.privateMessage.message)
         const data = obj.privateMessage
 
@@ -144,8 +150,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         session.content = data.message
         session.channelId = `private:${data.uid}`
         session.selfId = bot.ctx.config.uid
-        
-        console.log(session)
+
         bot.dispatch(session)
         break
       }
@@ -153,7 +158,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'damaku': {
         const data = obj.damaku
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           type: 'damaku',
           userId: data.username,
           author: {
@@ -162,10 +167,16 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             username: data.username,
           },
           platform: 'iirose',
-        })
-        // 房间地址
-        session.guildId = 'damaku'
-        session.selfId = bot.ctx.config.uid
+          // 房间地址
+          guildId: 'damaku',
+          selfId: bot.ctx.config.uid,
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
+
 
         bot.ctx.emit('iirose/newDamaku', session, data)
         break
@@ -180,10 +191,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         // 音乐
         const data = obj.music
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           type: 'music',
           platform: 'iirose',
-        })
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
 
         bot.ctx.emit('iirose/newMusic', session, data)
         break
@@ -192,10 +208,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'paymentCallback': {
         const data = obj.paymentCallback
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           type: 'paymentCallback',
           platform: 'iirose',
-        })
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
 
         bot.ctx.emit('iirose/before-payment', session, data)
         break
@@ -204,10 +225,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'getUserListCallback': {
         const data = obj.getUserListCallback
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           type: 'getUserListCallback',
           platform: 'iirose',
-        })
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
 
         bot.ctx.emit('iirose/before-getUserList', session, data)
         break
@@ -216,10 +242,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'userProfileCallback': {
         const data = obj.userProfileCallback
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           type: 'userProfileCallback',
           platform: 'iirose',
-        })
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
 
         bot.ctx.emit('iirose/before-userProfile', session, data)
         break
@@ -228,10 +259,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'bankCallback': {
         const data = obj.bankCallback
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           type: 'bankCallback',
           platform: 'iirose',
-        })
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
 
         bot.ctx.emit('iirose/before-bank', session, data)
         break
@@ -240,10 +276,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'mediaListCallback': {
         const data = obj.mediaListCallback
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           type: 'mediaListCallback',
           platform: 'iirose',
-        })
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
 
         bot.ctx.emit('iirose/before-mediaList', session, data)
         break
@@ -252,10 +293,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'selfMove': {
         const data = obj.selfMove
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           type: 'selfMove',
           platform: 'iirose',
-        })
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
 
         bot.ctx.emit('iirose/selfMove', session, data)
         // 自身移动房间
@@ -265,10 +311,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'mailboxMessage': {
         const data = obj.mailboxMessage
 
-        const session = bot.session({
+        const session: EventsCallBackOrigin = {
           type: 'mailboxMessage',
           platform: 'iirose',
-        })
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
 
         bot.ctx.emit('iirose/mailboxMessage', session, data)
         break
