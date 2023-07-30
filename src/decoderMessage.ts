@@ -15,11 +15,11 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       }
 
       case 'publicMessage': {
-        messageObjList[obj.publicMessage.messageId] = {
+        messageObjList[String(obj.publicMessage.messageId)] = {
           messageId: String(obj.publicMessage.messageId),
           isDirect: true,
           content: obj.publicMessage.message,
-          timestamp: obj.publicMessage.timestamp,
+          timestamp: Number(obj.publicMessage.timestamp),
           author: {
             userId: obj.publicMessage.uid,
             avatar: obj.publicMessage.avatar,
@@ -115,16 +115,16 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       }
 
       case 'privateMessage': {
-        messageObjList[obj.publicMessage.messageId] = {
-          messageId: String(obj.publicMessage.messageId),
+        messageObjList[String(obj.privateMessage.messageId)] = {
+          messageId: String(obj.privateMessage.messageId),
           isDirect: true,
-          content: obj.publicMessage.message,
-          timestamp: obj.publicMessage.timestamp,
+          content: obj.privateMessage.message,
+          timestamp: Number(obj.privateMessage.timestamp),
           author: {
-            userId: obj.publicMessage.uid,
-            avatar: obj.publicMessage.avatar,
-            username: obj.publicMessage.username,
-            nickname: obj.publicMessage.username,
+            userId: obj.privateMessage.uid,
+            avatar: obj.privateMessage.avatar,
+            username: obj.privateMessage.username,
+            nickname: obj.privateMessage.username,
           }
         }
 
