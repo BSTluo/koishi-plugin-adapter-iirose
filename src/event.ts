@@ -25,6 +25,10 @@ export interface damaku {
   color: string | '66ccff'
 }
 
+export interface move {
+  roomId: string
+}
+
 export interface EventsCallBackOrigin {
   type: string
   userId?: string
@@ -52,6 +56,7 @@ export interface EventsCallBackOrigin {
 
 export interface Events {
   'iirose/leaveRoom'(session: EventsCallBackOrigin, data: MessageType['leaveRoom']): void
+  'iirose/switchRoom'(session: EventsCallBackOrigin, data: MessageType['switchRoom']): void
   'iirose/joinRoom'(session: EventsCallBackOrigin, data: MessageType['joinRoom']): void
   'iirose/newDamaku'(session: EventsCallBackOrigin, data: MessageType['damaku']): void
   'iirose/newMusic'(session: EventsCallBackOrigin, data: MessageType['music']): void
@@ -68,4 +73,5 @@ export interface Events {
   'iirose/setMaxUser'(setMaxUser: setMaxUser): void
   'iirose/whiteList'(whiteList: whiteList): void
   'iirose/damaku'(damaku: damaku): void
+  'iirose/moveRoom'(move: move): void
 }

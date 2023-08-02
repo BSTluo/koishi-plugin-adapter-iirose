@@ -1,3 +1,4 @@
+import { Logger } from '@satorijs/satori'
 import { IIROSE_Bot } from './bot'
 import kickFunction from './encoder/admin/kick'
 import cutOneFunction from './encoder/admin/media_cut'
@@ -5,8 +6,24 @@ import cutAllFunction from './encoder/admin/media_clear'
 import setMaxUserFunction from './encoder/admin/setMaxUser'
 import whiteListFunction from './encoder/admin/whiteList'
 import damakuFunction from './encoder/messages/damaku'
+const logger = new Logger('IIROSE-BOT')
 
 export const EventsServer = (bot: IIROSE_Bot) => {
+  bot.ctx.on('iirose/moveRoom', async moveData => {
+    const roomId = moveData.roomId
+    if (bot.config.roomId == roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ') }
+    bot.config.roomId = roomId
+
+    /*
+    await bot.adapter.stop(bot)
+    await bot.adapter.start(bot)
+    */
+    bot.status = 'disconnect'
+    await bot.adapter.stop(bot)
+    await bot.adapter.start(bot)
+    
+  })
+
   bot.ctx.on('iirose/kick', kickData => {
     /* 示例data
     kickData: {
@@ -50,7 +67,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
       intro: 大抵是备注？可忽略不填这一项
     }
     */
-    
+
     (whiteList.hasOwnProperty('intro')) ? bot.send(whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : bot.send(whiteListFunction(whiteList.username, whiteList.time))
   })
 

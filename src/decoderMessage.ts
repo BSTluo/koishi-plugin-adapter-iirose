@@ -184,6 +184,19 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'switchRoom': {
         // 这玩意真的是机器人能够拥有的吗
+        const data = obj.switchRoom
+        const session: EventsCallBackOrigin = {
+          type: 'switchRoom',
+          platform: 'iirose',
+          guildId: bot.config.roomId,
+          send: (data) => {
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
+          },
+          bot: bot
+        }
+        
+        bot.ctx.emit('iirose/switchRoom', session, data)
         break
       }
 
