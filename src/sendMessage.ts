@@ -51,12 +51,13 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
     const { type, attrs, children } = element
     // console.log('type', type)
     // console.log('attrs', attrs)
-    
+    // console.log('children', children)
+
     switch (type) {
       case 'quote': {
         const messData = await this.bot.getMessage('', attrs.id)
 
-        this.outDataOringin =   `${messData.content} (_hr) ${messData.author.username}_${Math.round(new Date().getTime() / 1e3)} (hr_) ` + this.outDataOringin
+        this.outDataOringin = `${messData.content} (_hr) ${messData.author.username}_${Math.round(new Date().getTime() / 1e3)} (hr_) ` + this.outDataOringin
         break
       }
 
@@ -138,7 +139,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       case '': {
         break
       }
-      
+
       case 'onebot:music': {
         const response = await axios.get((this.bot.ctx.config.musicLink).replace('[musicid]', attrs.id))
         if (response.data.code !== 200) { break }
@@ -160,6 +161,15 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         break
       }
     }
+
+    if (children.length > 0) {
+      if (this.outDataOringin.length > 0) { this.outDataOringin += '\n\n' }
+
+      for (let h of children) {
+        this.visit(h)
+      }
+    }
+
     if (this.outDataOringin.length <= 0) { return }
 
     if (this.channelId.startsWith('public:')) {
@@ -169,3 +179,11 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
     }
   }
 }
+/*
+
+当前问题
+children的内容无法解析，解决方法如下
+检测到children有内容时，再跑visit
+每次跑完visit的时候push()一次发送数组，等待解析后的flush函数将这个数组内的数据全部发送
+
+*/

@@ -43,9 +43,9 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             avatar: data.avatar,
             username: data.username,
             nickname: data.username,
-          },
-          platform: 'iirose',
+          }
         })
+        session.platform = 'iirose'
         session.subtype = 'group'
         session.subsubtype = 'group'
         session.guildId = bot.ctx.config.roomId
@@ -142,9 +142,9 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             avatar: data.avatar,
             username: data.username,
             nickname: data.username,
-          },
-          platform: 'iirose',
+          }
         })
+        session.platform = 'iirose'
         session.subtype = 'private'
         session.subsubtype = 'private'
         session.content = data.message
