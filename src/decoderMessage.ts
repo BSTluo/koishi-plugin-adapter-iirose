@@ -52,6 +52,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         session.content = data.message
         session.channelId = `public:${bot.ctx.config.roomId}`
         session.selfId = bot.ctx.config.uid
+        session.isDirect = false
 
         bot.dispatch(session)
         break
@@ -150,7 +151,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         session.content = data.message
         session.channelId = `private:${data.uid}`
         session.selfId = bot.ctx.config.uid
-
+        session.isDirect = true
+        
         bot.dispatch(session)
         break
       }
