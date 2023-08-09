@@ -49,9 +49,9 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
 
   async visit(element: h): Promise<void> {
     const { type, attrs, children } = element
-    // console.log('type', type)
-    // console.log('attrs', attrs)
-    // console.log('children', children)
+    console.log('type', type)
+    console.log('attrs', attrs)
+    console.log('children', children)
 
     switch (type) {
       case 'quote': {
@@ -62,7 +62,11 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       }
 
       case 'text': {
-        this.outDataOringin += attrs.content
+        if (this.outDataOringin.length > 0) {
+          this.outDataOringin += `\n${attrs.content}`
+        } else {
+          this.outDataOringin += `${attrs.content}`
+        }
         break
       }
 
@@ -126,7 +130,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       }
 
       case 'p': {
-        this.outDataOringin += '\n\n'
+        this.outDataOringin += '\n'
         break
       }
 
@@ -163,7 +167,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
     }
 
     if (children.length > 0) {
-      if (this.outDataOringin.length > 0) { this.outDataOringin += '\n\n' }
+      if (this.outDataOringin.length > 0) { this.outDataOringin += '\n' }
 
       for (let h of children) {
         this.visit(h)
