@@ -22,7 +22,6 @@ export const music = (message: string) => {
         owner: tmp[4],
         pic: `http${tmp[6]}`,
       }
-
       // music
       return msg
     }

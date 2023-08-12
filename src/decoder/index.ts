@@ -35,7 +35,7 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
   len.mediaListCallback = mediaListCallback(msg)
   len.selfMove = selfMove(msg)
   len.mailboxMessage = mailboxMessage(msg)
-
+  
   const newObj = {}
   for (const key in len) {
     // 如果对象属性的值不为空，就保存该属性（如果属性的值为0 false，保存该属性。如果属性的值全部是空格，属于为空。）
