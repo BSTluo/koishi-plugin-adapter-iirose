@@ -46,10 +46,11 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
 
       if (len[key].uid) {
         if (len[key].uid !== bot.ctx.config.uid) { newObj[key] = len[key] }
+      } else {
+        newObj[key] = len[key]
       }
     }
   }
-
   return newObj
 }
 
