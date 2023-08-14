@@ -6,6 +6,7 @@ import { music, Music } from './Music'
 import { paymentCallback, PaymentCallback } from './PaymentCallback'
 import { privateMessage, PrivateMessage } from './PrivateMessage'
 import { publicMessage, PublicMessage } from './PublicMessage'
+import { musicMessage, MusicMessage } from './MusicMessage'
 import { manyMessage, ManyMessage } from './ManyMessage'
 import { userList, UserList } from './Userlist'
 import { getUserListCallback, GetUserListCallback } from './GetUserListCallback'
@@ -35,6 +36,7 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
   len.mediaListCallback = mediaListCallback(msg)
   len.selfMove = selfMove(msg)
   len.mailboxMessage = mailboxMessage(msg)
+  len.musicMessage = musicMessage(msg)
   
   const newObj = {}
   for (const key in len) {
@@ -71,4 +73,5 @@ export interface MessageType {
   mediaListCallback?: MediaListCallback
   selfMove?: SelfMove
   mailboxMessage?: Follower | Like | RoomNotice | Payment
+  musicMessage?: MusicMessage
 }

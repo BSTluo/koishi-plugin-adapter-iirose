@@ -19,7 +19,23 @@ interface data {
   replyMessage?: replyMessage[] | null
 }
 
-export class PublicMessage {
+export interface MusicMessage {
+  type?: string
+  timestamp: number
+  avatar: string
+  username: string
+  message?: string
+  color: string
+  uid: string
+  title: string
+  messageId?: number
+  musicName: string
+  musicSinger: string
+  musicPic: string
+  musicColor: string
+}
+
+class PublicMessage {
   public timestamp: number
   public avatar: string
   public username: string
@@ -73,19 +89,37 @@ const replyMsg = (msg: string): replyMessage[] | null => {
   return null
 }
 
-export const publicMessage = (input: string) => {
-  if (input.substring(0, 1) !== '"') return null
+export const musicMessageAnalyze = (input: data): MusicMessage => {
+  const { timestamp, avatar, username, message, color, uid, title, messageId } = input
+  const musicData = message.replace(/ /g, '').split('>')
+  
+  return {
+    timestamp: timestamp,
+    avatar: avatar,
+    username: username,
+    color: color,
+    uid: uid,
+    title: title,
+    messageId: messageId,
+    musicName: musicData[1],
+    musicSinger: musicData[2],
+    musicPic: musicData[3],
+    musicColor: musicData[4]
+  }
+}
 
+export const musicMessage = (input: string) => {
+  if (input.substring(0, 1) !== '"') return null
+  
   const message: string = input.substring(1)
 
   if (message.indexOf('<') === -1) {
+    
     const tmp = message.split('>')
     if (tmp.length === 11) {
       if (/^\d+$/.test(tmp[0])) {
         const reply = replyMsg(tmp[3])
         const message = reply ? String(reply.shift()) : tmp[3]
-
-        if (message.startsWith('m__4@')) { return null }
 
         const msg = {
           timestamp: Number(tmp[0]),
@@ -99,8 +133,7 @@ export const publicMessage = (input: string) => {
           replyMessage: reply,
         }
 
-        // PublicMessage
-        return new PublicMessage(msg)
+        if (message.startsWith('m__4@')) { return musicMessageAnalyze(msg) }
       }
     }
   }

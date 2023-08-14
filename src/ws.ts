@@ -131,7 +131,7 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
         message = Buffer.from(array).toString('utf8')
       }
       const funcObj = decoder(this.bot, message)
-      
+      // console.log(funcObj)
       // 将会话上报
       if (funcObj.hasOwnProperty('manyMessage')) {
         funcObj.manyMessage.forEach(element => {
