@@ -78,19 +78,21 @@ const replyMsg = (msg: string): replyMessage[] | null => {
 
 export const manyMessage = (input: string) => {
   if (input.substring(0, 1) !== '"') return null
-
   const message: string = input.substring(1)
+  
   if (message.indexOf('<') !== -1) {
     const tmp1 = message.split('<')
+  
     let output: ManyMessage[] = []
-
+  
     tmp1.forEach(e => {
       const tmp = e.split('>')
+      tmp[0] = tmp[0].replace('"', '')
 
       if (/^\d+$/.test(tmp[0])) {
         if (tmp.length === 11) {
-          
-          // PublicMessage
+
+          // PrivateMessage
           if(tmp[8] === '3') {
             output.push(new ManyMessage({
               type: 'privateMessage',
