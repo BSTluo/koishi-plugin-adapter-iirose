@@ -14,7 +14,7 @@ interface data {
   message?: string
   color: string
   uid: string
-  title: string
+  title?: string
   messageId?: number
   replyMessage?: replyMessage[] | null
 }
@@ -86,22 +86,37 @@ export const manyMessage = (input: string) => {
 
     tmp1.forEach(e => {
       const tmp = e.split('>')
+
       if (/^\d+$/.test(tmp[0])) {
         if (tmp.length === 11) {
-          const reply = replyMsg(tmp[3])
+          
           // PublicMessage
-          output.push(new ManyMessage({
-            type: 'publicMessage',
-            timestamp: Number(tmp[0]),
-            avatar: tmp[1],
-            username: decode(tmp[2]),
-            message: decode(reply ? String(reply.shift()) : tmp[3]),
-            color: tmp[5],
-            uid: tmp[8],
-            title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-            messageId: Number(tmp[10]),
-            replyMessage: reply,
-          }))
+          if(tmp[8] === '3') {
+            output.push(new ManyMessage({
+              type: 'privateMessage',
+              timestamp: Number(tmp[0]),
+              avatar: tmp[3],
+              username: decode(tmp[2]),
+              message: decode(tmp[4]),
+              color: tmp[5],
+              uid: tmp[1],
+              messageId: Number(tmp[10])
+            }))
+          } else {
+            const reply = replyMsg(tmp[3])
+            output.push(new ManyMessage({
+              type: 'publicMessage',
+              timestamp: Number(tmp[0]),
+              avatar: tmp[1],
+              username: decode(tmp[2]),
+              message: decode(reply ? String(reply.shift()) : tmp[3]),
+              color: tmp[5],
+              uid: tmp[8],
+              title: tmp[9] === "'108" ? '花瓣' : tmp[9],
+              messageId: Number(tmp[10]),
+              replyMessage: reply,
+            }))
+          }
         } else if (tmp.length === 12) {
           if (tmp[3] === "'1") {
             const msg = {

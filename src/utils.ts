@@ -6,6 +6,9 @@ import cutAllFunction from './encoder/admin/media_clear'
 import setMaxUserFunction from './encoder/admin/setMaxUser'
 import whiteListFunction from './encoder/admin/whiteList'
 import damakuFunction from './encoder/messages/damaku'
+import mediaCard from './encoder/messages/media_card'
+import mediaData from './encoder/messages/media_data'
+
 const logger = new Logger('IIROSE-BOT')
 
 export const EventsServer = (bot: IIROSE_Bot) => {
@@ -21,7 +24,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     bot.status = 'disconnect'
     await bot.adapter.stop(bot)
     await bot.adapter.start(bot)
-    
+
   })
 
   bot.ctx.on('iirose/kick', kickData => {
@@ -81,6 +84,11 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     bot.send(damakuFunction(damaku.message, damaku.color))
   })
 
+  bot.ctx.on('iirose/makeMusic', musicOrigin => {
+    const { type, name, signer, cover, link, url, duration, bitRate, color } = musicOrigin
+    bot.send(mediaCard(type, name, signer, cover, bitRate, color))
+    bot.send(mediaData(type, name, signer, cover, link, url, duration))
+  })
   // 发音频视频的果然还是直接sendMessage.ts里面改好...
   // system那边真的有东西有用吗
   // user也是！！

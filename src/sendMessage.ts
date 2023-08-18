@@ -119,7 +119,18 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
           const response = await axios.post(this.bot.ctx.config.picLink, formData, {
             headers: formData.getHeaders()
           })
-          this.outDataOringin += `[${(this.bot.ctx.config.picBackLink).replace('[data]', response.data)}]`
+          let outData = response
+          const match = this.bot.ctx.config.picBackLink.match(/\[([\s\S]+?)\]/g)
+
+          if (match) {
+            match.forEach(element => {
+              const urlStr = element.replace(/[\[\]]/g, '')
+              const repNodeList = urlStr.split('.')
+              outData = outData[repNodeList]
+              this.outDataOringin += `[${(this.bot.ctx.config.picBackLink).replace(element, outData)}]`
+            });   
+          }
+          
         } catch (error) {
           console.log(error)
           this.outDataOringin += '[图片显示异常]'

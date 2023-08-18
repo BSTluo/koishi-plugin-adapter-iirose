@@ -54,6 +54,18 @@ export interface EventsCallBackOrigin {
   }) => void
 }
 
+export interface musicOrigin {
+  type: 'music' | 'video'
+  name: string
+  signer: string
+  cover: string
+  link: string
+  url: string
+  duration: number
+  bitRate: number
+  color: string
+}
+
 export interface Events {
   'iirose/leaveRoom'(session: EventsCallBackOrigin, data: MessageType['leaveRoom']): void
   'iirose/switchRoom'(session: EventsCallBackOrigin, data: MessageType['switchRoom']): void
@@ -74,4 +86,5 @@ export interface Events {
   'iirose/whiteList'(whiteList: whiteList): void
   'iirose/damaku'(damaku: damaku): void
   'iirose/moveRoom'(move: move): void
+  'iirose/makeMusic'(musicOrigin: musicOrigin):void
 }
