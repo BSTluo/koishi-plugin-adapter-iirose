@@ -27,10 +27,10 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             nickname: obj.publicMessage.username,
           }
         }
-
+        
         obj.publicMessage.message = clearMsg(obj.publicMessage.message)
         const data = obj.publicMessage
-
+        
         const session = bot.session({
           type: 'message',
           userId: data.username,

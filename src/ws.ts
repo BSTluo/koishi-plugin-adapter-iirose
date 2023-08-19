@@ -134,11 +134,11 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       // console.log(funcObj)
       // 将会话上报
       if (funcObj.hasOwnProperty('manyMessage')) {
-        funcObj.manyMessage.forEach(element => {
+        funcObj.manyMessage.slice().reverse().forEach(element => {
           let test = {}
           let type = element.type
           test[type] = element
-
+          
           decoderMessage(test, this.bot)
         })
       } else {
