@@ -93,7 +93,7 @@ export const manyMessage = (input: string) => {
         if (tmp.length === 11) {
 
           // PrivateMessage
-          if(tmp[8] === '3') {
+          if(!isNaN(parseInt(tmp[8]))) {
             output.push(new ManyMessage({
               type: 'privateMessage',
               timestamp: Number(tmp[0]),
