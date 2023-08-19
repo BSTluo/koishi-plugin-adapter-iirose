@@ -8,6 +8,8 @@ import whiteListFunction from './encoder/admin/whiteList'
 import damakuFunction from './encoder/messages/damaku'
 import mediaCard from './encoder/messages/media_card'
 import mediaData from './encoder/messages/media_data'
+import StockBuy from './encoder/user/StockBuy'
+import StockSell from './encoder/user/StockSell'
 
 const logger = new Logger('IIROSE-BOT')
 
@@ -88,6 +90,14 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     const { type, name, signer, cover, link, url, duration, bitRate, color } = musicOrigin
     bot.send(mediaCard(type, name, signer, cover, bitRate, color))
     bot.send(mediaData(type, name, signer, cover, link, url, duration))
+  })
+
+  bot.ctx.on('iirose/stockBuy', numberData => {
+    bot.send(StockBuy(numberData))
+  })
+
+  bot.ctx.on('iirose/stockSell', numberData => {
+    bot.send(StockSell(numberData))
   })
   // 发音频视频的果然还是直接sendMessage.ts里面改好...
   // system那边真的有东西有用吗

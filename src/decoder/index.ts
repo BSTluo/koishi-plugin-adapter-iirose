@@ -19,7 +19,7 @@ import { IIROSE_Bot } from '../bot'
 
 export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
   const len: any = {}
-
+  console.log(msg)
   len.manyMessage = manyMessage(msg)
   len.userlist = userList(msg)
   len.publicMessage = publicMessage(msg)

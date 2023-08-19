@@ -87,4 +87,6 @@ export interface Events {
   'iirose/damaku'(damaku: damaku): void
   'iirose/moveRoom'(move: move): void
   'iirose/makeMusic'(musicOrigin: musicOrigin):void
+  'iirose/stockSell'(numberData:number):void
+  'iirose/stockBuy'(numberData:number):void
 }
