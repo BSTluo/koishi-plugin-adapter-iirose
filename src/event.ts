@@ -1,6 +1,7 @@
 import { Session, Fragment } from "@satorijs/satori"
 import { MessageType } from "./decoder"
 import { IIROSE_Bot } from "./bot"
+import { Stock } from "./decoder/Stock"
 
 export interface kickData {
   username: string
@@ -43,7 +44,7 @@ export interface EventsCallBackOrigin {
   selfId?: string
   bot?: IIROSE_Bot
   channelId?: string
-  send: (data:{
+  send: (data: {
     public?: {
       message: Fragment
     }
@@ -66,6 +67,10 @@ export interface musicOrigin {
   color: string
 }
 
+export interface StockGet {
+  (stockData: Stock):void
+}
+
 export interface Events {
   'iirose/leaveRoom'(session: EventsCallBackOrigin, data: MessageType['leaveRoom']): void
   'iirose/switchRoom'(session: EventsCallBackOrigin, data: MessageType['switchRoom']): void
@@ -86,7 +91,9 @@ export interface Events {
   'iirose/whiteList'(whiteList: whiteList): void
   'iirose/damaku'(damaku: damaku): void
   'iirose/moveRoom'(move: move): void
-  'iirose/makeMusic'(musicOrigin: musicOrigin):void
-  'iirose/stockSell'(numberData:number):void
-  'iirose/stockBuy'(numberData:number):void
+  'iirose/makeMusic'(musicOrigin: musicOrigin): void
+  'iirose/stockSell'(numberData: number): void
+  'iirose/stockBuy'(numberData: number): void
+  'iirose/stockGet'(callBack: StockGet): void
+  'iirose/stockBackCall'(stockData: Stock): void
 }

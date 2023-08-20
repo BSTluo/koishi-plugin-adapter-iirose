@@ -16,10 +16,11 @@ import { mediaListCallback, MediaListCallback } from './MediaListCallback'
 import { selfMove, SelfMove } from './SelfMove'
 import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './MailboxMessage'
 import { IIROSE_Bot } from '../bot'
+import { stock, Stock } from './Stock'
 
 export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
   const len: any = {}
-  console.log(msg)
+  
   len.manyMessage = manyMessage(msg)
   len.userlist = userList(msg)
   len.publicMessage = publicMessage(msg)
@@ -37,7 +38,8 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
   len.selfMove = selfMove(msg)
   len.mailboxMessage = mailboxMessage(msg)
   len.musicMessage = musicMessage(msg)
-
+  len.stock = stock(msg, bot)
+  
   const newObj = {}
   for (const key in len) {
     // 如果对象属性的值不为空，就保存该属性（如果属性的值为0 false，保存该属性。如果属性的值全部是空格，属于为空。）
@@ -74,4 +76,5 @@ export interface MessageType {
   selfMove?: SelfMove
   mailboxMessage?: Follower | Like | RoomNotice | Payment
   musicMessage?: MusicMessage
+  stock?: Stock
 }

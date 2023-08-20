@@ -10,6 +10,7 @@ import mediaCard from './encoder/messages/media_card'
 import mediaData from './encoder/messages/media_data'
 import StockBuy from './encoder/user/StockBuy'
 import StockSell from './encoder/user/StockSell'
+import StockGet from './encoder/user/StockGet'
 
 const logger = new Logger('IIROSE-BOT')
 
@@ -98,6 +99,13 @@ export const EventsServer = (bot: IIROSE_Bot) => {
 
   bot.ctx.on('iirose/stockSell', numberData => {
     bot.send(StockSell(numberData))
+  })
+
+  bot.ctx.on('iirose/stockGet', callBack => {
+    bot.send(StockGet())
+    bot.ctx.on('iirose/stockBackCall', stockData => {
+      callBack(stockData)
+    })
   })
   // 发音频视频的果然还是直接sendMessage.ts里面改好...
   // system那边真的有东西有用吗
