@@ -1,6 +1,7 @@
 import { IIROSE_Bot } from "../bot"
 
 export interface Stock {
+  userId: string
   totality: number
   grossAmount: number
   unitPrice: number
@@ -13,12 +14,14 @@ export const stock = (message: string, bot: IIROSE_Bot) => {
     const list = message.substr(1).split('>')[0].split('"')
     if(list.length == 5) {
       const data: Stock = {
+        userId: bot.ctx.config.uid,
         totality: Number(list[0]),
         grossAmount: Number(Number(list[1]).toFixed(2)),
         unitPrice: Number(Number(list[2]).toFixed(2)),
         quantityOwned: Number(list[3]),
         purse: Number(list[4])
       }
+
       bot.ctx.emit('iirose/stockBackCall', data)
       return(data)
     }
