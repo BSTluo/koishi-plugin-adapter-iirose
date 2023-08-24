@@ -27,7 +27,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     bot.status = 'disconnect'
     await bot.adapter.stop(bot)
     await bot.adapter.start(bot)
-
+    return
   })
 
   bot.ctx.on('iirose/kick', kickData => {
@@ -37,6 +37,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     }
     */
     bot.send(kickFunction(kickData.username))
+    return
   })
 
   bot.ctx.on('iirose/cut-one', cutOne => {
@@ -46,6 +47,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     }
     */
     (cutOne.hasOwnProperty('id')) ? bot.send(cutOneFunction(cutOne.id)) : bot.send(cutOneFunction())
+    return
   })
 
   bot.ctx.on('iirose/cut-all', () => {
@@ -53,6 +55,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     （无）
     */
     bot.send(cutAllFunction())
+    return
   })
 
 
@@ -63,6 +66,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     }
     */
     (setMaxUser.hasOwnProperty('number')) ? bot.send(setMaxUserFunction(setMaxUser.maxMember)) : bot.send(setMaxUserFunction())
+    return
   })
 
   bot.ctx.on('iirose/whiteList', whiteList => {
@@ -75,6 +79,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     */
 
     (whiteList.hasOwnProperty('intro')) ? bot.send(whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : bot.send(whiteListFunction(whiteList.username, whiteList.time))
+    return
   })
 
   bot.ctx.on('iirose/damaku', damaku => {
@@ -85,27 +90,32 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     }
     */
     bot.send(damakuFunction(damaku.message, damaku.color))
+    return
   })
 
   bot.ctx.on('iirose/makeMusic', musicOrigin => {
     const { type, name, signer, cover, link, url, duration, bitRate, color } = musicOrigin
     bot.send(mediaCard(type, name, signer, cover, bitRate, color))
     bot.send(mediaData(type, name, signer, cover, link, url, duration))
+    return
   })
 
   bot.ctx.on('iirose/stockBuy', numberData => {
     bot.send(StockBuy(numberData))
+    return
   })
 
   bot.ctx.on('iirose/stockSell', numberData => {
     bot.send(StockSell(numberData))
+    return
   })
 
   bot.ctx.on('iirose/stockGet', callBack => {
     bot.send(StockGet())
-    bot.ctx.on('iirose/stockBackCall', stockData => {
-      callBack(stockData)
+    bot.ctx.once('iirose/stockBackCall', stockData => {
+      return callBack(stockData)
     })
+    return
   })
   // 发音频视频的果然还是直接sendMessage.ts里面改好...
   // system那边真的有东西有用吗

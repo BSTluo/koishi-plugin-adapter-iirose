@@ -2,11 +2,11 @@ import { IIROSE_Bot } from "../bot"
 
 export interface Stock {
   userId: string
-  totality: number
-  grossAmount: number
+  totalStock: number
+  totalMoney: number
   unitPrice: number
-  quantityOwned: number
-  purse: number
+  personalStock: number
+  personalMoney: number
 }
 
 export const stock = (message: string, bot: IIROSE_Bot) => {
@@ -15,11 +15,11 @@ export const stock = (message: string, bot: IIROSE_Bot) => {
     if(list.length == 5) {
       const data: Stock = {
         userId: bot.ctx.config.uid,
-        totality: Number(list[0]),
-        grossAmount: Number(Number(list[1]).toFixed(2)),
+        totalStock: Number(list[0]),
+        totalMoney: Number(Number(list[1]).toFixed(2)),
         unitPrice: Number(Number(list[2]).toFixed(2)),
-        quantityOwned: Number(list[3]),
-        purse: Number(list[4])
+        personalStock: Number(list[3]),
+        personalMoney: Number(list[4])
       }
 
       bot.ctx.emit('iirose/stockBackCall', data)
