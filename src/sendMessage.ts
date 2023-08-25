@@ -103,15 +103,15 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         const formData = new FormData()
         if (attrs.url.startsWith('file://')) {
           const fileUrl = new URL(attrs.url)
-          formData.append('file', fs.createReadStream(fileUrl))
-          formData.append('timeOut', 1)
+          formData.append('f[]', fs.createReadStream(fileUrl))
+          formData.append('i', this.bot.ctx.config.uid)
         }
 
         if (attrs.url.startsWith('data:image')) {
           // 创建一个FormData实例
           const base64ImgStr = attrs.url.replace(/^data:image\/[a-z]+;base64,/, '')
-          formData.append('file', Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' })
-          formData.append('timeOut', 1)
+          formData.append('f[]', Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' })
+          formData.append('i', this.bot.ctx.config.uid)
         }
 
         try {
@@ -120,6 +120,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
             headers: formData.getHeaders()
           })
           let outData = response
+
           const match = this.bot.ctx.config.picBackLink.match(/\[([\s\S]+?)\]/g)
 
           if (match) {
