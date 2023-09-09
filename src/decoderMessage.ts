@@ -27,10 +27,10 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             nickname: obj.publicMessage.username,
           }
         }
-        
+
         obj.publicMessage.message = clearMsg(obj.publicMessage.message)
         const data = obj.publicMessage
-        
+
         const session = bot.session({
           type: 'message',
           userId: data.username,
@@ -152,7 +152,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         session.channelId = `private:${data.uid}`
         session.selfId = bot.ctx.config.uid
         session.isDirect = true
-        
+
         bot.dispatch(session)
         break
       }
@@ -197,7 +197,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           },
           bot: bot
         }
-        
+
         bot.ctx.emit('iirose/switchRoom', session, data)
         break
       }
@@ -358,22 +358,34 @@ function clearMsg(msg: string) {
   ]
   */
   const result = [
-    [/\s\[\*(\S+)\*\]\s/g, '<at id="', '"></at>'],
+    [/\s\[\*(\S+)\*\]\s/g, '<at id="', '"></at>', /\s\[\*/g, /\*\]\s/g],
     [/https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif)(#e)*/g, '<image url="', '"></image>', /\[/g, /]/g]
   ]
 
   let msg1 = msg
   for (let reg of result) {
-    const arr = msg1.match(reg[0])
-    if (arr) {
-      if (reg.length > 3) {
-        for (let i = 4; i < reg.length; i++) {
-          msg1 = msg1.replace(reg[i], '')
-        }
-      }
+    const Reg = reg[0]
+    const matchArr = msg1.match(Reg)
 
-      arr.forEach(element => {
-        msg1 = msg1.replace(new RegExp(element, 'g'), reg[1] + element + reg[2])
+    if (matchArr) {
+      let findIndex = -1
+      let stringTemp = []
+
+      matchArr.forEach(v => {
+        if (reg.length > 3) {
+          for (let i = 3; i < reg.length; i++) {
+            msg1 = msg1.replace(reg[i], '')
+            v = v.replace(reg[i], '')
+          }
+        }
+
+        findIndex++
+        msg1 = msg1.replace(v, `#$${findIndex}$#`)
+        stringTemp.push(v)
+      })
+
+      stringTemp.forEach((v, index) => {
+        msg1 = msg1.replace(`#$${index}$#`, reg[1] + v + reg[2])
       })
     }
   }
