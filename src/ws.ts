@@ -14,10 +14,6 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
 
   constructor(ctx: Context, bot: IIROSE_Bot) {
     super(ctx, bot)
-    ctx.on('ready', () => {
-      // 在插件启动时监听端口
-      this.start(bot)
-    })
 
     ctx.on('dispose', () => {
       logger.info('offline to server: %c', this.WSurl)
@@ -25,83 +21,10 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
     })
   }
 
-  async start(bot: IIROSE_Bot): Promise<void> {
-    if (this.bot.socket) { return }
-    this.reconnect(bot, true)
-  }
-
-  stop(bot: IIROSE_Bot): Promise<void> {
-    this.bot.socket?.close()
-    this.bot.socket = null
-
-    bot.socket?.close()
-    bot.socket = null
-    return
-  }
-
   async prepare() {
     this.bot.socket = this.bot.ctx.http.ws(this.WSurl)
     this.bot.socket.binaryType = 'arraybuffer'
     return this.bot.socket
-  }
-
-  _retryCount:number
-
-  async reconnect(bot:IIROSE_Bot, initial = false) {
-    const retryTimes = 6 // 初次连接时的最大重试次数。
-    const retryInterval = 5000 // 初次连接时的重试时间间隔。
-    const retryLazy = 60000 // 连接关闭后的重试时间间隔。
-
-    logger.debug('websocket client opening')
-    const socket = await this.prepare()
-    // remove query args to protect privacy
-    const url = socket.url.replace(/\?.+/, '')
-
-    socket.addEventListener('error', ({ error }) => {
-      logger.debug(error)
-    })
-
-    socket.addEventListener('close', ({ code, reason }) => {
-      this.bot.socket = null
-      bot.socket = null
-
-      logger.debug(`websocket closed with ${code}`)
-
-      if (bot.status === 'disconnect') {
-        return bot.status = 'offline'
-      }
-
-      const message = reason.toString() || `failed to connect to ${url}, code: ${code}`
-      let timeout = retryInterval
-      if (this._retryCount >= retryTimes) {
-        if (initial) {
-          bot.error = new Error(message)
-          return bot.status = 'offline'
-        } else {
-          timeout = retryLazy
-        }
-      }
-
-      this._retryCount++
-      bot.status = 'reconnect'
-      logger.warn(`${message}, will retry in ${retryInterval}...`)
-      setTimeout(() => {
-        if (bot.status === 'reconnect') this.reconnect(bot)
-      }, timeout)
-    })
-
-    socket.addEventListener('open', () => {
-      this._retryCount = 0
-      bot.socket = socket
-      logger.info('connect to server: %c', url)
-      EventsServer(bot)
-      bot.status = 'online'
-      
-      setInterval(() => {
-        socket.send('')
-      }, 60 * 1000) // 两分钟发一次包保活
-      this.accept()
-    })
   }
 
   accept() {
@@ -115,8 +38,19 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       mb: '',
       mu: '01',
     }
-    const loginPack = '*' + JSON.stringify(obj)
-    this.send(this.bot, loginPack)
+    let live
+
+    this.bot.socket.addEventListener('open', () => {
+      logger.info('connect to server: %c', this.WSurl)
+      this.bot.status = 'online'
+      const loginPack = '*' + JSON.stringify(obj)
+      this.send(this.bot, loginPack)
+      
+      live = setInterval(() => {
+        this.bot.socket.send('')
+      }, 60 * 1000) // 两分钟发一次包保活
+
+    })
 
     this.bot.socket.onmessage = (event) => {
       // @ts-ignore
@@ -138,15 +72,39 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
           let test = {}
           let type = element.type
           test[type] = element
-          
+
           decoderMessage(test, this.bot)
         })
       } else {
         decoderMessage(funcObj, this.bot)
       }
     }
+
+    this.bot.socket.on("error", (err)=>{
+      this.bot.socket = null
+      this.bot.status = 'reconnect'
+      clearInterval(live)
+      logger.warn(`${this.bot.config.usename}, will retry in 5000ms...`)
+      
+      this.bot.socket = this.bot.ctx.http.ws(this.WSurl)
+      const loginPack = '*' + JSON.stringify(obj)
+      this.send(this.bot, loginPack)
+      
+      live = setInterval(() => {
+        this.bot.socket.send('')
+      }, 60 * 1000) // 两分钟发一次包保活
+    })
   }
-  
+
+  stop(bot: IIROSE_Bot): Promise<void> {
+    this.bot.socket?.close()
+    this.bot.socket = null
+
+    bot.socket?.close()
+    bot.socket = null
+    return
+  }
+
   // 特殊的发送函数
   send(bot: IIROSE_Bot, data: string) {
     const buffer = Buffer.from(data)
