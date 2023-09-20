@@ -45,7 +45,7 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       this.bot.status = 'online'
       const loginPack = '*' + JSON.stringify(obj)
       this.send(this.bot, loginPack)
-      
+
       live = setInterval(() => {
         this.bot.socket.send('')
       }, 60 * 1000) // 两分钟发一次包保活
@@ -80,19 +80,24 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       }
     }
 
-    this.bot.socket.on("error", (err)=>{
+    let time = 0;
+    this.bot.socket.on("error", (err) => {
+      time++
+      if (time > 5) { return this.stop(this.bot) }
+
       this.bot.socket = null
       this.bot.status = 'reconnect'
       clearInterval(live)
       logger.warn(`${this.bot.config.usename}, will retry in 5000ms...`)
-      
+
       this.bot.socket = this.bot.ctx.http.ws(this.WSurl)
       const loginPack = '*' + JSON.stringify(obj)
       this.send(this.bot, loginPack)
-      
+
       live = setInterval(() => {
         this.bot.socket.send('')
       }, 60 * 1000) // 两分钟发一次包保活
+      
     })
   }
 
