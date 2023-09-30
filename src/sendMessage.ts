@@ -18,7 +18,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
   async flush(): Promise<void> {
     const buffer = Buffer.from(this.outDataOringinObj)
     const unintArray = Uint8Array.from(buffer)
-
     if (unintArray.length > 256) {
       const deflatedData = pako.gzip(this.outDataOringinObj)
       const deflatedArray = new Uint8Array(deflatedData.length + 1)
@@ -34,7 +33,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
   async sendData(message: string): Promise<void> {
     const buffer = Buffer.from(message)
     const unintArray = Uint8Array.from(buffer)
-
     if (unintArray.length > 256) {
       const deflatedData = pako.gzip(message)
       const deflatedArray = new Uint8Array(deflatedData.length + 1)
@@ -122,16 +120,16 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
           let outData = response
 
           const match = this.bot.ctx.config.picBackLink.match(/\[([\s\S]+?)\]/g)
-
           if (match) {
             match.forEach(element => {
               const urlStr = element.replace(/[\[\]]/g, '')
               const repNodeList = urlStr.split('.')
               outData = outData[repNodeList]
+
               this.outDataOringin += `[${(this.bot.ctx.config.picBackLink).replace(element, outData)}]`
-            });   
+            });
           }
-          
+
         } catch (error) {
           console.log(error)
           this.outDataOringin += '[图片显示异常]'
@@ -142,7 +140,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       }
 
       case 'p': {
-        this.outDataOringin += '\n'
         break
       }
 
@@ -182,7 +179,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       if (this.outDataOringin.length > 0) { this.outDataOringin += '\n' }
 
       for (let h of children) {
-        this.visit(h)
+        await this.visit(h)
       }
     }
 
