@@ -53,10 +53,11 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       const loginPack = '*' + JSON.stringify(obj)
       this.send(this.bot, loginPack)
       this.bot.online()
-      
+      EventsServer(this.bot)
+
       live = setInterval(() => {
-        this.bot.socket.send('')
-      }, 60 * 1000) // 两分钟发一次包保活
+        this.send(this.bot, '')
+      }, 30 * 1000) // 半分钟发一次包保活
     })
 
     this.bot.socket.onmessage = (event) => {
@@ -102,7 +103,7 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       this.send(this.bot, loginPack)
 
       live = setInterval(() => {
-        this.bot.socket.send('')
+        this.send(this.bot, '')
       }, 60 * 1000) // 两分钟发一次包保活
       
     })

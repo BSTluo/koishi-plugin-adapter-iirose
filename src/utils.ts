@@ -24,7 +24,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     await bot.adapter.stop(bot)
     await bot.adapter.start(bot)
     */
-    bot.status = 'disconnect'
+    bot.status = "reconnect"
     await bot.adapter.stop(bot)
     await bot.adapter.start(bot)
     return
