@@ -192,11 +192,3 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
     }
   }
 }
-/*
-
-当前问题
-children的内容无法解析，解决方法如下
-检测到children有内容时，再跑visit
-每次跑完visit的时候push()一次发送数组，等待解析后的flush函数将这个数组内的数据全部发送
-
-*/

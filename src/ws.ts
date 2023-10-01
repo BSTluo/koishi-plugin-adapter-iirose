@@ -11,7 +11,7 @@ const logger = new Logger('IIROSE-BOT')
 
 export class WsClient extends Adapter.Client<IIROSE_Bot> {
   WSurl: string = 'wss://m2.iirose.com:8778'
-  
+
   constructor(ctx: Context, bot: IIROSE_Bot) {
     super(ctx, bot)
 
@@ -25,7 +25,7 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       this.stop(bot)
     })
   }
-  
+
 
   async prepare() {
     this.bot.socket = this.bot.ctx.http.ws(this.WSurl)
@@ -49,7 +49,7 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
 
     this.bot.socket.addEventListener('open', () => {
       logger.info('connect to server: %c', this.WSurl)
-      
+
       const loginPack = '*' + JSON.stringify(obj)
       this.send(this.bot, loginPack)
       this.bot.online()
@@ -102,10 +102,14 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       const loginPack = '*' + JSON.stringify(obj)
       this.send(this.bot, loginPack)
 
-      live = setInterval(() => {
-        this.send(this.bot, '')
-      }, 60 * 1000) // 两分钟发一次包保活
-      
+      try {
+        live = setInterval(() => {
+          this.send(this.bot, '')
+        }, 60 * 1000) // 两分钟发一次包保活
+
+      } catch (err) {
+        logger.warn(err)
+      }
     })
   }
 
