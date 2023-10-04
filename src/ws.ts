@@ -118,6 +118,8 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
   async over(bot: IIROSE_Bot): Promise<void> {
     this.socket?.close()
     this.socket = null
+    socket?.close()
+    socket = null
   }
 }
 
