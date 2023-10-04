@@ -11,23 +11,23 @@ import mediaData from './encoder/messages/media_data'
 import StockBuy from './encoder/user/StockBuy'
 import StockSell from './encoder/user/StockSell'
 import StockGet from './encoder/user/StockGet'
+import { IIROSE_WSsend } from './ws'
 
 const logger = new Logger('IIROSE-BOT')
 
 export const EventsServer = (bot: IIROSE_Bot) => {
   bot.ctx.on('iirose/moveRoom', async moveData => {
     const roomId = moveData.roomId
-    if (bot.config.roomId == roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ') }
+    if (bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ') }
     bot.config.roomId = roomId
 
     /*
     await bot.adapter.stop(bot)
     await bot.adapter.start(bot)
     */
-    bot.status = "reconnect"
-    await bot.adapter.stop(bot)
-    await bot.adapter.start(bot)
-    return
+    bot.status = 4
+    await bot.stop()
+    await bot.start()
   })
 
   bot.ctx.on('iirose/kick', kickData => {
@@ -36,8 +36,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
         username: '用户名'
     }
     */
-    bot.send(kickFunction(kickData.username))
-    return
+    IIROSE_WSsend(bot, kickFunction(kickData.username))
   })
 
   bot.ctx.on('iirose/cut-one', cutOne => {
@@ -46,18 +45,16 @@ export const EventsServer = (bot: IIROSE_Bot) => {
         id: '歌曲id'
     }
     */
-    (cutOne.hasOwnProperty('id')) ? bot.send(cutOneFunction(cutOne.id)) : bot.send(cutOneFunction())
-    return
+    // eslint-disable-next-line no-prototype-builtins
+    (cutOne.hasOwnProperty('id')) ? IIROSE_WSsend(bot, cutOneFunction(cutOne.id)) : IIROSE_WSsend(bot, cutOneFunction())
   })
 
   bot.ctx.on('iirose/cut-all', () => {
     /* 示例data
     （无）
     */
-    bot.send(cutAllFunction())
-    return
+    IIROSE_WSsend(bot, cutAllFunction())
   })
-
 
   bot.ctx.on('iirose/setMaxUser', setMaxUser => {
     /* 示例data
@@ -65,8 +62,8 @@ export const EventsServer = (bot: IIROSE_Bot) => {
       maxMember: 人数（为空则清除限制？）
     }
     */
-    (setMaxUser.hasOwnProperty('number')) ? bot.send(setMaxUserFunction(setMaxUser.maxMember)) : bot.send(setMaxUserFunction())
-    return
+    // eslint-disable-next-line no-prototype-builtins
+    (setMaxUser.hasOwnProperty('number')) ? IIROSE_WSsend(bot, setMaxUserFunction(setMaxUser.maxMember)) : IIROSE_WSsend(bot, setMaxUserFunction())
   })
 
   bot.ctx.on('iirose/whiteList', whiteList => {
@@ -78,8 +75,8 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     }
     */
 
-    (whiteList.hasOwnProperty('intro')) ? bot.send(whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : bot.send(whiteListFunction(whiteList.username, whiteList.time))
-    return
+    // eslint-disable-next-line max-len, no-prototype-builtins
+    (whiteList.hasOwnProperty('intro')) ? IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time))
   })
 
   bot.ctx.on('iirose/damaku', damaku => {
@@ -89,33 +86,28 @@ export const EventsServer = (bot: IIROSE_Bot) => {
       color: 16进制颜色代码（不带#）
     }
     */
-    bot.send(damakuFunction(damaku.message, damaku.color))
-    return
+    IIROSE_WSsend(bot, damakuFunction(damaku.message, damaku.color))
   })
 
   bot.ctx.on('iirose/makeMusic', musicOrigin => {
     const { type, name, signer, cover, link, url, duration, bitRate, color } = musicOrigin
-    bot.send(mediaCard(type, name, signer, cover, bitRate, color))
-    bot.send(mediaData(type, name, signer, cover, link, url, duration))
-    return
+    IIROSE_WSsend(bot, mediaCard(type, name, signer, cover, bitRate, color))
+    IIROSE_WSsend(bot, mediaData(type, name, signer, cover, link, url, duration))
   })
 
   bot.ctx.on('iirose/stockBuy', numberData => {
-    bot.send(StockBuy(numberData))
-    return
+    IIROSE_WSsend(bot, StockBuy(numberData))
   })
 
   bot.ctx.on('iirose/stockSell', numberData => {
-    bot.send(StockSell(numberData))
-    return
+    IIROSE_WSsend(bot, StockSell(numberData))
   })
 
   bot.ctx.on('iirose/stockGet', callBack => {
-    bot.send(StockGet())
+    IIROSE_WSsend(bot, StockGet())
     bot.ctx.once('iirose/stockBackCall', stockData => {
       return callBack(stockData)
     })
-    return
   })
   // 发音频视频的果然还是直接sendMessage.ts里面改好...
   // system那边真的有东西有用吗

@@ -1,7 +1,7 @@
 import { IIROSE_Bot } from './bot'
 import { MessageType } from './decoder'
 import { h } from '@satorijs/satori'
-import { Events, EventsCallBackOrigin } from './event'
+import { EventsCallBackOrigin } from './event'
 import { messageObjList } from './messageTemp'
 
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
@@ -10,7 +10,6 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
   for (const key in obj) {
     switch (key) {
       case 'userlist': {
-        bot.socket.send('')
         break
       }
 
@@ -25,7 +24,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             avatar: obj.publicMessage.avatar,
             username: obj.publicMessage.username,
             nickname: obj.publicMessage.username,
-          }
+          },
         }
 
         obj.publicMessage.message = clearMsg(obj.publicMessage.message)
@@ -33,17 +32,16 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         const session = bot.session({
           type: 'message',
-          userId: data.username,
-          messageId: String(data.messageId),
+          user: {
+            id: data.uid,
+            name: data.username,
+          },
+          message: {
+            messageId: String(data.messageId),
+            content: data.message,
+            elements: h.parse(data.message),
+          },
           timestamp: Number(data.timestamp),
-          content: data.message,
-          elements: h.parse(data.message),
-          author: {
-            userId: data.uid,
-            avatar: data.avatar,
-            username: data.username,
-            nickname: data.username,
-          }
         })
         session.platform = 'iirose'
         session.subtype = 'group'
@@ -77,10 +75,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           guildId: data.room,
           selfId: bot.ctx.config.uid,
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
 
         bot.ctx.emit('iirose/leaveRoom', session, data)
@@ -106,10 +106,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           guildId: data.room,
           selfId: bot.ctx.config.uid,
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
         bot.ctx.emit('iirose/joinRoom', session, data)
         break
@@ -126,7 +128,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             avatar: obj.privateMessage.avatar,
             username: obj.privateMessage.username,
             nickname: obj.privateMessage.username,
-          }
+          },
         }
 
         obj.privateMessage.message = clearMsg(obj.privateMessage.message)
@@ -134,16 +136,16 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         const session = bot.session({
           type: 'message',
-          userId: data.username,
-          messageId: String(data.messageId),
+          user: {
+            id: data.uid,
+            name: data.username,
+          },
+          message: {
+            messageId: String(data.messageId),
+            content: data.message,
+            elements: h.parse(data.message),
+          },
           timestamp: Number(data.timestamp),
-          elements: h.parse(data.message),
-          author: {
-            userId: data.uid,
-            avatar: data.avatar,
-            username: data.username,
-            nickname: data.username,
-          }
         })
         session.platform = 'iirose'
         session.subtype = 'private'
@@ -173,13 +175,13 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           guildId: 'damaku',
           selfId: bot.ctx.config.uid,
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
-
-
         bot.ctx.emit('iirose/newDamaku', session, data)
         break
       }
@@ -192,10 +194,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           platform: 'iirose',
           guildId: bot.config.roomId,
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
 
         bot.ctx.emit('iirose/switchRoom', session, data)
@@ -210,10 +214,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           type: 'music',
           platform: 'iirose',
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
 
         bot.ctx.emit('iirose/newMusic', session, data)
@@ -227,10 +233,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           type: 'paymentCallback',
           platform: 'iirose',
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
 
         bot.ctx.emit('iirose/before-payment', session, data)
@@ -244,10 +252,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           type: 'getUserListCallback',
           platform: 'iirose',
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
 
         bot.ctx.emit('iirose/before-getUserList', session, data)
@@ -261,10 +271,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           type: 'userProfileCallback',
           platform: 'iirose',
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
 
         bot.ctx.emit('iirose/before-userProfile', session, data)
@@ -278,10 +290,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           type: 'bankCallback',
           platform: 'iirose',
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
 
         bot.ctx.emit('iirose/before-bank', session, data)
@@ -295,10 +309,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           type: 'mediaListCallback',
           platform: 'iirose',
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
 
         bot.ctx.emit('iirose/before-mediaList', session, data)
@@ -312,10 +328,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           type: 'selfMove',
           platform: 'iirose',
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
 
         bot.ctx.emit('iirose/selfMove', session, data)
@@ -330,10 +348,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           type: 'mailboxMessage',
           platform: 'iirose',
           send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message) }
+            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message) }
           },
-          bot: bot
+          bot,
         }
 
         bot.ctx.emit('iirose/mailboxMessage', session, data)
@@ -359,17 +379,17 @@ function clearMsg(msg: string) {
   */
   const result = [
     [/\s\[\*(\S+)\*\]\s/g, '<at id="', '"></at>', /\s\[\*/g, /\*\]\s/g],
-    [/https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif)(#e)*/g, '<image url="', '"></image>', /\[/g, /]/g]
+    [/https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif)(#e)*/g, '<image url="', '"></image>', /\[/g, /]/g],
   ]
 
   let msg1 = msg
-  for (let reg of result) {
+  for (const reg of result) {
     const Reg = reg[0]
     const matchArr = msg1.match(Reg)
 
     if (matchArr) {
       let findIndex = -1
-      let stringTemp = []
+      const stringTemp = []
 
       matchArr.forEach(v => {
         if (reg.length > 3) {

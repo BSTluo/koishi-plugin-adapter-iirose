@@ -1,7 +1,5 @@
-import pako from 'pako'
 import axios from 'axios'
 import fs from 'fs'
-import path from 'path'
 import FormData from 'form-data'
 import { h, MessageEncoder } from '@satorijs/satori'
 import { IIROSE_Bot } from './bot'
@@ -10,39 +8,18 @@ import PrivateMessage from './encoder/messages/PrivateMessage'
 import mediaCard from './encoder/messages/media_card'
 import mediaData from './encoder/messages/media_data'
 import Like from './encoder/system/Like'
+import { IIROSE_WSsend } from './ws'
 
 export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
   private outDataOringin: string = ''
   private outDataOringinObj: string = ''
 
   async flush(): Promise<void> {
-    const buffer = Buffer.from(this.outDataOringinObj)
-    const unintArray = Uint8Array.from(buffer)
-    if (unintArray.length > 256) {
-      const deflatedData = pako.gzip(this.outDataOringinObj)
-      const deflatedArray = new Uint8Array(deflatedData.length + 1)
-      deflatedArray[0] = 1
-      deflatedArray.set(deflatedData, 1)
-
-      this.bot.socket.send(deflatedArray)
-    } else {
-      this.bot.socket.send(unintArray)
-    }
+    IIROSE_WSsend(this.bot, this.outDataOringinObj)
   }
 
   async sendData(message: string): Promise<void> {
-    const buffer = Buffer.from(message)
-    const unintArray = Uint8Array.from(buffer)
-    if (unintArray.length > 256) {
-      const deflatedData = pako.gzip(message)
-      const deflatedArray = new Uint8Array(deflatedData.length + 1)
-      deflatedArray[0] = 1
-      deflatedArray.set(deflatedData, 1)
-
-      this.bot.socket.send(deflatedArray)
-    } else {
-      this.bot.socket.send(unintArray)
-    }
+    IIROSE_WSsend(this.bot, message)
   }
 
   async visit(element: h): Promise<void> {
@@ -84,7 +61,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
       case 'image': {
         let i = 0
         if (attrs.url.startsWith('http')) {
-          let arr = ['jpg', 'jpeg', 'png', 'gif']
+          const arr = ['jpg', 'jpeg', 'png', 'gif']
           for (const iterator of arr) {
             if (attrs.url.endsWith(`.${iterator}`)) {
               this.outDataOringin += `[${attrs.url}]`
@@ -115,7 +92,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         try {
           // 发送formData到后端
           const response = await axios.post(this.bot.ctx.config.picLink, formData, {
-            headers: formData.getHeaders()
+            headers: formData.getHeaders(),
           })
           let outData = response
 
@@ -127,9 +104,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
               outData = outData[repNodeList]
 
               this.outDataOringin += `[${(this.bot.ctx.config.picBackLink).replace(element, outData)}]`
-            });
+            })
           }
-
         } catch (error) {
           console.log(error)
           this.outDataOringin += '[图片显示异常]'
@@ -145,7 +121,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
 
       case 'like': {
         // 点赞事件
-        this.bot.send(Like(attrs.uid, attrs.message))
+        IIROSE_WSsend(this.bot, Like(attrs.uid, attrs.message))
         break
       }
 
@@ -163,6 +139,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         }
         const durationSeconds = Math.trunc((musicData.size * 8) / musicData.br) + 1
         const cardData = mediaCard('music', attrs.name, attrs.artist, 'https://api.vvhan.com/api/acgimg', (musicData.br / 1000), '66ccff')
+        // eslint-disable-next-line max-len
         const mData = mediaData('music', attrs.name, attrs.artist, 'https://api.vvhan.com/api/acgimg', 'https://github.com/BSTluo', musicData.url, durationSeconds)
         this.sendData(cardData)
         this.sendData(mData)
@@ -178,7 +155,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
     if (children.length > 0) {
       if (this.outDataOringin.length > 0) { this.outDataOringin += '\n' }
 
-      for (let h of children) {
+      for (const h of children) {
         await this.visit(h)
       }
     }

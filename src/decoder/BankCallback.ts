@@ -14,7 +14,7 @@ export const bankCallback = (message: string) => {
       income: Number(tmp[1]),
       deposit: Number(tmp[3].split(' ')[0]),
       interestRate: [Number(tmp[5].split(' ')[0]), Number(tmp[5].split(' ')[1])],
-      balance: Number(tmp[4])
+      balance: Number(tmp[4]),
     }
 
     // BankCallback

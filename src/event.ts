@@ -1,7 +1,7 @@
-import { Session, Fragment } from "@satorijs/satori"
-import { MessageType } from "./decoder"
-import { IIROSE_Bot } from "./bot"
-import { Stock } from "./decoder/Stock"
+import { Fragment } from '@satorijs/satori'
+import { MessageType } from './decoder'
+import { IIROSE_Bot } from './bot'
+import { Stock } from './decoder/Stock'
 
 export interface kickData {
   username: string
@@ -35,9 +35,9 @@ export interface EventsCallBackOrigin {
   userId?: string
   timestamp?: number
   author?: {
-    userId: string,
-    avatar: string,
-    username: string,
+    userId: string
+    avatar: string
+    username: string
   }
   platform: 'iirose'
   guildId?: string
@@ -68,7 +68,7 @@ export interface musicOrigin {
 }
 
 export interface StockGet {
-  (stockData: Stock):void
+  (stockData: Stock): void
 }
 
 export interface Events {

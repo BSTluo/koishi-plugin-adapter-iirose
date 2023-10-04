@@ -45,7 +45,6 @@ export class ManyMessage {
   }
 }
 
-
 const replyMsg = (msg: string): replyMessage[] | null => {
   if (msg.includes(' (_hr) ')) {
     const replies: replyMessage[] = []
@@ -79,12 +78,12 @@ const replyMsg = (msg: string): replyMessage[] | null => {
 export const manyMessage = (input: string) => {
   if (input.substring(0, 1) !== '"') return null
   const message: string = input.substring(1)
-  
+
   if (message.indexOf('<') !== -1) {
     const tmp1 = message.split('<')
-  
-    let output: ManyMessage[] = []
-  
+
+    const output: ManyMessage[] = []
+
     tmp1.forEach(e => {
       const tmp = e.split('>')
       tmp[0] = tmp[0].replace('"', '')
@@ -92,8 +91,7 @@ export const manyMessage = (input: string) => {
       if (/^\d+$/.test(tmp[0])) {
         if (tmp.length === 11) {
           // PrivateMessage
-          if(!isNaN(Number(tmp[8])) && Number(tmp[8]) > -1 && Number(tmp[8]) < 5) {
-            
+          if (!isNaN(Number(tmp[8])) && Number(tmp[8]) > -1 && Number(tmp[8]) < 5) {
             output.push(new ManyMessage({
               type: 'privateMessage',
               timestamp: Number(tmp[0]),
@@ -102,10 +100,9 @@ export const manyMessage = (input: string) => {
               message: decode(tmp[4]),
               color: tmp[5],
               uid: tmp[1],
-              messageId: Number(tmp[10])
+              messageId: Number(tmp[10]),
             }))
           } else {
-            
             const reply = replyMsg(tmp[3])
             output.push(new ManyMessage({
               type: 'publicMessage',

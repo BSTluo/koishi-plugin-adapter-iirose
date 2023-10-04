@@ -1,4 +1,3 @@
-
 export interface MessageInfo {
   messageId: string
   isDirect: boolean

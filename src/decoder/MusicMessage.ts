@@ -35,30 +35,6 @@ export interface MusicMessage {
   musicColor: string
 }
 
-class PublicMessage {
-  public timestamp: number
-  public avatar: string
-  public username: string
-  public message: string
-  public color: string
-  public uid: string
-  public title: string
-  public messageId: number
-  public replyMessage: replyMessage[] | null
-
-  constructor(data: data) {
-    this.timestamp = data.timestamp
-    this.avatar = data.avatar
-    this.username = data.username
-    this.message = data.message
-    this.color = data.color
-    this.uid = data.uid
-    this.title = data.title
-    this.messageId = data.messageId
-    this.replyMessage = data.replyMessage
-  }
-}
-
 const replyMsg = (msg: string): replyMessage[] | null => {
   if (msg.includes(' (_hr) ')) {
     const replies: replyMessage[] = []
@@ -92,29 +68,28 @@ const replyMsg = (msg: string): replyMessage[] | null => {
 export const musicMessageAnalyze = (input: data): MusicMessage => {
   const { timestamp, avatar, username, message, color, uid, title, messageId } = input
   const musicData = message.replace(/ /g, '').split('>')
-  
+
   return {
-    timestamp: timestamp,
-    avatar: avatar,
-    username: username,
-    color: color,
-    uid: uid,
-    title: title,
-    messageId: messageId,
+    timestamp,
+    avatar,
+    username,
+    color,
+    uid,
+    title,
+    messageId,
     musicName: musicData[1],
     musicSinger: musicData[2],
     musicPic: musicData[3],
-    musicColor: musicData[4]
+    musicColor: musicData[4],
   }
 }
 
 export const musicMessage = (input: string) => {
   if (input.substring(0, 1) !== '"') return null
-  
+
   const message: string = input.substring(1)
 
   if (message.indexOf('<') === -1) {
-    
     const tmp = message.split('>')
     if (tmp.length === 11) {
       if (/^\d+$/.test(tmp[0])) {

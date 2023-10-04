@@ -1,24 +1,25 @@
-import { Bot, Context, Fragment, Schema, SendOptions, Universal, h } from '@satorijs/satori'
-import { WsClient } from './ws'
+import { Bot, Context, Fragment, Schema, Universal } from '@satorijs/satori'
+import { SendOptions } from '@satorijs/protocol'
+import { IIROSE_WSsend, WsClient } from './ws'
 import { IIROSE_BotMessageEncoder } from './sendMessage'
 import kick from './encoder/admin/kick'
 import mute from './encoder/admin/mute'
-import pako from 'pako'
 import { messageObjList } from './messageTemp'
 
 export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
-  platform: string = 'iirose';
+  platform: string = 'iirose'
+  socket: WsClient
 
   constructor(ctx: Context, config: IIROSE_Bot.Config) {
     super(ctx, config)
     ctx.plugin(WsClient, this)
-    this.nickname = ctx.config.usename
-    this.username = ctx.config.usename
+    this.selfId = ctx.config.uid
     this.userId = ctx.config.uid
   }
 
-  sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]> {
-    return new IIROSE_BotMessageEncoder(this, `${channelId}:` + guildId, guildId, options).send(content)
+  async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions) {
+    const messages = await new IIROSE_BotMessageEncoder(this, `${channelId}:` + guildId, guildId, options).send(content)
+    return messages.map(message => message.id)
   }
 
   async sendPrivateMessage(channelId: string, content: Fragment, options?: SendOptions): Promise<string[]> {
@@ -27,18 +28,9 @@ export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
 
   async getSelf(): Promise<Universal.User> {
     return {
-      userId: this.ctx.config.uid,
-      username: this.ctx.config.usename
+      name: this.ctx.config.usename,
+      id: this.ctx.config.uid,
     }
-  }
-
-  async getGuildList(): Promise<Universal.Guild[]> {
-    return [
-      {
-        guildId: this.ctx.config.roomId,
-        guildName: 'IIROSE 群聊'
-      }
-    ]
   }
 
   async getMessage(channelId: string, messageId: string) {
@@ -46,7 +38,7 @@ export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
   }
 
   async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void> {
-    this.send(kick(userName))
+    IIROSE_WSsend(this, kick(userName))
   }
 
   async muteGuildMember(guildId: string, userName: string, duration: number, reason?: string): Promise<void> {
@@ -59,29 +51,12 @@ export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
       time = String(duration / 1000)
     }
 
-    this.send(mute('all', userName, time, reason))
-  }
-
-  send(data: string) {
-    const buffer = Buffer.from(data)
-    const unintArray = Uint8Array.from(buffer)
-
-    if (unintArray.length > 256) {
-      const deflatedData = pako.gzip(data)
-      const deflatedArray = new Uint8Array(deflatedData.length + 1)
-      deflatedArray[0] = 1
-      deflatedArray.set(deflatedData, 1)
-      this.socket.send(deflatedArray)
-    } else {
-      this.socket.send(unintArray)
-    }
+    IIROSE_WSsend(this, mute('all', userName, time, reason))
   }
 }
 
 export namespace IIROSE_Bot {
-  export interface BaseConfig extends Bot.Config { }
-
-  export interface Config extends BaseConfig {
+  export interface Config extends WsClient.Config {
     usename: string
     password: string
     roomId: string

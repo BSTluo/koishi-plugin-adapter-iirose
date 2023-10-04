@@ -8,8 +8,9 @@ import { EventsServer } from './utils'
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const logger = new Logger('IIROSE-BOT')
+let socket: any
 
-export class WsClient extends Adapter.Client<IIROSE_Bot> {
+export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
   WSurl: string = 'wss://m2.iirose.com:8778'
 
   constructor(ctx: Context, bot: IIROSE_Bot) {
@@ -22,16 +23,17 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
 
     ctx.on('dispose', () => {
       logger.info('offline to server: %c', this.WSurl)
-      this.stop(bot)
+      this.over(bot)
     })
   }
 
-
   async prepare() {
-    this.bot.socket = this.bot.ctx.http.ws(this.WSurl)
-    this.bot.socket.binaryType = 'arraybuffer'
+    this.socket = this.bot.ctx.http.ws(this.WSurl)
+    socket = this.socket
+    // this.socket.binaryType = 'arraybuffer'
+
     this.accept()
-    return this.bot.socket
+    return this.socket
   }
 
   accept() {
@@ -47,20 +49,19 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
     }
     let live
 
-    this.bot.socket.addEventListener('open', () => {
+    this.socket.addEventListener('open', () => {
       logger.info('connect to server: %c', this.WSurl)
 
       const loginPack = '*' + JSON.stringify(obj)
-      this.send(this.bot, loginPack)
+      IIROSE_WSsend(this.bot, loginPack)
       this.bot.online()
       EventsServer(this.bot)
 
       live = setInterval(() => {
-        this.send(this.bot, '')
+        IIROSE_WSsend(this.bot, '')
       }, 30 * 1000) // 半分钟发一次包保活
     })
-
-    this.bot.socket.onmessage = (event) => {
+    this.socket.addEventListener('message', (event) => {
       // @ts-ignore
       const array = new Uint8Array(event.data)
 
@@ -75,10 +76,11 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       const funcObj = decoder(this.bot, message)
       // console.log(funcObj)
       // 将会话上报
+      // eslint-disable-next-line no-prototype-builtins
       if (funcObj.hasOwnProperty('manyMessage')) {
         funcObj.manyMessage.slice().reverse().forEach(element => {
-          let test = {}
-          let type = element.type
+          const test = {}
+          const type = element.type
           test[type] = element
 
           decoderMessage(test, this.bot)
@@ -86,63 +88,58 @@ export class WsClient extends Adapter.Client<IIROSE_Bot> {
       } else {
         decoderMessage(funcObj, this.bot)
       }
-    }
+    })
 
-    let time = 0;
-    this.bot.socket.on("error", (err) => {
+    let time = 0
+    this.socket.addEventListener('error', (err) => {
+      logger.warn(err)
       time++
-      if (time > 5) { return this.stop(this.bot) }
+      if (time > 5) { return this.over(this.bot) }
 
-      this.bot.socket = null
-      this.bot.status = 'reconnect'
+      this.socket = null
+      this.bot.status = 4
       clearInterval(live)
       logger.warn(`${this.bot.config.usename}, will retry in 5000ms...`)
 
-      this.bot.socket = this.bot.ctx.http.ws(this.WSurl)
+      this.socket = this.bot.ctx.http.ws(this.WSurl)
       const loginPack = '*' + JSON.stringify(obj)
-      this.send(this.bot, loginPack)
+      IIROSE_WSsend(this.bot, loginPack)
 
       try {
         live = setInterval(() => {
-          this.send(this.bot, '')
+          IIROSE_WSsend(this.bot, '')
         }, 60 * 1000) // 两分钟发一次包保活
-
       } catch (err) {
         logger.warn(err)
       }
     })
   }
 
-  stop(bot: IIROSE_Bot): Promise<void> {
-    this.bot.socket?.close()
-    this.bot.socket = null
-
-    bot.socket?.close()
-    bot.socket = null
-    return
-  }
-
-  // 特殊的发送函数
-  send(bot: IIROSE_Bot, data: string) {
-    const buffer = Buffer.from(data)
-    const unintArray = Uint8Array.from(buffer)
-
-    if (unintArray.length > 256) {
-      const deflatedData = pako.gzip(data)
-      const deflatedArray = new Uint8Array(deflatedData.length + 1)
-      deflatedArray[0] = 1
-      deflatedArray.set(deflatedData, 1)
-      bot.socket.send(deflatedArray)
-    } else {
-      bot.socket.send(unintArray)
-    }
+  async over(bot: IIROSE_Bot): Promise<void> {
+    this.socket?.close()
+    this.socket = null
   }
 }
 
 export namespace WsClient {
-  export interface Config extends Adapter.WsClient.Config { }
+  export interface Config extends Adapter.WsClientConfig { }
 
   export const Config: Schema<Config> = Schema.intersect([
     Adapter.WsClient.Config,
   ])
+}
+
+export function IIROSE_WSsend(bot: IIROSE_Bot, data: string) {
+  const buffer = Buffer.from(data)
+  const unintArray = Uint8Array.from(buffer)
+
+  if (unintArray.length > 256) {
+    const deflatedData = pako.gzip(data)
+    const deflatedArray = new Uint8Array(deflatedData.length + 1)
+    deflatedArray[0] = 1
+    deflatedArray.set(deflatedData, 1)
+    socket.send(deflatedArray)
+  } else {
+    socket.send(unintArray)
+  }
 }
