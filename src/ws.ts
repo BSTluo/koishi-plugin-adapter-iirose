@@ -16,29 +16,29 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
   constructor(ctx: Context, bot: IIROSE_Bot) {
     super(ctx, bot)
 
-    ctx.on('ready', () => {
-      // 在插件启动时监听端口
-      this.prepare()
-    })
-
     ctx.on('dispose', () => {
       logger.info('offline to server: %c', this.WSurl)
       this.over(bot)
     })
   }
 
+  live: NodeJS.Timeout
+  loginObj: {
+    r:string
+    n:string
+    p:string
+    st:string
+    mo:string
+    mb:string
+    mu:string
+  }
+  
   async prepare() {
     this.socket = this.bot.ctx.http.ws(this.WSurl)
     socket = this.socket
     // this.socket.binaryType = 'arraybuffer'
 
-    this.accept()
-    return this.socket
-  }
-
-  accept() {
-    // 花园登陆报文
-    const obj = {
+    this.loginObj = {
       r: this.bot.ctx.config.roomId,
       n: this.bot.ctx.config.usename,
       p: this.bot.ctx.config.password,
@@ -47,20 +47,25 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
       mb: '',
       mu: '01',
     }
-    let live
 
     this.socket.addEventListener('open', () => {
       logger.info('connect to server: %c', this.WSurl)
 
-      const loginPack = '*' + JSON.stringify(obj)
+      const loginPack = '*' + JSON.stringify(this.loginObj)
       IIROSE_WSsend(this.bot, loginPack)
-      this.bot.online()
       EventsServer(this.bot)
 
-      live = setInterval(() => {
+      this.live = setInterval(() => {
         IIROSE_WSsend(this.bot, '')
       }, 30 * 1000) // 半分钟发一次包保活
+      this.bot.online()
     })
+
+    return this.socket
+  }
+
+  accept() {
+    // 花园登陆报文
     this.socket.addEventListener('message', (event) => {
       // @ts-ignore
       const array = new Uint8Array(event.data)
@@ -98,15 +103,15 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
 
       this.socket = null
       this.bot.status = 4
-      clearInterval(live)
+      clearInterval(this.live)
       logger.warn(`${this.bot.config.usename}, will retry in 5000ms...`)
 
       this.socket = this.bot.ctx.http.ws(this.WSurl)
-      const loginPack = '*' + JSON.stringify(obj)
+      const loginPack = '*' + JSON.stringify(this.loginObj)
       IIROSE_WSsend(this.bot, loginPack)
 
       try {
-        live = setInterval(() => {
+        this.live = setInterval(() => {
           IIROSE_WSsend(this.bot, '')
         }, 60 * 1000) // 两分钟发一次包保活
       } catch (err) {
