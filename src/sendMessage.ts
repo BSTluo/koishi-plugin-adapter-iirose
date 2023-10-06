@@ -9,6 +9,7 @@ import mediaCard from './encoder/messages/media_card'
 import mediaData from './encoder/messages/media_data'
 import Like from './encoder/system/Like'
 import { IIROSE_WSsend } from './ws'
+import { musicOrigin } from './event'
 
 export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
   private outDataOringin: string = ''
@@ -29,6 +30,38 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
     // console.log('children', children)
 
     switch (type) {
+      case 'video': {
+        const obj: musicOrigin = {
+          type: "video",
+          name: attrs.name,
+          signer: attrs.author,
+          cover: attrs.cover,
+          link: attrs.url,
+          url: attrs.url,
+          duration: attrs.duration,
+          bitRate: attrs.bitRate,
+          color: attrs.color
+        }
+        this.bot.ctx.emit('iirose/makeMusic', obj)
+        break
+      }
+
+      case 'audio': {
+        const obj: musicOrigin = {
+          type: 'music',
+          name: attrs.name,
+          signer: attrs.author,
+          cover: attrs.cover,
+          link: attrs.url,
+          url: attrs.url,
+          duration: attrs.duration,
+          bitRate: attrs.bitRate,
+          color: attrs.color
+        }
+        this.bot.ctx.emit('iirose/makeMusic', obj)
+        break
+      }
+
       case 'quote': {
         const messData = await this.bot.getMessage('', attrs.id)
 
