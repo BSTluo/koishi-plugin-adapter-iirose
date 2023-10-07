@@ -99,10 +99,12 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
     this.socket.addEventListener('error', (err) => {
       logger.warn(err)
       time++
-      if (time > 5) { return this.over(this.bot) }
+      if (time > 5) { return this.socket.dispatchEvent('error') }
 
-      this.socket = null
+      this.over(this.bot)
+      
       this.bot.status = 4
+      
       clearInterval(this.live)
       logger.warn(`${this.bot.config.usename}, will retry in 5000ms...`)
 
