@@ -25,9 +25,10 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     await bot.adapter.stop(bot)
     await bot.adapter.start(bot)
     */
-    bot.status = 4
-    await bot.stop()
-    await bot.start()
+    bot.offline()
+    await bot.adapter.disconnect(bot)
+    await bot.adapter.connect(bot)
+    bot.online()
   })
 
   bot.ctx.on('iirose/kick', kickData => {
