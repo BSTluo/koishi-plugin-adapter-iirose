@@ -4,7 +4,7 @@ import pako from 'pako'
 import { decoder } from './decoder'
 import { decoderMessage } from './decoderMessage'
 import { EventsServer } from './utils'
-
+import { Status } from '@satorijs/protocol'
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const logger = new Logger('IIROSE-BOT')
@@ -16,23 +16,23 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
   constructor(ctx: Context, bot: IIROSE_Bot) {
     super(ctx, bot)
 
-    ctx.on('dispose', () => {
-      logger.info('offline to server: %c', this.WSurl)
-      this.over(bot)
-    })
+    // ctx.on('dispose', () => {
+    //   logger.info('offline to server: %c', this.WSurl)
+    //   this.over(bot)
+    // })
   }
 
   live: NodeJS.Timeout
   loginObj: {
-    r:string
-    n:string
-    p:string
-    st:string
-    mo:string
-    mb:string
-    mu:string
+    r: string
+    n: string
+    p: string
+    st: string
+    mo: string
+    mb: string
+    mu: string
   }
-  
+
   async prepare() {
     this.socket = this.bot.ctx.http.ws(this.WSurl)
     socket = this.socket
@@ -54,11 +54,11 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
       const loginPack = '*' + JSON.stringify(this.loginObj)
       IIROSE_WSsend(this.bot, loginPack)
       EventsServer(this.bot)
-
-      this.live = setInterval(() => {
-        IIROSE_WSsend(this.bot, '')
-      }, 30 * 1000) // 半分钟发一次包保活
       this.bot.online()
+      this.live = setInterval(() => {
+        if (this.bot.status == Status.ONLINE) { IIROSE_WSsend(this.bot, '') }
+
+      }, 30 * 1000) // 半分钟发一次包保活
     })
 
     return this.socket
@@ -94,32 +94,6 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
         decoderMessage(funcObj, this.bot)
       }
     })
-
-    let time = 0
-    this.socket.addEventListener('error', (err) => {
-      logger.warn(err)
-      time++
-      if (time > 5) { return this.socket.dispatchEvent('error') }
-
-      this.over(this.bot)
-      
-      this.bot.status = 4
-      
-      clearInterval(this.live)
-      logger.warn(`${this.bot.config.usename}, will retry in 5000ms...`)
-
-      this.socket = this.bot.ctx.http.ws(this.WSurl)
-      const loginPack = '*' + JSON.stringify(this.loginObj)
-      IIROSE_WSsend(this.bot, loginPack)
-
-      try {
-        this.live = setInterval(() => {
-          IIROSE_WSsend(this.bot, '')
-        }, 60 * 1000) // 两分钟发一次包保活
-      } catch (err) {
-        logger.warn(err)
-      }
-    })
   }
 
   async over(bot: IIROSE_Bot): Promise<void> {
@@ -139,6 +113,7 @@ export namespace WsClient {
 }
 
 export function IIROSE_WSsend(bot: IIROSE_Bot, data: string) {
+  if (socket.readyState !== 1) { return }
   const buffer = Buffer.from(data)
   const unintArray = Uint8Array.from(buffer)
 
@@ -152,3 +127,4 @@ export function IIROSE_WSsend(bot: IIROSE_Bot, data: string) {
     socket.send(unintArray)
   }
 }
+
