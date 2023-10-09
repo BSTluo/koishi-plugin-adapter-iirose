@@ -8,7 +8,6 @@ import { Status } from '@satorijs/protocol'
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 const logger = new Logger('IIROSE-BOT')
-let socket: any
 
 export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
   WSurl: string = 'wss://m2.iirose.com:8778'
@@ -35,7 +34,8 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
 
   async prepare() {
     this.socket = this.bot.ctx.http.ws(this.WSurl)
-    socket = this.socket
+    // socket = this.socket
+    this.bot.socket = this.socket
     // this.socket.binaryType = 'arraybuffer'
 
     this.loginObj = {
@@ -99,8 +99,8 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
   async over(bot: IIROSE_Bot): Promise<void> {
     this.socket?.close()
     this.socket = null
-    socket?.close()
-    socket = null
+    this.bot.socket?.close()
+    this.bot.socket = null
   }
 }
 
@@ -113,7 +113,7 @@ export namespace WsClient {
 }
 
 export function IIROSE_WSsend(bot: IIROSE_Bot, data: string) {
-  if (socket.readyState !== 1) { return }
+  if (bot.socket.readyState !== 1) { return }
   const buffer = Buffer.from(data)
   const unintArray = Uint8Array.from(buffer)
 
@@ -122,9 +122,9 @@ export function IIROSE_WSsend(bot: IIROSE_Bot, data: string) {
     const deflatedArray = new Uint8Array(deflatedData.length + 1)
     deflatedArray[0] = 1
     deflatedArray.set(deflatedData, 1)
-    socket.send(deflatedArray)
+    bot.socket.send(deflatedArray)
   } else {
-    socket.send(unintArray)
+    bot.socket.send(unintArray)
   }
 }
 

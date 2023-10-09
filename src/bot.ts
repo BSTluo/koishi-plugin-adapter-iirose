@@ -8,7 +8,7 @@ import { messageObjList } from './messageTemp'
 
 export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
   platform: string = 'iirose'
-
+  socket: any
   constructor(ctx: Context, config: IIROSE_Bot.Config) {
     super(ctx, config)
     ctx.plugin(WsClient, this)
