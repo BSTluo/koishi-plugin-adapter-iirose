@@ -5,8 +5,8 @@ import { h, MessageEncoder } from '@satorijs/satori'
 import { IIROSE_Bot } from './bot'
 import PublicMessage from './encoder/messages/PublicMessage'
 import PrivateMessage from './encoder/messages/PrivateMessage'
-import mediaCard from './encoder/messages/media_card'
-import mediaData from './encoder/messages/media_data'
+// import mediaCard from './encoder/messages/media_card'
+// import mediaData from './encoder/messages/media_data'
 import Like from './encoder/system/Like'
 import { IIROSE_WSsend } from './ws'
 import { musicOrigin } from './event'
@@ -162,23 +162,23 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
         break
       }
 
-      case 'onebot:music': {
-        const response = await axios.get((this.bot.ctx.config.musicLink).replace('[musicid]', attrs.id))
-        if (response.data.code !== 200) { break }
-        const musicData = response.data.data[0]
-        if (musicData.br === 0) {
-          this.outDataOringin += `[歌曲点播失败,可能为VIP歌曲]`
-          break
-        }
-        const durationSeconds = Math.trunc((musicData.size * 8) / musicData.br) + 1
-        const cardData = mediaCard('music', attrs.name, attrs.artist, 'https://api.vvhan.com/api/acgimg', (musicData.br / 1000), '66ccff')
-        // eslint-disable-next-line max-len
-        const mData = mediaData('music', attrs.name, attrs.artist, 'https://api.vvhan.com/api/acgimg', 'https://github.com/BSTluo', musicData.url, durationSeconds)
-        this.sendData(cardData)
-        this.sendData(mData)
+      // case 'onebot:music': {
+      //   const response = await axios.get((this.bot.ctx.config.musicLink).replace('[musicid]', attrs.id))
+      //   if (response.data.code !== 200) { break }
+      //   const musicData = response.data.data[0]
+      //   if (musicData.br === 0) {
+      //     this.outDataOringin += `[歌曲点播失败,可能为VIP歌曲]`
+      //     break
+      //   }
+      //   const durationSeconds = Math.trunc((musicData.size * 8) / musicData.br) + 1
+      //   const cardData = mediaCard('music', attrs.name, attrs.artist, 'https://api.vvhan.com/api/acgimg', (musicData.br / 1000), '66ccff')
+      //   // eslint-disable-next-line max-len
+      //   const mData = mediaData('music', attrs.name, attrs.artist, 'https://api.vvhan.com/api/acgimg', 'https://github.com/BSTluo', musicData.url, durationSeconds)
+      //   this.sendData(cardData)
+      //   this.sendData(mData)
 
-        break
-      }
+      //   break
+      // }
 
       default: {
         break
