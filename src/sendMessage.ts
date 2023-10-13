@@ -25,7 +25,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
 
   async visit(element: h): Promise<void> {
     const { type, attrs, children } = element
-    console.log('type', type)
+    // console.log('type', type)
     // console.log('attrs', attrs)
     // console.log('children', children)
 
@@ -42,6 +42,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
           bitRate: attrs.bitRate,
           color: attrs.color
         }
+
         this.bot.ctx.emit('iirose/makeMusic', obj)
         break
       }
@@ -58,6 +59,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
           bitRate: attrs.bitRate,
           color: attrs.color
         }
+
         this.bot.ctx.emit('iirose/makeMusic', obj)
         break
       }
