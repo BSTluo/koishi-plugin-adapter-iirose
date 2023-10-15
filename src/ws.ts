@@ -56,8 +56,9 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
       EventsServer(this.bot)
       this.bot.online()
       this.live = setInterval(() => {
-        if (this.bot.status == Status.ONLINE) { IIROSE_WSsend(this.bot, '') }
-
+        if (this.bot.status == Status.ONLINE) {
+          IIROSE_WSsend(this.bot, '')
+        }
       }, 30 * 1000) // 半分钟发一次包保活
     })
 

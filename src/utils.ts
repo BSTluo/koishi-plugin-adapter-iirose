@@ -25,8 +25,12 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     await bot.adapter.stop(bot)
     await bot.adapter.start(bot)
     */
+    
     bot.offline()
     await bot.adapter.disconnect(bot)
+    
+    bot.socket = null
+
     await bot.adapter.connect(bot)
     bot.online()
   })
