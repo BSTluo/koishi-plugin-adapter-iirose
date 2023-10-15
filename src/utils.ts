@@ -12,6 +12,8 @@ import StockBuy from './encoder/user/StockBuy'
 import StockSell from './encoder/user/StockSell'
 import StockGet from './encoder/user/StockGet'
 import { IIROSE_WSsend } from './ws'
+import * as EventType from './event'
+import { Stock } from './decoder/Stock'
 
 const logger = new Logger('IIROSE-BOT')
 
@@ -25,17 +27,17 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     await bot.adapter.stop(bot)
     await bot.adapter.start(bot)
     */
-    
+
     bot.offline()
     await bot.adapter.disconnect(bot)
-    
+
     bot.socket = null
 
     await bot.adapter.connect(bot)
     bot.online()
   })
 
-  bot.ctx.on('iirose/kick', kickData => {
+  bot.ctx.on('iirose/kick', (kickData: EventType.kickData) => {
     /* 示例data
     kickData: {
         username: '用户名'
@@ -44,7 +46,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     IIROSE_WSsend(bot, kickFunction(kickData.username))
   })
 
-  bot.ctx.on('iirose/cut-one', cutOne => {
+  bot.ctx.on('iirose/cut-one', (cutOne: EventType.cutOne) => {
     /* 示例data
     cutOneData: {
         id: '歌曲id'
@@ -61,7 +63,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     IIROSE_WSsend(bot, cutAllFunction())
   })
 
-  bot.ctx.on('iirose/setMaxUser', setMaxUser => {
+  bot.ctx.on('iirose/setMaxUser', (setMaxUser: EventType.setMaxUser) => {
     /* 示例data
     setMaxUser: {
       maxMember: 人数（为空则清除限制？）
@@ -71,7 +73,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     (setMaxUser.hasOwnProperty('number')) ? IIROSE_WSsend(bot, setMaxUserFunction(setMaxUser.maxMember)) : IIROSE_WSsend(bot, setMaxUserFunction())
   })
 
-  bot.ctx.on('iirose/whiteList', whiteList => {
+  bot.ctx.on('iirose/whiteList', (whiteList: EventType.whiteList) => {
     /* 示例data
     data: {
       username: 用户名,
@@ -84,7 +86,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     (whiteList.hasOwnProperty('intro')) ? IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time))
   })
 
-  bot.ctx.on('iirose/damaku', damaku => {
+  bot.ctx.on('iirose/damaku', (damaku: EventType.damaku) => {
     /* 示例data
     data: {
       message: 弹幕内容,
@@ -94,23 +96,23 @@ export const EventsServer = (bot: IIROSE_Bot) => {
     IIROSE_WSsend(bot, damakuFunction(damaku.message, damaku.color))
   })
 
-  bot.ctx.on('iirose/makeMusic', musicOrigin => {
+  bot.ctx.on('iirose/makeMusic', (musicOrigin: EventType.musicOrigin) => {
     const { type, name, signer, cover, link, url, duration, bitRate, color } = musicOrigin
     IIROSE_WSsend(bot, mediaCard(type, name, signer, cover, bitRate, color))
     IIROSE_WSsend(bot, mediaData(type, name, signer, cover, link, url, duration))
   })
 
-  bot.ctx.on('iirose/stockBuy', numberData => {
+  bot.ctx.on('iirose/stockBuy', (numberData: number) => {
     IIROSE_WSsend(bot, StockBuy(numberData))
   })
 
-  bot.ctx.on('iirose/stockSell', numberData => {
+  bot.ctx.on('iirose/stockSell', (numberData: number) => {
     IIROSE_WSsend(bot, StockSell(numberData))
   })
 
-  bot.ctx.on('iirose/stockGet', callBack => {
+  bot.ctx.on('iirose/stockGet', (callBack: EventType.StockGet) => {
     IIROSE_WSsend(bot, StockGet())
-    bot.ctx.once('iirose/stockBackCall', stockData => {
+    bot.ctx.once('iirose/stockBackCall', (stockData: Stock) => {
       return callBack(stockData)
     })
   })
