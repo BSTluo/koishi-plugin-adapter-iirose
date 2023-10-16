@@ -98,7 +98,7 @@ export const EventsServer = (bot: IIROSE_Bot) => {
 
   bot.ctx.on('iirose/makeMusic', (musicOrigin: EventType.musicOrigin) => {
     const { type, name, signer, cover, link, url, duration, bitRate, color } = musicOrigin
-    IIROSE_WSsend(bot, mediaCard(type, name, signer, cover, bitRate, color))
+    IIROSE_WSsend(bot, mediaCard(type, name, signer, cover, color, bitRate))
     IIROSE_WSsend(bot, mediaData(type, name, signer, cover, link, url, duration))
   })
 
