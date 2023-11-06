@@ -12,7 +12,7 @@ const logger = new Logger('IIROSE-BOT');
 
 export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
   WSurl: string = 'wss://m2.iirose.com:8778';
-  event: any;
+  private event: (() => boolean)[];
 
   constructor(ctx: Context, bot: IIROSE_Bot) {
     super(ctx, bot);
@@ -51,7 +51,8 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
     };
 
     socket.addEventListener('open', () => {
-      logger.debug('websocket client opening');
+      
+      logger.success('websocket client opening');
       const loginPack = '*' + JSON.stringify(this.loginObj);
 
       IIROSE_WSsend(this.bot, loginPack);
@@ -99,33 +100,34 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
     });
   }
 
-  // async start() {
-  //   this.bot.socket = await this.prepare();
-  //   this.accept();
+  async start() {
+    this.bot.socket = await this.prepare();
+    this.accept();
 
-  //   let time = 5;
-  //   let tryTime = 0;
+    let time = 5;
+    let tryTime = 0;
 
-  //   this.bot.socket.addEventListener('close', async ({ code, reason }) => {
-  //     if (this.bot.status == Status.RECONNECT || this.bot.status == Status.DISCONNECT) { return; }
-  //     logger.debug(`websocket closed with ${code}`);
+    this.bot.socket.addEventListener('close', async ({ code, reason }) => {
+      if (this.bot.status == Status.RECONNECT || this.bot.status == Status.DISCONNECT) { return; }
+      logger.warn(`websocket closed with ${code}`);
 
-  //     if (tryTime <= time) {
-  //       logger.warn(`${reason.toString()}, will retry in ${5000}ms...`);
-  //       this.bot.socket = await this.prepare();
-  //     } else {
-  //       const message = `failed to connect to ${this.WSurl}, code: ${code}`;
-  //       logger.debug(message);
+      if (tryTime <= time) {
+        logger.warn(`${reason.toString()}, will retry in ${5000}ms...`);
+        this.bot.socket = await this.prepare();
+        this.accept();
+      } else {
+        const message = `failed to connect to ${this.WSurl}, code: ${code}`;
+        logger.error(message);
 
-  //       tryTime = 0;
-  //       this.bot.socket.removeEventListener('close', () => { });
-  //       this.bot.socket.removeEventListener('message', () => { });
-  //       return this.stop();
-  //     }
+        tryTime = 0;
+        this.bot.socket.removeEventListener('close', () => { });
+        this.bot.socket.removeEventListener('message', () => { });
+        return this.stop();
+      }
 
-  //     tryTime++;
-  //   });
-  // }
+      tryTime++;
+    });
+  }
 
   async stop() {
     stopEventsServer(this.event);
@@ -150,7 +152,7 @@ export namespace WsClient {
 }
 
 export function IIROSE_WSsend(bot: IIROSE_Bot, data: string) {
-  if (bot.socket.readyState !== 1) { return; }
+  if (bot.socket.readyState == 0) { return; }
   const buffer = Buffer.from(data);
   const unintArray: any = Uint8Array.from(buffer);
 

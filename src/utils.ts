@@ -19,22 +19,16 @@ import { Stock } from './decoder/Stock';
 const logger = new Logger('IIROSE-BOT');
 
 export const startEventsServer = (bot: IIROSE_Bot) => {
-  let event = [];
+  let event:(() => boolean)[] = [];
 
   event.push(bot.ctx.on('iirose/moveRoom', async moveData => {
     const roomId = moveData.roomId;
     if (bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
     bot.config.roomId = roomId;
 
+    bot.status = Status.RECONNECT;
     await bot.adapter.disconnect(bot);
-
-    // bot.offline()
-    // await bot.adapter.disconnect(bot)
-
-    // // bot.socket = null
-    // // await bot.adapter.connect(bot)
-    // bot.online()
-
+    await bot.adapter.connect(bot);
   }));
 
   event.push(bot.ctx.on('iirose/kick', (kickData: EventType.kickData) => {
@@ -123,9 +117,8 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
   return event;
 };
 
-export const stopEventsServer = (event) => {
-  console.log(event);
-  event.forEach(element => {
-    console.log(element());
+export const stopEventsServer = (event:(() => boolean)[]) => {
+  event.forEach((element: () => boolean) => {
+    element();
   });
 };
