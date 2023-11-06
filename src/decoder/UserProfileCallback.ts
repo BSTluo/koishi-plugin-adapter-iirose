@@ -1,42 +1,42 @@
 export interface UserProfileCallback {
-  email: string
-  location: string
-  website: string
-  hobby: string
-  intro: string
-  background: string
-  music: string
-  lastLoginTime: Date
-  visits: string
-  title: string
-  rooms: string[]
-  tags: string
-  regTime: Date
-  online: string
-  credit: string
+  email: string;
+  location: string;
+  website: string;
+  hobby: string;
+  intro: string;
+  background: string;
+  music: string;
+  lastLoginTime: Date;
+  visits: string;
+  title: string;
+  rooms: string[];
+  tags: string;
+  regTime: Date;
+  online: string;
+  credit: string;
   life: {
-    image: string
-    time: Date
-    desc: string
-  }[]
+    image: string;
+    time: Date;
+    desc: string;
+  }[];
   mate: {
-    username: string | null
-    avatar: string | null
-    color: string | null
-  }
+    username: string | null;
+    avatar: string | null;
+    color: string | null;
+  };
   money: {
-    hold: string
-    bank: string
-  }
+    hold: string;
+    bank: string;
+  };
   like: {
-    times: number
-    users: string[]
-  }
+    times: number;
+    users: string[];
+  };
 }
 
 export const userProfileCallback = (message: string) => {
   if (message.substr(0, 2) === '+1') {
-    const tmp = message.substr(2).split('>')
+    const tmp = message.substr(2).split('>');
     const msg: UserProfileCallback = {
       email: tmp[0],
       location: tmp[4],
@@ -58,8 +58,8 @@ export const userProfileCallback = (message: string) => {
           image: `http${e.split(' ')[0]}`,
           time: new Date(Number(e.split(' ')[1]) * 1e3),
           desc: e.split(' ').splice(2).join(' '),
-        }
-        return data
+        };
+        return data;
       }),
       mate: {
         username: tmp[23] ? tmp[23].split('<')[0] : null,
@@ -74,8 +74,8 @@ export const userProfileCallback = (message: string) => {
         times: Number(tmp[16].split('"')[0]),
         users: tmp[16].split('"')[1].split("'"),
       },
-    }
+    };
     // UserProfileCallback
-    return msg
+    return msg;
   }
-}
+};

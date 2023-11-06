@@ -1,20 +1,20 @@
-import { decode } from 'html-entities'
+import { decode } from 'html-entities';
 
 export interface MediaListCallback {
-  id: string
-  length: number
-  title: string
-  color: string
-  name: string
-  type: number
-  avatar: string
-  cover: string
+  id: string;
+  length: number;
+  title: string;
+  color: string;
+  name: string;
+  type: number;
+  avatar: string;
+  cover: string;
 }
 
 export const mediaListCallback = (message: string) => {
   if (message.substr(0, 1) === '~') {
     const result: MediaListCallback[] = message.substr(1).split('<').map((e, i) => {
-      const tmp = e.split('>')
+      const tmp = e.split('>');
       return {
         id: `${i}_${tmp[0]}`,
         length: Number(tmp[0]),
@@ -24,9 +24,9 @@ export const mediaListCallback = (message: string) => {
         type: Number(tmp[3]),
         avatar: tmp[4],
         cover: `http${tmp[5]}`,
-      }
-    })
+      };
+    });
     // MediaListCallback
-    return result
+    return result;
   }
-}
+};

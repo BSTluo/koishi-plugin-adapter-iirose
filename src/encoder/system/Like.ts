@@ -1,3 +1,3 @@
 export default (uid: string, message: string = '') => {
-  return `+*${uid} ${message}`
-}
+  return `+*${uid} ${message}`;
+};

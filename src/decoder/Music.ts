@@ -1,16 +1,16 @@
 export interface Music {
-  url: string
-  link: string
-  duration: number
-  title: string
-  singer: string
-  owner: string
-  pic: string
+  url: string;
+  link: string;
+  duration: number;
+  title: string;
+  singer: string;
+  owner: string;
+  pic: string;
 }
 
 export const music = (message: string) => {
   if (message.substr(0, 2) === '&1') {
-    const tmp = message.substr(2).split('>')
+    const tmp = message.substr(2).split('>');
 
     if (tmp.length >= 9 && tmp[8] === '') {
       const msg = {
@@ -21,9 +21,9 @@ export const music = (message: string) => {
         singer: tmp[3].substr(2),
         owner: tmp[4],
         pic: `http${tmp[6]}`,
-      }
+      };
       // music
-      return msg
+      return msg;
     }
   }
-}
+};

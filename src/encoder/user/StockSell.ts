@@ -1,3 +1,3 @@
 export default (quantity: number) => {
-  return `>@${quantity}`
-}
+  return `>@${quantity}`;
+};

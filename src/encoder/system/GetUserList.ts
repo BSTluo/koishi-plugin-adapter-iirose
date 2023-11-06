@@ -1,1 +1,1 @@
-export default () => { return 'r2' }
+export default () => { return 'r2'; };

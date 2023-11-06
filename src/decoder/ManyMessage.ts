@@ -1,92 +1,92 @@
-import { decode } from 'html-entities'
+import { decode } from 'html-entities';
 
 export interface replyMessage {
-  message: string
-  username: string
-  time: number
+  message: string;
+  username: string;
+  time: number;
 }
 
 interface data {
-  type?: string
-  timestamp: number
-  avatar: string
-  username: string
-  message?: string
-  color: string
-  uid: string
-  title?: string
-  messageId?: number
-  replyMessage?: replyMessage[] | null
+  type?: string;
+  timestamp: number;
+  avatar: string;
+  username: string;
+  message?: string;
+  color: string;
+  uid: string;
+  title?: string;
+  messageId?: number;
+  replyMessage?: replyMessage[] | null;
 }
 
 export class ManyMessage {
-  public timestamp: number
-  public avatar: string
-  public username: string
-  public message: string
-  public color: string
-  public uid: string
-  public title: string
-  public messageId: number
-  public replyMessage: replyMessage[] | null
-  public type: string | null
+  public timestamp: number;
+  public avatar: string;
+  public username: string;
+  public message: string;
+  public color: string;
+  public uid: string;
+  public title: string;
+  public messageId: number;
+  public replyMessage: replyMessage[] | null;
+  public type: string | null;
 
   constructor(data: data) {
-    this.timestamp = data.timestamp
-    this.avatar = data.avatar
-    this.username = data.username
-    this.message = data.message
-    this.color = data.color
-    this.uid = data.uid
-    this.title = data.title
-    this.messageId = data.messageId
-    this.replyMessage = data.replyMessage
-    this.type = data.type
+    this.timestamp = data.timestamp;
+    this.avatar = data.avatar;
+    this.username = data.username;
+    this.message = data.message;
+    this.color = data.color;
+    this.uid = data.uid;
+    this.title = data.title;
+    this.messageId = data.messageId;
+    this.replyMessage = data.replyMessage;
+    this.type = data.type;
   }
 }
 
 const replyMsg = (msg: string): replyMessage[] | null => {
   if (msg.includes(' (_hr) ')) {
-    const replies: replyMessage[] = []
+    const replies: replyMessage[] = [];
 
     msg.split(' (hr_) ').forEach(e => {
       if (e.includes(' (_hr) ')) {
-        const tmp = e.split(' (_hr) ')
-        const user = tmp[1].split('_')
+        const tmp = e.split(' (_hr) ');
+        const user = tmp[1].split('_');
 
         replies.unshift({
           message: decode(tmp[0]),
           username: decode(user[0]),
           time: Number(user[1]),
-        })
+        });
 
         replies.sort((a, b) => {
-          return (a.time - b.time)
-        })
+          return (a.time - b.time);
+        });
       } else {
         // @ts-ignore
-        replies.unshift(e)
+        replies.unshift(e);
       }
-    })
+    });
 
-    return replies
+    return replies;
   }
 
-  return null
-}
+  return null;
+};
 
 export const manyMessage = (input: string) => {
-  if (input.substring(0, 1) !== '"') return null
-  const message: string = input.substring(1)
+  if (input.substring(0, 1) !== '"') return null;
+  const message: string = input.substring(1);
 
   if (message.indexOf('<') !== -1) {
-    const tmp1 = message.split('<')
+    const tmp1 = message.split('<');
 
-    const output: ManyMessage[] = []
+    const output: ManyMessage[] = [];
 
     tmp1.forEach(e => {
-      const tmp = e.split('>')
-      tmp[0] = tmp[0].replace('"', '')
+      const tmp = e.split('>');
+      tmp[0] = tmp[0].replace('"', '');
 
       if (/^\d+$/.test(tmp[0])) {
         if (tmp.length === 11) {
@@ -101,9 +101,9 @@ export const manyMessage = (input: string) => {
               color: tmp[5],
               uid: tmp[1],
               messageId: Number(tmp[10]),
-            }))
+            }));
           } else {
-            const reply = replyMsg(tmp[3])
+            const reply = replyMsg(tmp[3]);
             output.push(new ManyMessage({
               type: 'publicMessage',
               timestamp: Number(tmp[0]),
@@ -115,7 +115,7 @@ export const manyMessage = (input: string) => {
               title: tmp[9] === "'108" ? '花瓣' : tmp[9],
               messageId: Number(tmp[10]),
               replyMessage: reply,
-            }))
+            }));
           }
         } else if (tmp.length === 12) {
           if (tmp[3] === "'1") {
@@ -128,9 +128,9 @@ export const manyMessage = (input: string) => {
               uid: tmp[8],
               title: tmp[9] === "'108" ? '花瓣' : tmp[9],
               room: tmp[10],
-            }
+            };
             // JoinRoom
-            output.push(new ManyMessage(msg))
+            output.push(new ManyMessage(msg));
           } else if (tmp[3].substr(0, 2) === "'2") {
             const msg = {
               type: 'switchRoom',
@@ -142,9 +142,9 @@ export const manyMessage = (input: string) => {
               title: tmp[9] === "'108" ? '花瓣' : tmp[9],
               room: tmp[10],
               targetRoom: tmp[3].substr(2),
-            }
+            };
             // SwitchRoom
-            output.push(new ManyMessage(msg))
+            output.push(new ManyMessage(msg));
           } else if (tmp[3] === "'3") {
             const msg = {
               type: 'leaveRoom',
@@ -155,13 +155,13 @@ export const manyMessage = (input: string) => {
               uid: tmp[8],
               title: tmp[9] === "'108" ? '花瓣' : tmp[9],
               room: tmp[10],
-            }
+            };
             // LeaveRoom
-            output.push(new ManyMessage(msg))
+            output.push(new ManyMessage(msg));
           }
         }
       }
-    })
-    return output
+    });
+    return output;
   }
-}
+};

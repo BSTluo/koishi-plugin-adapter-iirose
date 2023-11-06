@@ -2,7 +2,7 @@ export default (type: 'music' | 'video', title: string, signer: string, cover: s
   const typeMap = {
     music: 0,
     video: 1,
-  }
+  };
 
   const data = JSON.stringify({
     b: `=${typeMap[type]}`,
@@ -12,7 +12,7 @@ export default (type: 'music' | 'video', title: string, signer: string, cover: s
     o: link.substr(4),
     r: signer,
     s: url.substr(4),
-  })
+  });
 
-  return `&1${data}`
-}
+  return `&1${data}`;
+};

@@ -1,5 +1,5 @@
 export interface PaymentCallback {
-  money: number
+  money: number;
 }
 
 export const paymentCallback = (message: string) => {
@@ -7,6 +7,6 @@ export const paymentCallback = (message: string) => {
     // paymentCallback
     return {
       money: Number(message.substr(2)),
-    }
+    };
   }
-}
+};

@@ -1,16 +1,16 @@
 export interface GetUserListCallback {
-  avatar: string
-  username: string
-  color: string
-  room: string
-  uid: string
+  avatar: string;
+  username: string;
+  color: string;
+  room: string;
+  uid: string;
 }
 
 export const getUserListCallback = (message: string) => {
   if (message.substr(0, 2) === 'u2') {
-    const list: GetUserListCallback[] = []
+    const list: GetUserListCallback[] = [];
     message.substr(2).split('<').forEach(e => {
-      const tmp = e.split('>')
+      const tmp = e.split('>');
       if (tmp.length >= 8) {
         list.push({
           avatar: tmp[0],
@@ -18,10 +18,10 @@ export const getUserListCallback = (message: string) => {
           color: tmp[3],
           room: tmp[4],
           uid: tmp[8],
-        })
+        });
       }
-    })
+    });
     // GetUserListCallback
-    return list
+    return list;
   }
-}
+};
