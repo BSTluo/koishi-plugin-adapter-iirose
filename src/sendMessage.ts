@@ -1,7 +1,7 @@
 import axios from 'axios';
 import fs from 'fs';
 import FormData from 'form-data';
-import { h, MessageEncoder } from '@satorijs/satori';
+import { h, MessageEncoder, Context } from '@satorijs/satori';
 import { IIROSE_Bot } from './bot';
 import PublicMessage from './encoder/messages/PublicMessage';
 import PrivateMessage from './encoder/messages/PrivateMessage';
@@ -11,7 +11,7 @@ import Like from './encoder/system/Like';
 import { IIROSE_WSsend } from './ws';
 import { musicOrigin } from './event';
 
-export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
+export class IIROSE_BotMessageEncoder<C extends Context = Context> extends MessageEncoder<C, IIROSE_Bot<C>> {
   private outDataOringin: string = '';
   private outDataOringinObj: string = '';
 
@@ -43,7 +43,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
           color: attrs.color
         };
 
-        this.bot.ctx.emit('iirose/makeMusic', obj);
+        const ctx: Context = this.bot.ctx;
+        ctx.emit('iirose/makeMusic', obj);
         break;
       }
 
@@ -59,8 +60,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<IIROSE_Bot> {
           bitRate: attrs.bitRate,
           color: attrs.color
         };
-
-        this.bot.ctx.emit('iirose/makeMusic', obj);
+        const ctx: Context = this.bot.ctx;
+        ctx.emit('iirose/makeMusic', obj);
         break;
       }
 

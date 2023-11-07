@@ -26,7 +26,6 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
     if (bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
     bot.config.roomId = roomId;
 
-    bot.status = Status.RECONNECT;
     await bot.adapter.disconnect(bot);
     await bot.adapter.connect(bot);
   }));

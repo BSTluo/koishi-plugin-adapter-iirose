@@ -6,10 +6,10 @@ import kick from './encoder/admin/kick';
 import mute from './encoder/admin/mute';
 import { messageObjList } from './messageTemp';
 
-export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
+export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config = IIROSE_Bot.Config> extends Bot<C, T> {
   platform: string = 'iirose';
   socket: WebSocket;
-  constructor(ctx: Context, config: IIROSE_Bot.Config) {
+  constructor(ctx: C, config: T) {
     super(ctx, config);
     ctx.plugin(WsClient, this);
     this.selfId = ctx.config.uid;
@@ -21,8 +21,9 @@ export class IIROSE_Bot extends Bot<IIROSE_Bot.Config> {
     return messages.map(message => message.id);
   }
 
-  async sendPrivateMessage(channelId: string, content: Fragment, options?: SendOptions): Promise<string[]> {
-    return this.sendMessage(`private:${channelId}`, content);
+  async sendPrivateMessage(userId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]> {
+    
+    return this.sendMessage(`private:${userId}`, content);
   }
 
   async getSelf(): Promise<Universal.User> {

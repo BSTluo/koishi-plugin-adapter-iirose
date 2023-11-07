@@ -10,18 +10,9 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const logger = new Logger('IIROSE-BOT');
 
-export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
+export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>> {
   WSurl: string = 'wss://m2.iirose.com:8778';
   private event: (() => boolean)[];
-
-  constructor(ctx: Context, bot: IIROSE_Bot) {
-    super(ctx, bot);
-
-    // ctx.on('dispose', () => {
-    //   logger.info('offline to server: %c', this.WSurl)
-    //   this.over(bot)
-    // })
-  }
 
   live: NodeJS.Timeout;
   loginObj: {
@@ -33,6 +24,15 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
     mb: string;
     mu: string;
   };
+
+  constructor(ctx: C, bot: IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>) {
+    super(ctx, bot);
+
+    // ctx.on('dispose', () => {
+    //   logger.info('offline to server: %c', this.WSurl)
+    //   this.over(bot)
+    // })
+  }
 
   async prepare(): Promise<WebSocket> {
     const socket: WebSocket = this.bot.ctx.http.ws(this.WSurl);
@@ -51,7 +51,7 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
     };
 
     socket.addEventListener('open', () => {
-      
+
       logger.success('websocket client opening');
       const loginPack = '*' + JSON.stringify(this.loginObj);
 
@@ -108,7 +108,7 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
     let tryTime = 0;
 
     this.bot.socket.addEventListener('close', async ({ code, reason }) => {
-      if (this.bot.status == Status.RECONNECT || this.bot.status == Status.DISCONNECT) { return; }
+      if (this.bot.status == Status.RECONNECT || this.bot.status == Status.DISCONNECT || code == 1000) { return; }
       logger.warn(`websocket closed with ${code}`);
 
       if (tryTime <= time) {
@@ -130,6 +130,7 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
   }
 
   async stop() {
+    this.bot.status = Status.DISCONNECT;
     stopEventsServer(this.event);
     this.socket?.removeEventListener('close', () => { });
     this.socket?.removeEventListener('message', () => { });
