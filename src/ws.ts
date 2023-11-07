@@ -51,7 +51,7 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
     };
 
     socket.addEventListener('open', () => {
-      
+
       logger.success('websocket client opening');
       const loginPack = '*' + JSON.stringify(this.loginObj);
 
@@ -108,7 +108,7 @@ export class WsClient extends Adapter.WsClient<IIROSE_Bot> {
     let tryTime = 0;
 
     this.bot.socket.addEventListener('close', async ({ code, reason }) => {
-      if (this.bot.status == Status.RECONNECT || this.bot.status == Status.DISCONNECT) { return; }
+      if (this.bot.status == Status.RECONNECT || this.bot.status == Status.DISCONNECT || this.bot.status == Status.OFFLINE || code == 1000) { return; }
       logger.warn(`websocket closed with ${code}`);
 
       if (tryTime <= time) {
