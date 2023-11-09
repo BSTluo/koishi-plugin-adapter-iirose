@@ -43,8 +43,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           color: attrs.color
         };
 
-        const ctx: Context = this.bot.ctx;
-        ctx.emit('iirose/makeMusic', obj);
+        this.bot.internal.makeMusic(obj);
+        // ctx.emit('iirose/makeMusic', obj);
         break;
       }
 
@@ -60,8 +60,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           bitRate: attrs.bitRate,
           color: attrs.color
         };
-        const ctx: Context = this.bot.ctx;
-        ctx.emit('iirose/makeMusic', obj);
+        this.bot.internal.makeMusic(obj);
+        // ctx.emit('iirose/makeMusic', obj);
         break;
       }
 
