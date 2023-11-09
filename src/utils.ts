@@ -105,8 +105,10 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
 
   event.push(bot.ctx.on('iirose/stockGet', (callBack: EventType.StockGet) => {
     IIROSE_WSsend(bot, StockGet());
-    bot.ctx.once('iirose/stockBackCall', (stockData: Stock) => {
-      return callBack(stockData);
+    bot.ctx.once('iirose/stockBackCall', (stockData: EventType.StockSession) => {
+      const outData:EventType.StockSession = stockData
+      outData.bot = bot
+      return callBack(outData);
     });
   }));
   // 发音频视频的果然还是直接sendMessage.ts里面改好...

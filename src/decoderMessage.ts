@@ -1,7 +1,7 @@
 import { IIROSE_Bot } from './bot';
 import { MessageType } from './decoder';
 import { h } from '@satorijs/satori';
-import { EventsCallBackOrigin } from './event';
+import { EventsCallBackOrigin, passiveEvent } from './event';
 import { messageObjList } from './messageTemp';
 
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
@@ -59,8 +59,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'leaveRoom': {
         // 作为事件
         const data = obj.leaveRoom;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.leaveRoomEvent = {
           // 开启兼容
           // type: 'guild-deleted',
           type: 'room-leave',
@@ -80,18 +80,19 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data
         };
 
-        bot.ctx.emit('iirose/leaveRoom', session, data);
+        bot.ctx.emit('iirose/leaveRoom', session);
         break;
       }
 
       case 'joinRoom': {
         // 作为事件
         const data = obj.joinRoom;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.joinRoomEvent = {
           // 开启兼容
           // type: 'guild-added',
           type: 'room-join',
@@ -111,9 +112,10 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data
         };
-        bot.ctx.emit('iirose/joinRoom', session, data);
+        bot.ctx.emit('iirose/joinRoom', session);
         break;
       }
 
@@ -161,8 +163,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'damaku': {
         const data = obj.damaku;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.damakuEvent = {
           type: 'damaku',
           userId: data.username,
           author: {
@@ -180,16 +182,18 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data
         };
-        bot.ctx.emit('iirose/newDamaku', session, data);
+
+        bot.ctx.emit('iirose/newDamaku', session);
         break;
       }
 
       case 'switchRoom': {
         // 这玩意真的是机器人能够拥有的吗
-        const data = obj.switchRoom;
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.switchRoomEvent = {
           type: 'switchRoom',
           platform: 'iirose',
           guildId: bot.config.roomId,
@@ -199,18 +203,19 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: obj.switchRoom
         };
 
-        bot.ctx.emit('iirose/switchRoom', session, data);
+        bot.ctx.emit('iirose/switchRoom', session);
         break;
       }
 
       case 'music': {
         // 音乐
         const data = obj.music;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.musicEvent = {
           type: 'music',
           platform: 'iirose',
           send: (data) => {
@@ -219,17 +224,18 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data
         };
 
-        bot.ctx.emit('iirose/newMusic', session, data);
+        bot.ctx.emit('iirose/newMusic', session);
         break;
       }
 
       case 'paymentCallback': {
         const data = obj.paymentCallback;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.paymentCallbackEvent = {
           type: 'paymentCallback',
           platform: 'iirose',
           send: (data) => {
@@ -238,17 +244,18 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data
         };
 
-        bot.ctx.emit('iirose/before-payment', session, data);
+        bot.ctx.emit('iirose/before-payment', session);
         break;
       }
 
       case 'getUserListCallback': {
         const data = obj.getUserListCallback;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.getUserListCallbackEvent = {
           type: 'getUserListCallback',
           platform: 'iirose',
           send: (data) => {
@@ -257,17 +264,18 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data
         };
 
-        bot.ctx.emit('iirose/before-getUserList', session, data);
+        bot.ctx.emit('iirose/before-getUserList', session);
         break;
       }
 
       case 'userProfileCallback': {
         const data = obj.userProfileCallback;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.userProfileCallbackEvent = {
           type: 'userProfileCallback',
           platform: 'iirose',
           send: (data) => {
@@ -276,17 +284,18 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data
         };
 
-        bot.ctx.emit('iirose/before-userProfile', session, data);
+        bot.ctx.emit('iirose/before-userProfile', session);
         break;
       }
 
       case 'bankCallback': {
         const data = obj.bankCallback;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.bankCallbackEvent = {
           type: 'bankCallback',
           platform: 'iirose',
           send: (data) => {
@@ -295,17 +304,18 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data
         };
 
-        bot.ctx.emit('iirose/before-bank', session, data);
+        bot.ctx.emit('iirose/before-bank', session);
         break;
       }
 
       case 'mediaListCallback': {
         const data = obj.mediaListCallback;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.mediaListCallbackEvent = {
           type: 'mediaListCallback',
           platform: 'iirose',
           send: (data) => {
@@ -314,17 +324,18 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data
         };
 
-        bot.ctx.emit('iirose/before-mediaList', session, data);
+        bot.ctx.emit('iirose/before-mediaList', session);
         break;
       }
 
       case 'selfMove': {
         const data = obj.selfMove;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.selfMoveEvent = {
           type: 'selfMove',
           platform: 'iirose',
           send: (data) => {
@@ -333,18 +344,19 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data
         };
 
-        bot.ctx.emit('iirose/selfMove', session, data);
+        bot.ctx.emit('iirose/selfMove', session);
         // 自身移动房间
         break;
       }
 
       case 'mailboxMessage': {
         const data = obj.mailboxMessage;
-
-        const session: EventsCallBackOrigin = {
+        
+        const session: passiveEvent.mailboxMessageEvent = {
           type: 'mailboxMessage',
           platform: 'iirose',
           send: (data) => {
@@ -353,10 +365,11 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          bot,
+          bot: bot,
+          data: data,
         };
 
-        bot.ctx.emit('iirose/mailboxMessage', session, data);
+        bot.ctx.emit('iirose/mailboxMessage', session);
         break;
       }
 

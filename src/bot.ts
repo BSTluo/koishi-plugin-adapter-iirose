@@ -5,6 +5,7 @@ import { IIROSE_BotMessageEncoder } from './sendMessage';
 import kick from './encoder/admin/kick';
 import mute from './encoder/admin/mute';
 import { messageObjList } from './messageTemp';
+import { Internal, InternalType } from './internal';
 
 export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config = IIROSE_Bot.Config> extends Bot<C, T> {
   platform: string = 'iirose';
@@ -53,6 +54,8 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 
     IIROSE_WSsend(this, mute('all', userName, time, reason));
   }
+
+  internal: InternalType = new Internal(this);
 }
 
 export namespace IIROSE_Bot {

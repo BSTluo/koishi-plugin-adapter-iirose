@@ -53,6 +53,7 @@ export interface EventsCallBackOrigin {
       userId: string;
     };
   }) => void;
+  data?: any;
 }
 
 export interface musicOrigin {
@@ -71,19 +72,73 @@ export interface StockGet {
   (stockData: Stock): void;
 }
 
+export namespace passiveEvent {
+  export interface leaveRoomEvent extends EventsCallBackOrigin {
+    data: MessageType['leaveRoom'];
+  }
+
+  export interface joinRoomEvent extends EventsCallBackOrigin {
+    data: MessageType['joinRoom'];
+  }
+
+  export interface damakuEvent extends EventsCallBackOrigin {
+    data: MessageType['damaku'];
+  }
+
+  export interface switchRoomEvent extends EventsCallBackOrigin {
+    data: MessageType['switchRoom'];
+  }
+
+  export interface musicEvent extends EventsCallBackOrigin {
+    data: MessageType['music'];
+  }
+
+  export interface paymentCallbackEvent extends EventsCallBackOrigin {
+    data: MessageType['paymentCallback'];
+  }
+
+  export interface getUserListCallbackEvent extends EventsCallBackOrigin {
+    data: MessageType['getUserListCallback'];
+  }
+
+  export interface userProfileCallbackEvent extends EventsCallBackOrigin {
+    data: MessageType['userProfileCallback'];
+  }
+
+  export interface bankCallbackEvent extends EventsCallBackOrigin {
+    data: MessageType['bankCallback'];
+  }
+
+  export interface mediaListCallbackEvent extends EventsCallBackOrigin {
+    data: MessageType['mediaListCallback'];
+  }
+
+  export interface selfMoveEvent extends EventsCallBackOrigin {
+    data: MessageType['selfMove'];
+  }
+
+  export interface mailboxMessageEvent extends EventsCallBackOrigin {
+    data: MessageType['mailboxMessage'];
+  }
+}
+
+export interface StockSession extends Stock {
+  bot?: IIROSE_Bot;
+}
+
 export interface Events {
-  'iirose/leaveRoom'(session: EventsCallBackOrigin, data: MessageType['leaveRoom']): void;
-  'iirose/switchRoom'(session: EventsCallBackOrigin, data: MessageType['switchRoom']): void;
-  'iirose/joinRoom'(session: EventsCallBackOrigin, data: MessageType['joinRoom']): void;
-  'iirose/newDamaku'(session: EventsCallBackOrigin, data: MessageType['damaku']): void;
-  'iirose/newMusic'(session: EventsCallBackOrigin, data: MessageType['music']): void;
-  'iirose/before-payment'(session: EventsCallBackOrigin, data: MessageType['paymentCallback']): void;
-  'iirose/before-getUserList'(session: EventsCallBackOrigin, data: MessageType['getUserListCallback']): void;
-  'iirose/before-userProfile'(session: EventsCallBackOrigin, data: MessageType['userProfileCallback']): void;
-  'iirose/before-bank'(session: EventsCallBackOrigin, data: MessageType['bankCallback']): void;
-  'iirose/before-mediaList'(session: EventsCallBackOrigin, data: MessageType['mediaListCallback']): void;
-  'iirose/selfMove'(session: EventsCallBackOrigin, data: MessageType['selfMove']): void;
-  'iirose/mailboxMessage'(session: EventsCallBackOrigin, data: MessageType['mailboxMessage']): void;
+  'iirose/leaveRoom'(session: passiveEvent.leaveRoomEvent): void;
+  'iirose/joinRoom'(session: passiveEvent.joinRoomEvent): void;
+  'iirose/newDamaku'(session: passiveEvent.damakuEvent): void;
+  'iirose/switchRoom'(session: passiveEvent.switchRoomEvent): void;
+  'iirose/newMusic'(session: passiveEvent.musicEvent): void;
+  'iirose/before-payment'(session: passiveEvent.paymentCallbackEvent): void;
+  'iirose/before-getUserList'(session: passiveEvent.getUserListCallbackEvent): void;
+  'iirose/before-userProfile'(session: passiveEvent.userProfileCallbackEvent): void;
+  'iirose/before-bank'(session: passiveEvent.bankCallbackEvent): void;
+  'iirose/before-mediaList'(session: passiveEvent.mediaListCallbackEvent): void;
+  'iirose/selfMove'(session: passiveEvent.selfMoveEvent): void;
+  'iirose/mailboxMessage'(session: passiveEvent.mailboxMessageEvent): void;
   'iirose/kick'(kickData: kickData): void;
   'iirose/cut-one'(cutOne: cutOne): void;
   'iirose/cut-all'(): void;
@@ -95,5 +150,5 @@ export interface Events {
   'iirose/stockSell'(numberData: number): void;
   'iirose/stockBuy'(numberData: number): void;
   'iirose/stockGet'(callBack: StockGet): void;
-  'iirose/stockBackCall'(stockData: Stock): void;
+  'iirose/stockBackCall'(stockData: StockSession): void;
 }
