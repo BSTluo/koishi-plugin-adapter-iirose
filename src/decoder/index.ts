@@ -60,7 +60,7 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
 
 export interface MessageType {
   manyMessage?: ManyMessage[];
-  userlist?: UserList;
+  userlist?: UserList[];
   publicMessage?: PublicMessage;
   leaveRoom?: SystemMessage;
   joinRoom?: SystemMessage;
@@ -69,7 +69,7 @@ export interface MessageType {
   switchRoom?: SwitchRoom;
   music?: Music;
   paymentCallback?: PaymentCallback;
-  getUserListCallback?: GetUserListCallback;
+  getUserListCallback?: GetUserListCallback[];
   userProfileCallback?: UserProfileCallback;
   bankCallback?: BankCallback;
   mediaListCallback?: MediaListCallback;

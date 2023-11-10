@@ -1,8 +1,10 @@
 import { IIROSE_Bot } from './bot';
 import { MessageType } from './decoder';
 import { h } from '@satorijs/satori';
-import { EventsCallBackOrigin, passiveEvent } from './event';
+import { passiveEvent } from './event';
 import { messageObjList } from './messageTemp';
+import { UserList } from './decoder/Userlist';
+import { GetUserListCallback } from './decoder/GetUserListCallback';
 
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
   // 定义会话列表
@@ -10,6 +12,25 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
   for (const key in obj) {
     switch (key) {
       case 'userlist': {
+        const data:GetUserListCallback[] = obj.userlist
+
+        const session: passiveEvent.getUserListCallbackEvent = {
+          // 开启兼容
+          // type: 'guild-deleted',
+          type: 'room-leave',
+          platform: 'iirose',
+          selfId: bot.ctx.config.uid,
+          send: (data) => {
+            // eslint-disable-next-line no-prototype-builtins
+            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message); }
+            // eslint-disable-next-line no-prototype-builtins
+            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+          },
+          bot: bot,
+          data: data
+        };
+
+        bot.ctx.emit('iirose/before-getUserList',session);
         break;
       }
 
