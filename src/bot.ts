@@ -15,6 +15,11 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     ctx.plugin(WsClient, this);
     this.selfId = ctx.config.uid;
     this.userId = ctx.config.uid;
+    this.user = {
+      id: ctx.config.uid,
+      name: ctx.config.usename,
+      avatar: 'http://p26-tt.byteimg.com/origin/pgc-image/cabc74beb5794b97b1b300a2b8817e05'
+    }
   }
 
   async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions) {

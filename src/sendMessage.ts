@@ -25,9 +25,9 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
   async visit(element: h): Promise<void> {
     const { type, attrs, children } = element;
-    // console.log('type', type)
-    // console.log('attrs', attrs)
-    // console.log('children', children)
+    // console.log('type', type);
+    // console.log('attrs', attrs);
+    // console.log('children', children);
 
     switch (type) {
       case 'video': {
@@ -74,7 +74,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
       case 'text': {
         if (this.outDataOringin.length > 0) {
-          this.outDataOringin += `\n${attrs.content}`;
+          this.outDataOringin += `${attrs.content}`;
         } else {
           this.outDataOringin += `${attrs.content}`;
         }

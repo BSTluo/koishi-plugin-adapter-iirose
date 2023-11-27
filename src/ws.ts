@@ -50,6 +50,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     }
 
     if (faseter == '') {
+      this.bot.stop();
       throw '您的网络异常，无法连接至IIROSE服务器';
     } else {
       const socket: WebSocket = this.bot.ctx.http.ws(`wss://${faseter}.iirose.com:8778`);
@@ -128,22 +129,26 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     this.bot.socket.addEventListener('close', async ({ code, reason }) => {
       if (this.bot.status == Status.RECONNECT || this.bot.status == Status.DISCONNECT || this.bot.status == Status.OFFLINE || code == 1000) { return; }
       logger.warn(`websocket closed with ${code}`);
+      const restart = async () => {
+        if (tryTime <= time) {
+          logger.warn(`${reason.toString()}, will retry in ${5000}ms...`);
+          setTimeout(async () => {
+            this.bot.socket = await this.prepare();
+            this.accept();
+            tryTime++;
+          }, 5000);
+        } else {
+          const message = `failed to connect to IIROSE, code: ${code}`;
+          logger.error(message);
+  
+          tryTime = 0;
+          this.bot.socket.removeEventListener('close', () => { });
+          this.bot.socket.removeEventListener('message', () => { });
+          return this.stop();
+        }
+      };
 
-      if (tryTime <= time) {
-        logger.warn(`${reason.toString()}, will retry in ${5000}ms...`);
-        this.bot.socket = await this.prepare();
-        this.accept();
-      } else {
-        const message = `failed to connect to IIROSE, code: ${code}`;
-        logger.error(message);
-
-        tryTime = 0;
-        this.bot.socket.removeEventListener('close', () => { });
-        this.bot.socket.removeEventListener('message', () => { });
-        return this.stop();
-      }
-
-      tryTime++;
+      restart();
     });
   }
 
