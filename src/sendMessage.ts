@@ -82,7 +82,11 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
       }
 
       case 'at': {
-        this.outDataOringin += ` [*${attrs.id}*] `;
+        if (attrs.hasOwnProperty('id')) {
+          this.outDataOringin += ` [@${attrs.id}@] `;
+        } else if(attrs.hasOwnProperty('name')) {
+          this.outDataOringin += ` [*${attrs.name}*] `;
+        }
         break;
       }
       case 'a': {
