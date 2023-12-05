@@ -171,19 +171,27 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
       const ws = this.bot.ctx.http.ws(url);
-
+      const timeout: number = 400
+      const timeoutId = setTimeout(() => {
+        ws.close();
+        resolve('error');
+      }, timeout);
+  
       ws.addEventListener('open', () => {
         const endTime = Date.now();
         const latency = endTime - startTime;
+        clearTimeout(timeoutId);
         resolve(latency);
         ws.close();
       });
-
-      ws.addEventListener('error', error => {
+  
+      ws.addEventListener('error', (error) => {
+        clearTimeout(timeoutId);
         resolve('error');
       });
     });
   }
+  
 }
 
 export namespace WsClient {
