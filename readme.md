@@ -10,7 +10,7 @@
 <h3 align="center">koishi-plugin-adapter-iirose</h3>
 
   <p align="center">
-    使koishi机器人平台支持[IIROSE-蔷薇花园](https://www.iirose.com)聊天平台
+    使koishi机器人平台支持<a href="https://www.iirose.com">IIROSE-蔷薇花园</a>聊天平台
   </p>
 </div>
 
