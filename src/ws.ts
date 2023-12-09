@@ -197,7 +197,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     {
       const startTime = Date.now();
       const ws = this.bot.ctx.http.ws(url);
-      const timeout: number = 400;
+      const timeout:number = this.config['timeout'];
       const timeoutId = setTimeout(() =>
       {
         ws.close();
