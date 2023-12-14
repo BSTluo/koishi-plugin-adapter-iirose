@@ -83,8 +83,23 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
       case 'at': {
         if (attrs.hasOwnProperty('id')) {
-          this.outDataOringin += ` [@${attrs.id}@] `;
-        } else if(attrs.hasOwnProperty('name')) {
+          try {
+            const dataTemp = await fetch(`https://xc.null.red:8043/api/iirose/user/info?type=id&data=${attrs.id}`, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+            const dataJson = await dataTemp.json()
+            if (dataJson.code == 200) {
+              this.outDataOringin += ` [*${dataJson.name}*] `;
+            } else {
+              this.outDataOringin += ` [@${attrs.id}@] `;
+            }
+          } catch (error) {
+            this.outDataOringin += ` [@${attrs.id}@] `;
+          }
+
+        } else if (attrs.hasOwnProperty('name')) {
           this.outDataOringin += ` [*${attrs.name}*] `;
         }
         break;
