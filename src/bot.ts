@@ -81,6 +81,7 @@ export namespace IIROSE_Bot {
       picLink: Schema.string().description('图床接口').default('https://f.iirose.com/lib/php/system/file_upload.php'),
       picBackLink: Schema.string().description('图床返回url(data为接口返回的data)').default('http://r.iirose.com/[data]'),
       musicLink: Schema.string().description('网易云音乐解析接口').default('https://api.xiaobaibk.com/api/music.163/?id=[musicid]'),
+      timeout: Schema.number().role('slider').min(100).max(5000).default(500).description('bot多久才连接超时(毫秒)')
     }).description('其他配置'),
   ]);
 }
