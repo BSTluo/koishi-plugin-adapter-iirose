@@ -101,6 +101,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
         } else if (attrs.hasOwnProperty('name')) {
           this.outDataOringin += ` [*${attrs.name}*] `;
+        } else if (attrs.hasOwnProperty('roomId')) {
+          this.outDataOringin += ` [_${attrs.name}_] `;
         }
         break;
       }
