@@ -17,7 +17,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         const session: passiveEvent.getUserListCallbackEvent = {
           // 开启兼容
           // type: 'guild-deleted',
-          type: 'room-leave',
+          type: 'userlist',
           platform: 'iirose',
           selfId: bot.ctx.config.uid,
           send: (data) => {
@@ -29,7 +29,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           bot: bot,
           data: data
         };
-
+        
+        // 大包触发
         bot.ctx.emit('iirose/before-getUserList',session);
         break;
       }
