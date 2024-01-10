@@ -69,21 +69,30 @@ export class Internal {
   stockGet(callBack: eventType.StockGet) {
     IIROSE_WSsend(this.bot, StockGet());
     this.bot.ctx.once('iirose/stockBackCall', (stockData: Stock) => {
-      return callBack(stockData);
+      const outData: eventType.StockSession = stockData;
+      outData.bot = this.bot;
+      outData.send = (data) => {
+        // eslint-disable-next-line no-prototype-builtins
+        if (data.hasOwnProperty('public')) { this.bot.sendMessage('public:', data.public.message); }
+        // eslint-disable-next-line no-prototype-builtins
+        if (data.hasOwnProperty('private')) { this.bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+      };
+
+      return callBack(outData);
     });
   }
 }
 
 export interface InternalType {
-  moveRoom(moveData: eventType.move):Promise<void>
-  kick(kickData: eventType.kickData):void
-  cutOne(cutOne: eventType.cutOne):void
-  cutAll():void
-  setMaxUser(setMaxUser: eventType.setMaxUser):void
-  whiteList(whiteList: eventType.whiteList):void
-  damaku(damaku: eventType.damaku):void
-  makeMusic(musicOrigin: eventType.musicOrigin):void
-  stockBuy(numberData: number):void
-  stockSell(numberData: number):void
-  stockGet(callBack: eventType.StockGet):void
+  moveRoom(moveData: eventType.move): Promise<void>;
+  kick(kickData: eventType.kickData): void;
+  cutOne(cutOne: eventType.cutOne): void;
+  cutAll(): void;
+  setMaxUser(setMaxUser: eventType.setMaxUser): void;
+  whiteList(whiteList: eventType.whiteList): void;
+  damaku(damaku: eventType.damaku): void;
+  makeMusic(musicOrigin: eventType.musicOrigin): void;
+  stockBuy(numberData: number): void;
+  stockSell(numberData: number): void;
+  stockGet(callBack: eventType.StockGet): void;
 }
