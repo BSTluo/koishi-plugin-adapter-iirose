@@ -97,9 +97,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           guildId: data.room,
           selfId: bot.ctx.config.uid,
           send: (data) => {
-            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
             if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
           bot: bot,

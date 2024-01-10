@@ -123,6 +123,15 @@ export namespace passiveEvent {
 }
 
 export interface StockSession extends Stock {
+  send?: (data: {
+    public?: {
+      message: Fragment;
+    };
+    private?: {
+      message: Fragment;
+      userId: string;
+    };
+  }) => void;
   bot?: IIROSE_Bot;
 }
 

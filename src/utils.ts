@@ -19,7 +19,7 @@ import { Stock } from './decoder/Stock';
 const logger = new Logger('IIROSE-BOT');
 
 export const startEventsServer = (bot: IIROSE_Bot) => {
-  let event:(() => boolean)[] = [];
+  let event: (() => boolean)[] = [];
 
   event.push(bot.ctx.on('iirose/moveRoom', async moveData => {
     const roomId = moveData.roomId;
@@ -106,8 +106,15 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
   event.push(bot.ctx.on('iirose/stockGet', (callBack: EventType.StockGet) => {
     IIROSE_WSsend(bot, StockGet());
     bot.ctx.once('iirose/stockBackCall', (stockData: EventType.StockSession) => {
-      const outData:EventType.StockSession = stockData
-      outData.bot = bot
+      const outData: EventType.StockSession = stockData;
+      outData.bot = bot;
+      outData.send = (data) => {
+        // eslint-disable-next-line no-prototype-builtins
+        if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message); }
+        // eslint-disable-next-line no-prototype-builtins
+        if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+      };
+
       return callBack(outData);
     });
   }));
@@ -118,7 +125,7 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
   return event;
 };
 
-export const stopEventsServer = (event:(() => boolean)[]) => {
+export const stopEventsServer = (event: (() => boolean)[]) => {
   event.forEach((element: () => boolean) => {
     element();
   });
