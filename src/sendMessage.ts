@@ -115,33 +115,33 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
         break;
       }
 
-      case 'image': {
+      case 'img': {
         let i = 0;
-        if (attrs.url.startsWith('http')) {
+        if (attrs.src.startsWith('http')) {
           const arr = ['jpg', 'jpeg', 'png', 'gif'];
           for (const iterator of arr) {
-            if (attrs.url.endsWith(`.${iterator}`)) {
-              this.outDataOringin += `[${attrs.url}]`;
+            if (attrs.src.endsWith(`.${iterator}`)) {
+              this.outDataOringin += `[${attrs.src}]`;
               i = 1;
               break;
             }
           }
           if (i > 0) { break; }
           if (!this.outDataOringin.startsWith('\\\\\\*\n')) { this.outDataOringin = '\\\\\\*\n' + this.outDataOringin; }
-          this.outDataOringin += `![](${attrs.url})`;
+          this.outDataOringin += `![](${attrs.src})`;
           break;
         }
 
         const formData = new FormData();
-        if (attrs.url.startsWith('file://')) {
-          const fileUrl = new URL(attrs.url);
+        if (attrs.src.startsWith('file://')) {
+          const fileUrl = new URL(attrs.src);
           formData.append('f[]', fs.createReadStream(fileUrl));
           formData.append('i', this.bot.ctx.config.uid);
         }
 
-        if (attrs.url.startsWith('data:image')) {
+        if (attrs.src.startsWith('data:image')) {
           // 创建一个FormData实例
-          const base64ImgStr = attrs.url.replace(/^data:image\/[a-z]+;base64,/, '');
+          const base64ImgStr = attrs.src.replace(/^data:image\/[a-z]+;base64,/, '');
           formData.append('f[]', Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' });
           formData.append('i', this.bot.ctx.config.uid);
         }
