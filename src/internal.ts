@@ -21,8 +21,18 @@ export class Internal {
   bot: IIROSE_Bot;
   constructor(bot: IIROSE_Bot) { this.bot = bot; }
 
+  /**
+   * 移动到指定房间
+   * @param moveData 
+   * @returns 
+   */
   async moveRoom(moveData: eventType.move) {
     const roomId = moveData.roomId;
+    if(!roomId){
+      if (this.bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
+      this.bot.config.roomId = this.bot.config.roomId;
+      return logger.debug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
+    } 
     if (this.bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
     this.bot.config.roomId = roomId;
 
