@@ -31,8 +31,10 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
       return logger.debug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
     } 
     if (bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
+    bot.config.oldRoomId = bot.config.roomId;
     bot.config.roomId = roomId;
-
+    bot.config.roomPassword = moveData.roomPassword;
+    
     await bot.adapter.disconnect(bot);
     await bot.adapter.connect(bot);
   }));

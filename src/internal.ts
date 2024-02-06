@@ -34,7 +34,9 @@ export class Internal {
       return logger.debug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
     } 
     if (this.bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
+    this.bot.config.oldRoomId = this.bot.config.roomId;
     this.bot.config.roomId = roomId;
+    this.bot.config.roomPassword = moveData.roomPassword;
 
     await this.bot.adapter.disconnect(this.bot);
     await this.bot.adapter.connect(this.bot);

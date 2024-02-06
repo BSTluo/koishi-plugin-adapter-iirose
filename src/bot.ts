@@ -51,9 +51,11 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     let time: string;
 
     // 永久禁言
-    if ((duration / 1000) > 99999) {
+    if ((duration / 1000) > 99999)
+    {
       time = '&';
-    } else {
+    } else
+    {
       time = String(duration / 1000);
     }
 
@@ -68,14 +70,18 @@ export namespace IIROSE_Bot {
     usename: string;
     password: string;
     roomId: string;
+    roomPassword: string;
+    oldRoomId: string;
   }
 
   export const Config: Schema<Config> = Schema.intersect([
     Schema.object({
       usename: Schema.string().required().description('BOT用户名'),
       uid: Schema.string().required().description('BOT的唯一标识'),
-      password: Schema.string().required().description('BOT的密码的32位md5'),
+      password: Schema.string().required().description('BOT的密码的32位小写md5'),
       roomId: Schema.string().required().description('BOT的初始房间地址'),
+      roomPassword: Schema.string().default('').description('BOT的初始房间密码(可空)'),
+      oldRoomId: Schema.string().default('').description('一般不需要填写，仅内部使用')
     }).description('BOT配置'),
     Schema.object({
       picLink: Schema.string().description('图床接口').default('https://f.iirose.com/lib/php/system/file_upload.php'),

@@ -24,6 +24,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     mo: string;
     mb: string;
     mu: string;
+    lr: string;
+    rp: string;
   };
 
   constructor(ctx: C, bot: IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>)
@@ -45,6 +47,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     const iiroseList = ['m1', 'm2', 'm8', 'm9', 'm'];
     let faseter = '';
     let maximumSpeed = 100000;
+
     let allErrors;
 
     do
@@ -100,6 +103,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
     return socket;
 
+
   }
 
   /**
@@ -129,8 +133,10 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       // eslint-disable-next-line no-prototype-builtins
       if (funcObj.hasOwnProperty('manyMessage'))
       {
+
         funcObj.manyMessage.slice().reverse().forEach(element =>
         {
+
           const test = {};
           const type = element.type;
           test[type] = element;
@@ -160,9 +166,11 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       if (this.bot.status == Status.RECONNECT || this.bot.status == Status.DISCONNECT || this.bot.status == Status.OFFLINE || code == 1000) { return; }
       logger.warn(`websocket closed with ${code}`);
 
+
       // 重连
       const restart = async () =>
       {
+
         if (tryTime <= time)
         {
           logger.warn(`${reason.toString()}, will retry in ${5000}ms...`);

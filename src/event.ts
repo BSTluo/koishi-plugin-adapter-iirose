@@ -28,6 +28,7 @@ export interface damaku {
 
 export interface move {
   roomId: string;
+  roomPassword?: string;
 }
 
 export interface EventsCallBackOrigin {
