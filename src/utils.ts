@@ -24,8 +24,10 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
   event.push(bot.ctx.on('iirose/moveRoom', async moveData => {
     const roomId = moveData.roomId;
     if (bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
+    bot.config.oldRoomId = bot.config.roomId;
     bot.config.roomId = roomId;
-
+    bot.config.roomPassword = moveData.roomPassword;
+    
     await bot.adapter.disconnect(bot);
     await bot.adapter.connect(bot);
   }));

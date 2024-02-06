@@ -24,7 +24,9 @@ export class Internal {
   async moveRoom(moveData: eventType.move) {
     const roomId = moveData.roomId;
     if (this.bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
+    this.bot.config.oldRoomId = this.bot.config.roomId;
     this.bot.config.roomId = roomId;
+    this.bot.config.roomPassword = moveData.roomPassword;
 
     await this.bot.adapter.disconnect(this.bot);
     await this.bot.adapter.connect(this.bot);

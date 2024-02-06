@@ -23,6 +23,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     mo: string;
     mb: string;
     mu: string;
+    lr: string;
+    rp: string;
   };
 
   constructor(ctx: C, bot: IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>) {
@@ -39,20 +41,25 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     let faseter = '';
     let maximumSpeed = 100000;
 
-    for (let webIndex of iiroseList) {
+    for (let webIndex of iiroseList)
+    {
       const speed: number | 'error' = await this.getLatency(`wss://${webIndex}.iirose.com:8778`);
-      if (speed != 'error') {
-        if (maximumSpeed > speed) {
+      if (speed != 'error')
+      {
+        if (maximumSpeed > speed)
+        {
           faseter = webIndex;
           maximumSpeed = speed;
         }
       }
     }
 
-    if (faseter == '') {
+    if (faseter == '')
+    {
       this.bot.stop();
       throw '您的网络异常，无法连接至IIROSE服务器';
-    } else {
+    } else
+    {
       const socket: WebSocket = this.bot.ctx.http.ws(`wss://${faseter}.iirose.com:8778`);
       this.bot.socket = socket;
       // socket = this.socket
@@ -66,6 +73,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         mo: '',
         mb: '',
         mu: '01',
+        rp: this.bot.ctx.config.roomPassword,
+        lr: this.bot.ctx.config.oldRoomId
       };
 
       socket.addEventListener('open', () => {
@@ -77,7 +86,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         this.event = startEventsServer(this.bot);
         this.bot.online();
         this.live = setInterval(() => {
-          if (this.bot.status == Status.ONLINE) {
+          if (this.bot.status == Status.ONLINE)
+          {
             IIROSE_WSsend(this.bot, '');
           }
         }, 30 * 1000); // 半分钟发一次包保活
@@ -94,18 +104,21 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       const array = new Uint8Array(event.data);
 
       let message: string;
-      if (array[0] === 1) {
+      if (array[0] === 1)
+      {
         message = pako.inflate(array.slice(1), {
           to: 'string',
         });
-      } else {
+      } else
+      {
         message = Buffer.from(array).toString('utf8');
       }
       const funcObj = decoder(this.bot, message);
       // console.log(funcObj)
       // 将会话上报
       // eslint-disable-next-line no-prototype-builtins
-      if (funcObj.hasOwnProperty('manyMessage')) {
+      if (funcObj.hasOwnProperty('manyMessage'))
+      {
         funcObj.manyMessage.slice().reverse().forEach(element => {
           const test = {};
           const type = element.type;
@@ -113,7 +126,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
           decoderMessage(test, this.bot);
         });
-      } else {
+      } else
+      {
         decoderMessage(funcObj, this.bot);
       }
     });
@@ -130,14 +144,16 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       if (this.bot.status == Status.RECONNECT || this.bot.status == Status.DISCONNECT || this.bot.status == Status.OFFLINE || code == 1000) { return; }
       logger.warn(`websocket closed with ${code}`);
       const restart = async () => {
-        if (tryTime <= time) {
+        if (tryTime <= time)
+        {
           logger.warn(`${reason.toString()}, will retry in ${5000}ms...`);
           setTimeout(async () => {
             this.bot.socket = await this.prepare();
             this.accept();
             tryTime++;
           }, 5000);
-        } else {
+        } else
+        {
           const message = `failed to connect to IIROSE, code: ${code}`;
           logger.error(message);
 
@@ -207,13 +223,15 @@ export function IIROSE_WSsend(bot: IIROSE_Bot, data: string) {
   const buffer = Buffer.from(data);
   const unintArray: any = Uint8Array.from(buffer);
 
-  if (unintArray.length > 256) {
+  if (unintArray.length > 256)
+  {
     const deflatedData = pako.gzip(data);
     const deflatedArray: any = new Uint8Array(deflatedData.length + 1);
     deflatedArray[0] = 1;
     deflatedArray.set(deflatedData, 1);
     bot.socket.send(deflatedArray);
-  } else {
+  } else
+  {
     bot.socket.send(unintArray);
   }
 };
