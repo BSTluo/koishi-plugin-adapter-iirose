@@ -81,6 +81,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       mo: '',
       mb: '',
       mu: '01',
+      lr: this.bot.ctx.config.oldRoomId,
+      rp: this.bot.ctx.config.roomPassword,
     };
 
     socket.addEventListener('open', () =>
