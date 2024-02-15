@@ -85,6 +85,10 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       rp: this.bot.ctx.config.roomPassword,
     };
 
+    (this.loginObj.lr.length <= 0) ? delete this.loginObj.lr : '';
+
+    (this.loginObj.rp.length <= 0) ? delete this.loginObj.rp : '';
+
     socket.addEventListener('open', () =>
     {
 
@@ -259,8 +263,8 @@ export namespace WsClient
   export interface Config extends Adapter.WsClientConfig { }
 
   export const Config: Schema<Config> = Schema.intersect([
-    Adapter.WsClient.Config,
-  ]);
+    Adapter.WsClientConfig,
+  ] as const);
 }
 
 export function IIROSE_WSsend(bot: IIROSE_Bot, data: string)
