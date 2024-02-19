@@ -1,5 +1,5 @@
-import { Adapter, Context, Logger, Schema } from '@satorijs/satori';
-import { Status, WebSocket } from '@satorijs/protocol';
+import { Universal, Adapter, Context, Logger, Schema } from '@satorijs/satori';
+import { WebSocket } from '@satorijs/protocol';
 import { IIROSE_Bot } from './bot';
 import pako from 'pako';
 import { decoder } from './decoder';
@@ -68,7 +68,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       }
     } while (allErrors);
 
-    const socket: WebSocket = this.bot.ctx.http.ws(`wss://${faseter}.iirose.com:8778`);
+    const socket: WebSocket = await this.bot.ctx.http.ws(`wss://${faseter}.iirose.com:8778`);
     this.bot.socket = socket;
     // socket = this.socket
     // this.socket.binaryType = 'arraybuffer'
@@ -100,7 +100,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       this.bot.online();
       this.live = setInterval(() =>
       {
-        if (this.bot.status == Status.ONLINE)
+        if (this.bot.status == Universal.Status.ONLINE)
         {
           IIROSE_WSsend(this.bot, '');
         }
@@ -169,7 +169,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
     this.bot.socket.addEventListener('close', async ({ code, reason }) =>
     {
-      if (this.bot.status == Status.RECONNECT || this.bot.status == Status.DISCONNECT || this.bot.status == Status.OFFLINE || code == 1000) { return; }
+      if (this.bot.status == Universal.Status.RECONNECT || this.bot.status == Universal.Status.DISCONNECT || this.bot.status == Universal.Status.OFFLINE || code == 1000) { return; }
       logger.warn(`websocket closed with ${code}`);
 
 
@@ -208,7 +208,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
    */
   async stop()
   {
-    this.bot.status = Status.DISCONNECT;
+    this.bot.status = Universal.Status.DISCONNECT;
     if (this.event.length > 0) { stopEventsServer(this.event); }
     this.socket?.removeEventListener('close', () => { });
     this.socket?.removeEventListener('message', () => { });
@@ -228,10 +228,10 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
    */
   private getLatency(url: string): Promise<number | 'error'>
   {
-    return new Promise((resolve, reject) =>
+    return new Promise(async (resolve, reject) =>
     {
       const startTime = Date.now();
-      const ws = this.bot.ctx.http.ws(url);
+      const ws = await this.bot.ctx.http.ws(url);
       const timeout: number = this.config['timeout'];
       const timeoutId = setTimeout(() =>
       {
