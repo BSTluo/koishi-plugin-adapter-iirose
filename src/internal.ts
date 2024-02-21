@@ -67,9 +67,9 @@ export class Internal {
   }
 
   makeMusic(musicOrigin: eventType.musicOrigin) {
-    const { type, name, signer, cover, link, url, duration, bitRate, color } = musicOrigin;
+    const { type, name, signer, cover, link, url, duration, bitRate, color, lyrics, origin } = musicOrigin;
     IIROSE_WSsend(this.bot, mediaCard(type, name, signer, cover, color, bitRate));
-    IIROSE_WSsend(this.bot, mediaData(type, name, signer, cover, link, url, duration));
+    IIROSE_WSsend(this.bot, mediaData(type, name, signer, cover, link, url, duration, lyrics, origin));
   }
 
   stockBuy(numberData: number) {
