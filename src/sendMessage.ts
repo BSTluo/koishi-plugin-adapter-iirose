@@ -29,7 +29,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
     // console.log('attrs', attrs);
     // console.log('children', children);
 
-    switch (type) {
+    switch (type)
+    {
       case 'video': {
         const obj: musicOrigin = {
           type: "video",
@@ -40,7 +41,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           url: attrs.url,
           duration: attrs.duration,
           bitRate: attrs.bitRate,
-          color: attrs.color
+          color: attrs.color,
+          lyrics: (attrs.lyrics) ? attrs.lyrics : ''
         };
 
         this.bot.internal.makeMusic(obj);
@@ -58,7 +60,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           url: attrs.url,
           duration: attrs.duration,
           bitRate: attrs.bitRate,
-          color: attrs.color
+          color: attrs.color,
+          lyrics: (attrs.lyrics) ? attrs.lyrics : ''
         };
         this.bot.internal.makeMusic(obj);
         // ctx.emit('iirose/makeMusic', obj);
@@ -73,35 +76,44 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
       }
 
       case 'text': {
-        if (this.outDataOringin.length > 0) {
+        if (this.outDataOringin.length > 0)
+        {
           this.outDataOringin += `${attrs.content}`;
-        } else {
+        } else
+        {
           this.outDataOringin += `${attrs.content}`;
         }
         break;
       }
 
       case 'at': {
-        if (attrs.hasOwnProperty('id')) {
-          try {
+        if (attrs.hasOwnProperty('id'))
+        {
+          try
+          {
             const dataTemp = await fetch(`https://xc.null.red:8043/api/iirose/user/info?type=id&data=${attrs.id}`, {
               headers: {
                 'Content-Type': 'application/json'
               }
             });
-            const dataJson = await dataTemp.json()
-            if (dataJson.code == 200) {
+            const dataJson = await dataTemp.json();
+            if (dataJson.code == 200)
+            {
               this.outDataOringin += ` [*${dataJson.name}*] `;
-            } else {
+            } else
+            {
               this.outDataOringin += ` [@${attrs.id}@] `;
             }
-          } catch (error) {
+          } catch (error)
+          {
             this.outDataOringin += ` [@${attrs.id}@] `;
           }
 
-        } else if (attrs.hasOwnProperty('name')) {
+        } else if (attrs.hasOwnProperty('name'))
+        {
           this.outDataOringin += ` [*${attrs.name}*] `;
-        } else if (attrs.hasOwnProperty('roomId')) {
+        } else if (attrs.hasOwnProperty('roomId'))
+        {
           this.outDataOringin += ` [_${attrs.name}_] `;
         }
         break;
@@ -117,10 +129,13 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
       case 'img': {
         let i = 0;
-        if (attrs.src.startsWith('http')) {
+        if (attrs.src.startsWith('http'))
+        {
           const arr = ['jpg', 'jpeg', 'png', 'gif'];
-          for (const iterator of arr) {
-            if (attrs.src.endsWith(`.${iterator}`)) {
+          for (const iterator of arr)
+          {
+            if (attrs.src.endsWith(`.${iterator}`))
+            {
               this.outDataOringin += `[${attrs.src}]`;
               i = 1;
               break;
@@ -133,20 +148,23 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
         }
 
         const formData = new FormData();
-        if (attrs.src.startsWith('file://')) {
+        if (attrs.src.startsWith('file://'))
+        {
           const fileUrl = new URL(attrs.src);
           formData.append('f[]', fs.createReadStream(fileUrl));
           formData.append('i', this.bot.ctx.config.uid);
         }
 
-        if (attrs.src.startsWith('data:image')) {
+        if (attrs.src.startsWith('data:image'))
+        {
           // 创建一个FormData实例
           const base64ImgStr = attrs.src.replace(/^data:image\/[a-z]+;base64,/, '');
           formData.append('f[]', Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' });
           formData.append('i', this.bot.ctx.config.uid);
         }
 
-        try {
+        try
+        {
           // 发送formData到后端
           const response = await axios.post(this.bot.ctx.config.picLink, formData, {
             headers: formData.getHeaders(),
@@ -154,7 +172,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           let outData = response;
 
           const match = this.bot.ctx.config.picBackLink.match(/\[([\s\S]+?)\]/g);
-          if (match) {
+          if (match)
+          {
             match.forEach(element => {
               const urlStr = element.replace(/[\[\]]/g, '');
               const repNodeList = urlStr.split('.');
@@ -163,7 +182,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
               this.outDataOringin += `[${(this.bot.ctx.config.picBackLink).replace(element, outData)}]`;
             });
           }
-        } catch (error) {
+        } catch (error)
+        {
           console.log(error);
           this.outDataOringin += '[图片显示异常]';
           console.error(error);
@@ -209,19 +229,23 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
       }
     }
 
-    if (children.length > 0) {
+    if (children.length > 0)
+    {
       if (this.outDataOringin.length > 0) { this.outDataOringin += '\n'; }
 
-      for (const h of children) {
+      for (const h of children)
+      {
         await this.visit(h);
       }
     }
 
     if (this.outDataOringin.length <= 0) { return; }
 
-    if (this.channelId.startsWith('public:')) {
+    if (this.channelId.startsWith('public:'))
+    {
       this.outDataOringinObj = PublicMessage(this.outDataOringin, '66ccff');
-    } else if (this.channelId.startsWith('private:')) {
+    } else if (this.channelId.startsWith('private:'))
+    {
       this.outDataOringinObj = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, '66ccff');
     }
   }

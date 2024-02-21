@@ -67,6 +67,7 @@ export interface musicOrigin {
   duration: number;
   bitRate: number;
   color: string;
+  lyrics: string;
 }
 
 export interface StockGet {
