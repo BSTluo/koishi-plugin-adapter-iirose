@@ -68,6 +68,7 @@ export interface musicOrigin {
   bitRate: number;
   color: string;
   lyrics: string;
+  origin: 'netease' | null;
 }
 
 export interface StockGet {

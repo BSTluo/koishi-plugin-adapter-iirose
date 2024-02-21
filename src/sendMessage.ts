@@ -42,7 +42,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           duration: attrs.duration,
           bitRate: attrs.bitRate,
           color: attrs.color,
-          lyrics: (attrs.lyrics) ? attrs.lyrics : ''
+          lyrics: (attrs.lyrics) ? attrs.lyrics : '',
+          origin: (attrs.origin) ? attrs.origin : null
         };
 
         this.bot.internal.makeMusic(obj);
@@ -61,7 +62,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           duration: attrs.duration,
           bitRate: attrs.bitRate,
           color: attrs.color,
-          lyrics: (attrs.lyrics) ? attrs.lyrics : ''
+          lyrics: (attrs.lyrics) ? attrs.lyrics : '',
+          origin: (attrs.origin) ? attrs.origin : null
         };
         this.bot.internal.makeMusic(obj);
         // ctx.emit('iirose/makeMusic', obj);
@@ -228,7 +230,6 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
         break;
       }
     }
-
     if (children.length > 0)
     {
       if (this.outDataOringin.length > 0) { this.outDataOringin += '\n'; }
