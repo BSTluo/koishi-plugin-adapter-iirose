@@ -1,19 +1,20 @@
-export default (type: 'music' | 'video', title: string, signer: string, cover: string, link: string, url: string, duration: number, lyrics:string | null = null, origin: 'netease' | null = null) => {
+export default (type: 'music' | 'video', title: string, signer: string, cover: string, link: string, url: string, duration: number, lyrics: string | null = null, origin?: 'netease' | null) =>
+{
   const typeMap = {
     music: "=0",
     video: "=1",
     netease: "@0"
   };
 
-  let t:string
-
-  if(origin){
-    t = origin
-  } else {
-    t = type
+  let t: string;
+  if (origin)
+  {
+    t = origin;
+  } else
+  {
+    t = type;
   }
 
-  
   const data = JSON.stringify({
     s: url.substr(4),
     d: duration,
