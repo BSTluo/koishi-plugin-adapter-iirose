@@ -373,6 +373,13 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         break;
       }
 
+      case 'beforeMoveRoomStart': {
+        const data = obj.beforeMoveRoomStart;
+        bot.internal.moveRoomStart();
+        // 自身移动房间
+        break;
+      }
+
       case 'mailboxMessage': {
         const data = obj.mailboxMessage;
         

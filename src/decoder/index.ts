@@ -17,6 +17,7 @@ import { selfMove, SelfMove } from './SelfMove';
 import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './MailboxMessage';
 import { IIROSE_Bot } from '../bot';
 import { stock, Stock } from './Stock';
+import { beforeMoveRoomStart, BeforeMoveRoomStart } from './BeforeMoveRoomStart';
 
 export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
   const len: any = {};
@@ -39,18 +40,24 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
   len.mailboxMessage = mailboxMessage(msg);
   len.musicMessage = musicMessage(msg);
   len.stock = stock(msg, bot);
+  len.BeforeMoveRoomStart = beforeMoveRoomStart(msg);
 
   const newObj = {};
-  for (const key in len) {
+  for (const key in len)
+  {
     // 如果对象属性的值不为空，就保存该属性（如果属性的值为0 false，保存该属性。如果属性的值全部是空格，属于为空。）
-    if ((len[key] === 0 || len[key] === false || len[key]) && len[key].toString().replace(/(^\s*)|(\s*$)/g, '') !== '') {
-      if (key === 'manyMessage') {
+    if ((len[key] === 0 || len[key] === false || len[key]) && len[key].toString().replace(/(^\s*)|(\s*$)/g, '') !== '')
+    {
+      if (key === 'manyMessage')
+      {
         newObj[key] = len[key];
       }
 
-      if (len[key].uid) {
+      if (len[key].uid)
+      {
         if (len[key].uid !== bot.ctx.config.uid) { newObj[key] = len[key]; }
-      } else {
+      } else
+      {
         newObj[key] = len[key];
       }
     }
@@ -77,4 +84,5 @@ export interface MessageType {
   mailboxMessage?: Follower | Like | RoomNotice | Payment;
   musicMessage?: MusicMessage;
   stock?: Stock;
+  beforeMoveRoomStart?: BeforeMoveRoomStart;
 }

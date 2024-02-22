@@ -120,6 +120,10 @@ export namespace passiveEvent {
     data: MessageType['selfMove'];
   }
 
+  export interface beforeMoveRoomStartEvent extends EventsCallBackOrigin {
+    data: MessageType['beforeMoveRoomStart'];
+  }
+
   export interface mailboxMessageEvent extends EventsCallBackOrigin {
     data: MessageType['mailboxMessage'];
   }
@@ -150,6 +154,7 @@ export interface Events {
   'iirose/before-bank'(session: passiveEvent.bankCallbackEvent): void;
   'iirose/before-mediaList'(session: passiveEvent.mediaListCallbackEvent): void;
   'iirose/selfMove'(session: passiveEvent.selfMoveEvent): void;
+  'iirose/BeforeMoveRoomStart'(session: passiveEvent.beforeMoveRoomStartEvent): void;
   'iirose/mailboxMessage'(session: passiveEvent.mailboxMessageEvent): void;
   'iirose/kick'(kickData: kickData): void;
   'iirose/cut-one'(cutOne: cutOne): void;

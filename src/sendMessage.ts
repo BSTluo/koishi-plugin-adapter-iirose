@@ -37,7 +37,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           name: attrs.name,
           signer: attrs.author,
           cover: attrs.cover,
-          link: attrs.url,
+          link: attrs.link || attrs.url,
           url: attrs.url,
           duration: attrs.duration,
           bitRate: attrs.bitRate,
@@ -57,7 +57,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           name: attrs.name,
           signer: attrs.author,
           cover: attrs.cover,
-          link: attrs.url,
+          link: attrs.link || attrs.url,
           url: attrs.url,
           duration: attrs.duration,
           bitRate: attrs.bitRate,
@@ -129,6 +129,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
         break;
       }
 
+      case 'image':
       case 'img': {
         let i = 0;
         if (attrs.src.startsWith('http'))

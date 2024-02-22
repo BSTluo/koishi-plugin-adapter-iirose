@@ -14,6 +14,8 @@ import StockSell from './encoder/user/StockSell';
 import StockGet from './encoder/user/StockGet';
 import { Stock } from './decoder/Stock';
 import * as eventType from './event';
+import moveRoom from "./encoder/user/moveRoomStart";
+
 
 const logger = new Logger('IIROSE-BOT');
 
@@ -28,16 +30,28 @@ export class Internal {
    */
   async moveRoom(moveData: eventType.move) {
     const roomId = moveData.roomId;
-    if(!roomId){
+    if (!roomId)
+    {
       if (this.bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
       this.bot.config.roomId = this.bot.config.roomId;
       return logger.debug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
-    } 
+    }
     if (this.bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
     this.bot.config.oldRoomId = this.bot.config.roomId;
     this.bot.config.roomId = roomId;
     this.bot.config.roomPassword = moveData.roomPassword;
 
+    // await this.bot.adapter.disconnect(this.bot);
+    // await this.bot.adapter.connect(this.bot);
+
+    (moveData.roomPassword) ? IIROSE_WSsend(this.bot, moveRoom(moveData.roomId, moveData.roomPassword)) : IIROSE_WSsend(this.bot, moveRoom(moveData.roomId));
+  }
+
+  /**
+     * 移动到指定房间开始(一般不调用这个..调用moveRoom)
+     * @returns 
+     */
+  async moveRoomStart() {
     await this.bot.adapter.disconnect(this.bot);
     await this.bot.adapter.connect(this.bot);
   }
@@ -107,4 +121,5 @@ export interface InternalType {
   stockBuy(numberData: number): void;
   stockSell(numberData: number): void;
   stockGet(callBack: eventType.StockGet): void;
+  moveRoomStart():void;
 }
