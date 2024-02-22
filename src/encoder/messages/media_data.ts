@@ -3,7 +3,24 @@ export default (type: 'music' | 'video', title: string, signer: string, cover: s
   const typeMap = {
     music: "=0",
     video: "=1",
-    netease: "@0"
+    netease: "@0",
+    xiamimusic: "@1",
+    qqmusic: "@2",
+    qianqianmusic: "@3",
+    kugoumusic: "@4",
+    ximalayafm: "@5",
+    lizhifm: "@6",
+    echohuisheng: "@7",
+    fivesing: "@8",
+    iqiyi: "*0",
+    tencentvideo: "*1",
+    youtube: "*2",
+    bilibili: "*3",
+    mangotv: "*4",
+    tiktok: "*5",
+    kuaishou: "*6",
+    onesixthreemv: "*7",
+    bilibilistream: "*8"
   };
 
   let t: string;
