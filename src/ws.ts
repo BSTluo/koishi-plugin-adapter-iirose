@@ -127,6 +127,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       {
         message = Buffer.from(array).toString('utf8');
       }
+
       const funcObj = decoder(this.bot, message);
       // console.log(funcObj)
       // 将会话上报

@@ -40,7 +40,7 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
   len.mailboxMessage = mailboxMessage(msg);
   len.musicMessage = musicMessage(msg);
   len.stock = stock(msg, bot);
-  len.BeforeMoveRoomStart = beforeMoveRoomStart(msg);
+  len.beforeMoveRoomStart = beforeMoveRoomStart(msg);
 
   const newObj = {};
   for (const key in len)
@@ -62,6 +62,7 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
       }
     }
   }
+
   return newObj;
 };
 

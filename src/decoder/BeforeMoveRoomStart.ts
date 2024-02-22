@@ -7,7 +7,6 @@ export interface BeforeMoveRoomStart {
       const msg = {
         can: true
       };
-  
       // selfWillMove
       return msg;
     }
