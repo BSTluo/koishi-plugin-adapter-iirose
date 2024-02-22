@@ -54,6 +54,8 @@ export class Internal {
   async moveRoomStart() {
     await this.bot.adapter.disconnect(this.bot);
     await this.bot.adapter.connect(this.bot);
+    // this.bot.config.oldRoomId = null;
+    // this.bot.config.roomPassword = null;
   }
 
   kick(kickData: eventType.kickData) {
