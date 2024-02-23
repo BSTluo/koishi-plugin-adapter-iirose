@@ -76,17 +76,17 @@ export namespace IIROSE_Bot {
 
   export const Config: Schema<Config> = Schema.intersect([
     Schema.object({
-      usename: Schema.string().required().description('BOT用户名'),
-      uid: Schema.string().required().description('BOT的唯一标识'),
-      password: Schema.string().required().description('BOT的密码的32位小写md5'),
-      roomId: Schema.string().required().description('BOT的初始房间地址'),
+      usename: Schema.string().required().description('BOT账号'),
+      uid: Schema.string().required().description('BOT的唯一标识').pattern(/(\s*\[\@([\s\S]+)\@\]\s*)|([a-z0-9]+)/),
+      password: Schema.string().required().role('secret').description('BOT的密码的[32位小写md5](https://cmd5.com/hash.aspx?s=)'),
+      roomId: Schema.string().required().description('BOT的初始房间地址').pattern(/(\s*\[\_([\s\S]+)\_\]\s*)|([a-z0-9]+)/),
       roomPassword: Schema.string().default('').description('BOT的初始房间密码(可空)'),
       oldRoomId: Schema.string().default('').description('一般不需要填写，仅内部使用')
     }).description('BOT配置'),
     Schema.object({
+      picFormData: Schema.string().description('图床formData包，[file]为图片文件').default('{"f[]": "[file]","i":"[uid]"}'),
       picLink: Schema.string().description('图床接口').default('https://f.iirose.com/lib/php/system/file_upload.php'),
-      picBackLink: Schema.string().description('图床返回url(data为接口返回的data)').default('http://r.iirose.com/[data]'),
-      musicLink: Schema.string().description('网易云音乐解析接口').default('https://api.xiaobaibk.com/api/music.163/?id=[musicid]'),
+      picBackLink: Schema.string().description('图床返回url(data为接口返回的data,可以使用data.xxx)').default('http://r.iirose.com/[data]'),
       timeout: Schema.number().min(100).max(5000).default(500).description('bot多久才连接超时(毫秒)')
     }).description('其他配置'),
   ]);

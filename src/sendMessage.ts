@@ -150,30 +150,42 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           break;
         }
 
-        const formData = new FormData();
+        let file: Buffer | fs.ReadStream;
+        let uid: string;
+        let config;
         if (attrs.src.startsWith('file://'))
         {
           const fileUrl = new URL(attrs.src);
-          formData.append('f[]', fs.createReadStream(fileUrl));
-          formData.append('i', this.bot.ctx.config.uid);
+          file = fs.createReadStream(fileUrl);
+          uid = this.bot.ctx.config.uid;
         }
 
         if (attrs.src.startsWith('data:image'))
         {
           // 创建一个FormData实例
           const base64ImgStr = attrs.src.replace(/^data:image\/[a-z]+;base64,/, '');
-          formData.append('f[]', Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' });
-          formData.append('i', this.bot.ctx.config.uid);
+          file = Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' };
+          uid = this.bot.ctx.config.uid;
+          config = { contentType: 'image/png', filename: 'x.png' };
         }
 
         try
         {
+          const formData = new FormData();
+
+          JSON.parse(this.bot.ctx.config.picFormData, (key, value) => {
+            if (key == '') { return; }
+            if (value == '[file]') { (config) ? formData.append(key, file, config) : formData.append(key, file); }
+            if (value == '[uid]') { formData.append(key, uid); }
+            formData.append(key, value);
+          });
+
           // 发送formData到后端
           const response = await axios.post(this.bot.ctx.config.picLink, formData, {
             headers: formData.getHeaders(),
           });
           let outData = response;
-
+          console.log(outData);
           const match = this.bot.ctx.config.picBackLink.match(/\[([\s\S]+?)\]/g);
           if (match)
           {
@@ -187,9 +199,9 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           }
         } catch (error)
         {
-          console.log(error);
+          // console.log(error);
           this.outDataOringin += '[图片显示异常]';
-          console.error(error);
+          // console.error(error);
         }
 
         break;

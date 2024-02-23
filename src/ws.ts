@@ -71,9 +71,15 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     // socket = this.socket
     // this.socket.binaryType = 'arraybuffer'
 
+    const roomIdReg = /\s*\[_([\s\S]+)_\]\s*/;
+    const userNameReg = /\s*\[\*([\s\S]+)\*\]\s*/;
+
+    const roomIdConfig = this.bot.ctx.config.roomId;
+    const userNameConfig = this.bot.ctx.config.usename;
+
     this.loginObj = {
-      r: this.bot.ctx.config.roomId,
-      n: this.bot.ctx.config.usename,
+      r: (roomIdReg.test(roomIdConfig)) ? roomIdConfig.match(roomIdReg)[1] : roomIdConfig,
+      n: (userNameReg.test(userNameConfig)) ? userNameConfig.match(userNameReg)[1] : userNameConfig,
       p: this.bot.ctx.config.password,
       st: 'n',
       mo: '',
