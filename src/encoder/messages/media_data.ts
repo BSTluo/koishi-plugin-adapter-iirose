@@ -1,4 +1,6 @@
-export default (type: 'music' | 'video', title: string, signer: string, cover: string, link: string, url: string, duration: number, lyrics: string | null = null, origin?: 'netease' | null) =>
+import { musicOrigin } from "../../event";
+
+export default (type: 'music' | 'video', title: string, signer: string, cover: string, link: string, url: string, duration: number, lyrics: string | null = null, origin?: musicOrigin['origin']) =>
 {
   const typeMap = {
     music: "=0",
@@ -12,19 +14,19 @@ export default (type: 'music' | 'video', title: string, signer: string, cover: s
     lizhifm: "@6",
     echohuisheng: "@7",
     fivesing: "@8",
-    iqiyi: "*0",
-    tencentvideo: "*1",
-    youtube: "*2",
-    bilibili: "*3",
-    mangotv: "*4",
-    tiktok: "*5",
-    kuaishou: "*6",
-    onesixthreemv: "*7",
-    bilibilistream: "*8"
+    iqiyi: "!0",
+    tencentvideo: "!1",
+    youtube: "!2",
+    bilibili: "!3",
+    mangotv: "!4",
+    tiktok: "!5",
+    kuaishou: "!6",
+    onesixthreemv: "!7",
+    bilibilistream: "!8"
   };
 
   let t: string;
-  if (origin)
+  if (origin && origin !== 'null' && origin !== 'undefined')
   {
     t = origin;
   } else
