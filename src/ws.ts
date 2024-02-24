@@ -184,8 +184,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
           if (!e.uid) { return; }
           this.ctx.database.upsert('iiroseUser', [{
             uid: e.uid,
-            username: e.uid,
-            avatar: e.avatar,
+            username: e.username,
+            avatar: `http://z.iirose.com/lib/php/function/loadImg.php?s=${e.avatar}`,
             room: e.room,
             data: {}
           }]);
