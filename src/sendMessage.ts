@@ -185,7 +185,6 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
             headers: formData.getHeaders(),
           });
           let outData = response;
-          console.log(outData);
           const match = this.bot.ctx.config.picBackLink.match(/\[([\s\S]+?)\]/g);
           if (match)
           {

@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-adapter-iirose",
   "description": "IIROSE-[蔷薇花园](https://iirose.com/)适配器",
-  "version": "0.3.18",
+  "version": "0.3.20",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -25,7 +25,7 @@
     "pako": "^2.1.0"
   },
   "peerDependencies": {
-    "koishi": "^4.17.0-beta.4"
+    "koishi": "4.17.1"
   },
   "contributors": [
     "BSTluo <1946831552@qq.com>"
@@ -33,5 +33,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BSTluo/koishi-plugin-adapter-iirose.git"
+  },
+  "koishi": {
+    "service": {
+      "required": [
+        "database"
+      ]
+    }
   }
 }
