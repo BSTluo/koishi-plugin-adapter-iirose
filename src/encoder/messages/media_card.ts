@@ -35,6 +35,9 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
   {
     t = type;
   }
+  title = escapeSpecialCharacters(title);
+  singer = escapeSpecialCharacters(singer);
+  color = escapeSpecialCharacters(color);
   if (!BitRate)
   {
     data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>>11451${formatSeconds(duration)}`;
@@ -52,4 +55,22 @@ function formatSeconds(seconds: number): string
   const formattedMinutes: string = minutes < 10 ? `0${minutes}` : `${minutes}`;
   const formattedSeconds: string = remainingSeconds < 10 ? `0${remainingSeconds}` : `${remainingSeconds}`;
   return `${formattedMinutes}:${formattedSeconds}`;
+}
+
+/**
+ * 转义特殊字符，目前发现仅适用于media_card
+ * @param text 
+ * @returns 
+ */
+function escapeSpecialCharacters(text: string | null): string | null
+{
+  if (text === null)
+  {
+    return text;
+  }
+  return text
+    .replace(/"/g, '&quot;')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
