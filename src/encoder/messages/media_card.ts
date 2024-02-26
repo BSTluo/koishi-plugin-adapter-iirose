@@ -1,8 +1,8 @@
 import { musicOrigin } from '../../event';
 import PublicMessage from './PublicMessage';
+import { encode } from 'html-entities';
 
-export default (type: 'music' | 'video', title: string, singer: string, cover: string, color: string, duration: number, BitRate: number = 320, origin?: musicOrigin['origin']) =>
-{
+export default (type: 'music' | 'video', title: string, singer: string, cover: string, color: string, duration: number, BitRate: number = 320, origin?: musicOrigin['origin']) => {
   const typeMap = {
     music: "=0",
     video: "=1",
@@ -35,6 +35,11 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
   {
     t = type;
   }
+
+  title = encode(title);
+  singer = encode(singer);
+  color = encode(color);
+
   if (!BitRate)
   {
     data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>>11451${formatSeconds(duration)}`;
@@ -45,8 +50,7 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
   return PublicMessage(data, color);
 };
 
-function formatSeconds(seconds: number): string
-{
+function formatSeconds(seconds: number): string {
   const minutes: number = Math.floor(seconds / 60);
   const remainingSeconds: number = seconds % 60;
   const formattedMinutes: string = minutes < 10 ? `0${minutes}` : `${minutes}`;
