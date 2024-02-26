@@ -11,19 +11,41 @@ import Like from './encoder/system/Like';
 import { IIROSE_WSsend } from './ws';
 import { musicOrigin } from './event';
 
-export class IIROSE_BotMessageEncoder<C extends Context = Context> extends MessageEncoder<C, IIROSE_Bot<C>> {
+export class IIROSE_BotMessageEncoder<C extends Context = Context> extends MessageEncoder<C, IIROSE_Bot<C>>
+{
   private outDataOringin: string = '';
   private outDataOringinObj: string = '';
 
-  async flush(): Promise<void> {
+  async flush(): Promise<void>
+  {
     IIROSE_WSsend(this.bot, this.outDataOringinObj);
   }
 
-  async sendData(message: string): Promise<void> {
+  async sendData(message: string): Promise<void>
+  {
     IIROSE_WSsend(this.bot, message);
   }
 
-  async visit(element: h): Promise<void> {
+  /**
+   * 转义特殊字符，目前发现仅适用于media_card
+   * @param text 
+   * @returns 
+   */
+  escapeSpecialCharacters(text: string | null): string | null
+  {
+    if (text === null)
+    {
+      return text;
+    }
+    return text
+      .replace(/"/g, '&quot;')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  async visit(element: h): Promise<void>
+  {
     const { type, attrs, children } = element;
     // console.log('type', type);
     // console.log('attrs', attrs);
@@ -173,7 +195,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
         {
           const formData = new FormData();
 
-          JSON.parse(this.bot.ctx.config.picFormData, (key, value) => {
+          JSON.parse(this.bot.ctx.config.picFormData, (key, value) =>
+          {
             if (key == '') { return; }
             if (value == '[file]') { (config) ? formData.append(key, file, config) : formData.append(key, file); }
             if (value == '[uid]') { formData.append(key, uid); }
@@ -188,7 +211,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           const match = this.bot.ctx.config.picBackLink.match(/\[([\s\S]+?)\]/g);
           if (match)
           {
-            match.forEach(element => {
+            match.forEach(element =>
+            {
               const urlStr = element.replace(/[\[\]]/g, '');
               const repNodeList = urlStr.split('.');
               outData = outData[repNodeList];
