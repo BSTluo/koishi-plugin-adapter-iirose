@@ -280,10 +280,10 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
     if (this.channelId.startsWith('public:'))
     {
-      this.outDataOringinObj = PublicMessage(this.outDataOringin, '66ccff');
+      this.outDataOringinObj = PublicMessage(this.outDataOringin, this.bot.config.color);
     } else if (this.channelId.startsWith('private:'))
     {
-      this.outDataOringinObj = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, '66ccff');
+      this.outDataOringinObj = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, this.bot.config.color);
     }
   }
 }

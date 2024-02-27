@@ -19,11 +19,10 @@ import { IIROSE_Bot } from '../bot';
 import { stock, Stock } from './Stock';
 import { beforeMoveRoomStart, BeforeMoveRoomStart } from './BeforeMoveRoomStart';
 
-export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
-{
+export const decoder = (bot: IIROSE_Bot, msg: string): MessageType => {
   const len: any = {};
 
-  len.manyMessage = manyMessage(msg);
+  len.manyMessage = manyMessage(msg, bot);
   len.userlist = userList(msg);
   len.publicMessage = publicMessage(msg);
   len.leaveRoom = leaveRoom(msg);
@@ -66,8 +65,7 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
   return newObj;
 };
 
-export interface MessageType
-{
+export interface MessageType {
   manyMessage?: ManyMessage[];
   userlist?: UserList[];
   publicMessage?: PublicMessage;
