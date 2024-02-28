@@ -418,8 +418,8 @@ function clearMsg(msg: string) {
   ]
   */
   const result = [
-    [/\s\[\*([\s\S]+)\*\]\s/g, '<at name="', '"></at>', /\s\[\*/g, /\*\]\s/g],
-    [/\s\[@([\s\S]+)@\]\s/g, '<at id="', '"></at>', /\s\[\@/g, /\@\]\s/g],
+    [/\s*\[\*([\s\S]+)\*\]\s*/g, '<at name="', '"></at>', /\s\[\*/g, /\*\]\s/g],
+    [/\s*\[@([\s\S]+)@\]\s*/g, '<at id="', '"></at>', /\s\[\@/g, /\@\]\s/g],
     [/https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif)(#e)*/g, '<img src="', '"></image>', /\[/g, /]/g],
   ];
 
