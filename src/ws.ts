@@ -202,6 +202,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
         this.ctx.database.upsert('iiroseUser', addData);
         this.bot.user = await this.bot.getSelf();
+        decoderMessage(funcObj, this.bot);
       } else
       {
         decoderMessage(funcObj, this.bot);
