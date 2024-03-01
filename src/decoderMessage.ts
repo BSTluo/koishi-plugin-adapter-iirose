@@ -172,6 +172,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         session.platform = 'iirose';
         session.subtype = 'private';
         session.subsubtype = 'private';
+        session.guildId = data.uid;
         session.content = data.message;
         session.channelId = `private:${data.uid}`;
         session.selfId = bot.ctx.config.uid;
