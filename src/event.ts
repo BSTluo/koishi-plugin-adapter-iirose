@@ -2,6 +2,7 @@ import { Fragment } from '@satorijs/satori';
 import { MessageType } from './decoder';
 import { IIROSE_Bot } from './bot';
 import { Stock } from './decoder/Stock';
+import { Session } from 'koishi';
 
 export interface kickData {
   username: string;
@@ -143,8 +144,8 @@ export interface StockSession extends Stock {
 }
 
 export interface Events {
-  'iirose/leaveRoom'(session: passiveEvent.leaveRoomEvent): void;
-  'iirose/joinRoom'(session: passiveEvent.joinRoomEvent): void;
+  'iirose/leaveRoom'(session: Session): void;
+  'iirose/joinRoom'(session: Session): void;
   'iirose/newDamaku'(session: passiveEvent.damakuEvent): void;
   'iirose/switchRoom'(session: passiveEvent.switchRoomEvent): void;
   'iirose/newMusic'(session: passiveEvent.musicEvent): void;

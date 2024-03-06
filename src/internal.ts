@@ -23,6 +23,13 @@ export class Internal {
   bot: IIROSE_Bot;
   constructor(bot: IIROSE_Bot) { this.bot = bot; }
 
+  async send(data) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (data.hasOwnProperty('public')) { this.bot.sendMessage('public:', data.public.message); }
+    // eslint-disable-next-line no-prototype-builtins
+    if (data.hasOwnProperty('private')) { this.bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+  }
+  
   /**
    * 移动到指定房间
    * @param moveData 
@@ -123,5 +130,5 @@ export interface InternalType {
   stockBuy(numberData: number): void;
   stockSell(numberData: number): void;
   stockGet(callBack: eventType.StockGet): void;
-  moveRoomStart():void;
+  moveRoomStart(): void;
 }

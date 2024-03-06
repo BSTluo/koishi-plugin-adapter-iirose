@@ -5,14 +5,17 @@ import { passiveEvent } from './event';
 import { messageObjList } from './messageTemp';
 import { UserList } from './decoder/Userlist';
 import { GetUserListCallback } from './decoder/GetUserListCallback';
+import { Session } from 'koishi';
 
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
   // 定义会话列表
 
-  for (const key in obj) {
-    switch (key) {
+  for (const key in obj)
+  {
+    switch (key)
+    {
       case 'userlist': {
-        const data:GetUserListCallback[] = obj.userlist
+        const data: GetUserListCallback[] = obj.userlist;
 
         const session: passiveEvent.getUserListCallbackEvent = {
           // 开启兼容
@@ -29,9 +32,9 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           bot: bot,
           data: data
         };
-        
+
         // 大包触发
-        bot.ctx.emit('iirose/before-getUserList',session);
+        bot.ctx.emit('iirose/before-getUserList', session);
         break;
       }
 
@@ -81,12 +84,13 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'leaveRoom': {
         // 作为事件
         const data = obj.leaveRoom;
-        
-        const session: passiveEvent.leaveRoomEvent = {
+
+        const session = {
           // 开启兼容
           // type: 'guild-deleted',
           type: 'room-leave',
-          userId: data.username,
+          userId: data.uid,
+          username: data.username,
           timestamp: Number(data.timestamp),
           author: {
             userId: data.uid,
@@ -96,27 +100,36 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
           platform: 'iirose',
           guildId: data.room,
           selfId: bot.ctx.config.uid,
-          send: (data) => {
-            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message); }
-            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
           bot: bot,
-          data: data
+          data: data,
+          user: {
+            id: data.uid,
+            name: data.username
+          },
+          message: {
+            messageId: data.uid + 'leaveRoom',
+            content: 'leaveRoom',
+            elements: h.parse('leaveRoom'),
+          }
         };
 
-        bot.ctx.emit('iirose/leaveRoom', session);
+        const botSession = bot.session(session) as Session;
+        botSession.guildId = bot.ctx.config.roomId
+        
+        bot.ctx.emit('iirose/leaveRoom', botSession);
         break;
       }
 
       case 'joinRoom': {
         // 作为事件
         const data = obj.joinRoom;
-        
-        const session: passiveEvent.joinRoomEvent = {
+
+        const session = {
           // 开启兼容
           // type: 'guild-added',
           type: 'room-join',
-          userId: data.username,
+          userId: data.uid,
+          username: data.username,
           timestamp: Number(data.timestamp),
           author: {
             userId: data.uid,
@@ -124,18 +137,24 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
             username: data.username,
           },
           platform: 'iirose',
-          guildId: data.room,
+          guildId: bot.ctx.config.roomId,
           selfId: bot.ctx.config.uid,
-          send: (data) => {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
           bot: bot,
-          data: data
+          data: data,
+          user: {
+            id: data.uid,
+            name: data.username
+          },
+          message: {
+            messageId: data.uid + 'joinRoom',
+            content: 'joinRoom',
+            elements: h.parse('joinRoom'),
+          },
         };
-        bot.ctx.emit('iirose/joinRoom', session);
+
+        const botSession = bot.session(session) as Session;
+        botSession.guildId = bot.ctx.config.roomId
+        bot.ctx.emit('iirose/joinRoom', botSession);
         break;
       }
 
@@ -184,7 +203,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'damaku': {
         const data = obj.damaku;
-        
+
         const session: passiveEvent.damakuEvent = {
           type: 'damaku',
           userId: data.username,
@@ -213,7 +232,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'switchRoom': {
         // 这玩意真的是机器人能够拥有的吗
-        
+
         const session: passiveEvent.switchRoomEvent = {
           type: 'switchRoom',
           platform: 'iirose',
@@ -235,7 +254,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
       case 'music': {
         // 音乐
         const data = obj.music;
-        
+
         const session: passiveEvent.musicEvent = {
           type: 'music',
           platform: 'iirose',
@@ -255,7 +274,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'paymentCallback': {
         const data = obj.paymentCallback;
-        
+
         const session: passiveEvent.paymentCallbackEvent = {
           type: 'paymentCallback',
           platform: 'iirose',
@@ -275,7 +294,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'getUserListCallback': {
         const data = obj.getUserListCallback;
-        
+
         const session: passiveEvent.getUserListCallbackEvent = {
           type: 'getUserListCallback',
           platform: 'iirose',
@@ -295,7 +314,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'userProfileCallback': {
         const data = obj.userProfileCallback;
-        
+
         const session: passiveEvent.userProfileCallbackEvent = {
           type: 'userProfileCallback',
           platform: 'iirose',
@@ -315,7 +334,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'bankCallback': {
         const data = obj.bankCallback;
-        
+
         const session: passiveEvent.bankCallbackEvent = {
           type: 'bankCallback',
           platform: 'iirose',
@@ -335,7 +354,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'mediaListCallback': {
         const data = obj.mediaListCallback;
-        
+
         const session: passiveEvent.mediaListCallbackEvent = {
           type: 'mediaListCallback',
           platform: 'iirose',
@@ -355,7 +374,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'selfMove': {
         const data = obj.selfMove;
-        
+
         const session: passiveEvent.selfMoveEvent = {
           type: 'selfMove',
           platform: 'iirose',
@@ -383,7 +402,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
       case 'mailboxMessage': {
         const data = obj.mailboxMessage;
-        
+
         const session: passiveEvent.mailboxMessageEvent = {
           type: 'mailboxMessage',
           platform: 'iirose',
@@ -425,17 +444,21 @@ function clearMsg(msg: string) {
   ];
 
   let msg1 = msg;
-  for (const reg of result) {
+  for (const reg of result)
+  {
     const Reg = reg[0];
     const matchArr = msg1.match(Reg);
 
-    if (matchArr) {
+    if (matchArr)
+    {
       let findIndex = -1;
       const stringTemp = [];
 
       matchArr.forEach(v => {
-        if (reg.length > 3) {
-          for (let i = 3; i < reg.length; i++) {
+        if (reg.length > 3)
+        {
+          for (let i = 3; i < reg.length; i++)
+          {
             msg1 = msg1.replace(reg[i], '');
             v = v.replace(reg[i], '');
           }
