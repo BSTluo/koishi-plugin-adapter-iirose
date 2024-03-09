@@ -15,27 +15,31 @@ import StockGet from './encoder/user/StockGet';
 import { Stock } from './decoder/Stock';
 import * as eventType from './event';
 import moveRoom from "./encoder/user/moveRoomStart";
+import payment from "./encoder/system/payment";
 
 
 const logger = new Logger('IIROSE-BOT');
 
-export class Internal {
+export class Internal
+{
   bot: IIROSE_Bot;
   constructor(bot: IIROSE_Bot) { this.bot = bot; }
 
-  async send(data) {
+  async send(data)
+  {
     // eslint-disable-next-line no-prototype-builtins
     if (data.hasOwnProperty('public')) { this.bot.sendMessage('public:', data.public.message); }
     // eslint-disable-next-line no-prototype-builtins
     if (data.hasOwnProperty('private')) { this.bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
   }
-  
+
   /**
    * 移动到指定房间
    * @param moveData 
    * @returns 
    */
-  async moveRoom(moveData: eventType.move) {
+  async moveRoom(moveData: eventType.move)
+  {
     const roomId = moveData.roomId;
     if (!roomId)
     {
@@ -58,55 +62,68 @@ export class Internal {
      * 移动到指定房间开始(一般不调用这个..调用moveRoom)
      * @returns 
      */
-  async moveRoomStart() {
+  async moveRoomStart()
+  {
     await this.bot.adapter.disconnect(this.bot);
     await this.bot.adapter.connect(this.bot);
     // this.bot.config.oldRoomId = null;
     // this.bot.config.roomPassword = null;
   }
 
-  kick(kickData: eventType.kickData) {
+  kick(kickData: eventType.kickData)
+  {
     IIROSE_WSsend(this.bot, kickFunction(kickData.username));
   }
 
-  cutOne(cutOne: eventType.cutOne) {
+  cutOne(cutOne: eventType.cutOne)
+  {
     (cutOne.hasOwnProperty('id')) ? IIROSE_WSsend(this.bot, cutOneFunction(cutOne.id)) : IIROSE_WSsend(this.bot, cutOneFunction());
   }
 
-  cutAll() {
+  cutAll()
+  {
     IIROSE_WSsend(this.bot, cutAllFunction());
   }
 
-  setMaxUser(setMaxUser: eventType.setMaxUser) {
+  setMaxUser(setMaxUser: eventType.setMaxUser)
+  {
     (setMaxUser.hasOwnProperty('number')) ? IIROSE_WSsend(this.bot, setMaxUserFunction(setMaxUser.maxMember)) : IIROSE_WSsend(this.bot, setMaxUserFunction());
   }
 
-  whiteList(whiteList: eventType.whiteList) {
+  whiteList(whiteList: eventType.whiteList)
+  {
     (whiteList.hasOwnProperty('intro')) ? IIROSE_WSsend(this.bot, whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : IIROSE_WSsend(this.bot, whiteListFunction(whiteList.username, whiteList.time));
   }
 
-  damaku(damaku: eventType.damaku) {
+  damaku(damaku: eventType.damaku)
+  {
     IIROSE_WSsend(this.bot, damakuFunction(damaku.message, damaku.color));
   }
 
-  makeMusic(musicOrigin: eventType.musicOrigin) {
+  makeMusic(musicOrigin: eventType.musicOrigin)
+  {
     const { type, name, signer, cover, link, url, duration, bitRate, color, lyrics, origin } = musicOrigin;
     IIROSE_WSsend(this.bot, mediaCard(type, name, signer, cover, color, duration, bitRate, origin));
     IIROSE_WSsend(this.bot, mediaData(type, name, signer, cover, link, url, duration, lyrics, origin));
   }
 
-  stockBuy(numberData: number) {
+  stockBuy(numberData: number)
+  {
     IIROSE_WSsend(this.bot, StockBuy(numberData));
   }
-  stockSell(numberData: number) {
+  stockSell(numberData: number)
+  {
     IIROSE_WSsend(this.bot, StockSell(numberData));
   }
-  stockGet(callBack: eventType.StockGet) {
+  stockGet(callBack: eventType.StockGet)
+  {
     IIROSE_WSsend(this.bot, StockGet());
-    this.bot.ctx.once('iirose/stockBackCall', (stockData: Stock) => {
+    this.bot.ctx.once('iirose/stockBackCall', (stockData: Stock) =>
+    {
       const outData: eventType.StockSession = stockData;
       outData.bot = this.bot;
-      outData.send = (data) => {
+      outData.send = (data) =>
+      {
         // eslint-disable-next-line no-prototype-builtins
         if (data.hasOwnProperty('public')) { this.bot.sendMessage('public:', data.public.message); }
         // eslint-disable-next-line no-prototype-builtins
@@ -116,9 +133,16 @@ export class Internal {
       return callBack(outData);
     });
   }
+
+  payment(uid: string, money: number, message?: string)
+  {
+    const data = (message) ? payment(uid, money, message) : payment(uid, money);
+    IIROSE_WSsend(this.bot, data);
+  }
 }
 
-export interface InternalType {
+export interface InternalType
+{
   moveRoom(moveData: eventType.move): Promise<void>;
   kick(kickData: eventType.kickData): void;
   cutOne(cutOne: eventType.cutOne): void;
@@ -131,4 +155,5 @@ export interface InternalType {
   stockSell(numberData: number): void;
   stockGet(callBack: eventType.StockGet): void;
   moveRoomStart(): void;
+  payment(uid: string, money: number, message?: string): void;
 }
