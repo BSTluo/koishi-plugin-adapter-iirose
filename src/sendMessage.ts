@@ -1,7 +1,8 @@
 import axios from 'axios';
 import fs from 'fs';
 import FormData from 'form-data';
-import { h, MessageEncoder, Context } from '@satorijs/satori';
+import { Context } from 'koishi';
+import { h, MessageEncoder } from '@satorijs/satori';
 import { IIROSE_Bot } from './bot';
 import PublicMessage from './encoder/messages/PublicMessage';
 import PrivateMessage from './encoder/messages/PrivateMessage';

@@ -1,5 +1,5 @@
-import { Universal, Adapter, Context, Logger, Schema } from '@satorijs/satori';
-import { } from 'koishi';
+import { Universal, Adapter, Logger, Schema } from '@satorijs/satori';
+import { Context } from 'koishi';
 import { IIROSE_Bot } from './bot';
 import pako from 'pako';
 import { decoder } from './decoder';

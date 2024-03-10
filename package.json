@@ -25,7 +25,7 @@
     "pako": "^2.1.0"
   },
   "peerDependencies": {
-    "koishi": "4.17.1 - 4.17.2"
+    "koishi": "4.17.2"
   },
   "contributors": [
     "BSTluo <1946831552@qq.com>",
