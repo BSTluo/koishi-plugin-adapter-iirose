@@ -22,7 +22,7 @@ export default (type: 'music' | 'video', title: string, signer: string, cover: s
     tiktok: "!5",
     kuaishou: "!6",
     onesixthreemv: "!7",
-    bilibilistream: "!8"
+    bilibililive: "!8"
   };
 
   let t: string;

@@ -23,7 +23,7 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
     tiktok: "*5",
     kuaishou: "*6",
     onesixthreemv: "*7",
-    bilibilistream: "*8"
+    bilibililive: "*8"
   };
   let data: string;
 
