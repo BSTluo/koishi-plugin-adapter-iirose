@@ -3,6 +3,20 @@ import PublicMessage from './PublicMessage';
 import { encode } from 'html-entities';
 
 export default (type: 'music' | 'video', title: string, singer: string, cover: string, color: string, duration: number, BitRate: number = 320, origin?: musicOrigin['origin']) => {
+  function parseBitrate(bitrate: number) {
+    switch (bitrate)
+    {
+      case 10000:
+        return '1e4'
+      case 20000:
+        return '2e4'
+      case 30000:
+        return '3e4'
+      default:
+        return bitrate
+    }
+  }
+  
   const typeMap = {
     music: "=0",
     video: "=1",
@@ -23,7 +37,7 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
     tiktok: "*5",
     kuaishou: "*6",
     onesixthreemv: "*7",
-    bilibilistream: "*8"
+    bilibililive: "*8"
   };
   let data: string;
 
@@ -45,7 +59,7 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
     data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>>11451${formatSeconds(duration)}`;
   } else
   {
-    data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>>${BitRate}>>${formatSeconds(duration)}`;
+    data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>>${parseBitrate(BitRate)}>>${formatSeconds(duration)}`;
   }
   return PublicMessage(data, color);
 };
