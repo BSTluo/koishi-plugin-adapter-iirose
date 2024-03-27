@@ -155,7 +155,6 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
   title = encode(title);
   singer = encode(singer);
   color = encode(color);
-  console.log(durationToText(duration));
   if (type === 'music')
   {
     if (!BitRate)
@@ -165,7 +164,6 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
     {
       data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>${parseBitrate(BitRate)}`;
     }
-    return PublicMessage(data, color);
   } else {
     if (!BitRate)
     {
@@ -175,7 +173,7 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
       data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>>${parseBitrate(BitRate)}>>${durationToText(duration)}`;
     }
   }
-
+  return PublicMessage(data, color);
 };
 
 function formatSeconds(seconds: number): string
