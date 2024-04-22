@@ -201,7 +201,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
             if (key == '') { return; }
             if (value == '[file]') { (config) ? formData.append(key, file, config) : formData.append(key, file); }
             if (value == '[uid]') { formData.append(key, uid); }
-            formData.append(key, value);
+            // formData.append(key, value); 加了这个会导致上传失败，意义不明
           });
 
           // 发送formData到后端
