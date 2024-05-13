@@ -1,26 +1,28 @@
-import { Universal, Adapter, Logger, Schema } from '@satorijs/satori';
-import { Context } from 'koishi';
+// import { Universal, Adapter, Logger, Schema } from '@satorijs/satori';
+import { Context, Universal, Adapter, Logger, Schema } from 'koishi';
 import { IIROSE_Bot } from './bot';
 import pako from 'pako';
 import { decoder } from './decoder';
 import { decoderMessage } from './decoderMessage';
 import { startEventsServer, stopEventsServer } from './utils';
-import md5 from 'md5'
+import md5 from 'md5';
 
-declare module 'koishi' {
-  interface Tables {
-    iiroseUser: iiroseUser;
-  }
-}
+// declare module 'koishi' {
+//   interface Tables
+//   {
+//     iiroseUser: iiroseUser;
+//   }
+// }
 
-export interface iiroseUser {
-  uid: string;
-  username: string;
-  avatar: string;
-  room: string;
-  color: string;
-  data: Record<string, string>;
-}
+// export interface iiroseUser
+// {
+//   uid: string;
+//   username: string;
+//   avatar: string;
+//   room: string;
+//   color: string;
+//   data: Record<string, string>;
+// }
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -30,7 +32,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 {
   // WSurl: string = 'wss://m2.iirose.com:8778';
   private event: (() => boolean)[] = [];
-  public inject = ['database'];
+  // public inject = ['database'];
 
   live: NodeJS.Timeout;
   loginObj: {
@@ -46,27 +48,29 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     fp: string;
   };
 
-  constructor(ctx: C, bot: IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>) {
+  constructor(ctx: C, bot: IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>)
+  {
     super(ctx, bot);
 
-    ctx.model.extend('iiroseUser', {
-      // 向用户表中注入字符串字段 foo
-      uid: 'string',
-      username: 'string',
-      avatar: 'string',
-      room: 'string',
-      color: 'string',
-      data: 'json'
-    }, {
-      primary: 'uid'
-    });
+    // ctx.model.extend('iiroseUser', {
+    //   // 向用户表中注入字符串字段 foo
+    //   uid: 'string',
+    //   username: 'string',
+    //   avatar: 'string',
+    //   room: 'string',
+    //   color: 'string',
+    //   data: 'json'
+    // }, {
+    //   primary: 'uid'
+    // });
   }
 
   /**
    * 准备ws通信
    * @returns 
    */
-  async prepare() {
+  async prepare()
+  {
     const iiroseList = ['m1', 'm2', 'm8', 'm9', 'm'];
     let faseter = '';
     let maximumSpeed = 100000;
@@ -118,7 +122,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
     (this.loginObj.lr) ? '' : delete this.loginObj.lr;
 
-    socket.addEventListener('open', () => {
+    socket.addEventListener('open', () =>
+    {
 
       logger.success('websocket client opening');
       const loginPack = '*' + JSON.stringify(this.loginObj);
@@ -126,7 +131,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       IIROSE_WSsend(this.bot, loginPack);
       this.event = startEventsServer(this.bot);
       this.bot.online();
-      this.live = setInterval(() => {
+      this.live = setInterval(() =>
+      {
         if (this.bot.status == Universal.Status.ONLINE)
         {
           IIROSE_WSsend(this.bot, '');
@@ -140,9 +146,11 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   /**
    * 接受ws通信
    */
-  accept() {
+  accept()
+  {
     // 花园登陆报文
-    this.bot.socket.addEventListener('message', async (event) => {
+    this.bot.socket.addEventListener('message', async (event) =>
+    {
       // @ts-ignore
       const array = new Uint8Array(event.data);
 
@@ -163,7 +171,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
       if (funcObj.hasOwnProperty('manyMessage'))
       {
-        funcObj.manyMessage.slice().reverse().forEach(element => {
+        funcObj.manyMessage.slice().reverse().forEach(element =>
+        {
 
           const test = {};
           const type = element.type;
@@ -174,8 +183,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       } else if (funcObj.hasOwnProperty('userlist'))
       {
         const userData = funcObj.userlist;
-        const addData = [];
-        userData.forEach(async e => {
+        userData.forEach(async e =>
+        {
           if (!e.uid) { return; }
           let avatar = e.avatar;
 
@@ -188,7 +197,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
             avatar = `http://z.iirose.com/lib/php/function/loadImg.php?s=${e.avatar}`;
           }
 
-          addData.push({
+          this.bot.addData.push({
             uid: e.uid,
             username: e.username,
             avatar: avatar,
@@ -200,8 +209,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
           // 更新自己的头像
         });
 
-        this.ctx.database.upsert('iiroseUser', addData);
         this.bot.user = await this.bot.getSelf();
+
         decoderMessage(funcObj, this.bot);
       } else
       {
@@ -213,25 +222,29 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   /**
    * 开始ws通信
    */
-  async start() {
+  async start()
+  {
     this.bot.socket = await this.prepare();
     this.accept();
 
     let time = 5;
     let tryTime = 0;
 
-    this.bot.socket.addEventListener('close', async ({ code, reason }) => {
+    this.bot.socket.addEventListener('close', async ({ code, reason }) =>
+    {
       if (this.bot.status == Universal.Status.RECONNECT || this.bot.status == Universal.Status.DISCONNECT || this.bot.status == Universal.Status.OFFLINE || code == 1000) { return; }
       logger.warn(`websocket closed with ${code}`);
 
 
       // 重连
-      const restart = async () => {
+      const restart = async () =>
+      {
 
         if (tryTime <= time)
         {
           logger.warn(`${reason.toString()}, will retry in ${5000}ms...`);
-          setTimeout(async () => {
+          setTimeout(async () =>
+          {
             this.bot.socket = await this.prepare();
             this.accept();
             tryTime++;
@@ -256,7 +269,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   /**
    * 关闭ws通信
    */
-  async stop() {
+  async stop()
+  {
     this.bot.status = Universal.Status.DISCONNECT;
     if (this.event.length > 0) { stopEventsServer(this.event); }
     this.socket?.removeEventListener('close', () => { });
@@ -275,17 +289,21 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
    * @param url 
    * @returns 
    */
-  private getLatency(url: string): Promise<number | 'error'> {
-    return new Promise(async (resolve, reject) => {
+  private getLatency(url: string): Promise<number | 'error'>
+  {
+    return new Promise(async (resolve, reject) =>
+    {
       const startTime = Date.now();
       const ws = await this.bot.ctx.http.ws(url);
       const timeout: number = this.config['timeout'];
-      const timeoutId = setTimeout(() => {
+      const timeoutId = setTimeout(() =>
+      {
         ws.close();
         resolve('error');
       }, timeout);
 
-      ws.addEventListener('open', () => {
+      ws.addEventListener('open', () =>
+      {
         const endTime = Date.now();
         const latency = endTime - startTime;
         clearTimeout(timeoutId);
@@ -293,7 +311,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         ws.close();
       });
 
-      ws.addEventListener('error', (error) => {
+      ws.addEventListener('error', (error) =>
+      {
         clearTimeout(timeoutId);
         resolve('error');
       });
@@ -302,7 +321,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
 }
 
-export namespace WsClient {
+export namespace WsClient
+{
   export interface Config extends Adapter.WsClientConfig { }
 
   export const Config: Schema<Config> = Schema.intersect([
@@ -310,7 +330,8 @@ export namespace WsClient {
   ] as const);
 }
 
-export function IIROSE_WSsend(bot: IIROSE_Bot, data: string) {
+export function IIROSE_WSsend(bot: IIROSE_Bot, data: string)
+{
   if (bot.socket.readyState == 0) { return; }
   const buffer = Buffer.from(data);
   const unintArray: any = Uint8Array.from(buffer);

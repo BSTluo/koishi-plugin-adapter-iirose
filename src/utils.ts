@@ -1,4 +1,4 @@
-import { Logger } from '@satorijs/satori';
+// import { Logger } from '@satorijs/satori';
 import { Status } from '@satorijs/protocol';
 import { IIROSE_Bot } from './bot';
 import kickFunction from './encoder/admin/kick';
@@ -15,6 +15,7 @@ import StockGet from './encoder/user/StockGet';
 import { IIROSE_WSsend } from './ws';
 import * as EventType from './event';
 import { Stock } from './decoder/Stock';
+import { Logger } from 'koishi';
 
 const logger = new Logger('IIROSE-BOT');
 

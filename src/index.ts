@@ -7,7 +7,7 @@ export * from './ws';
 export * from './event';
 export default IIROSE_Bot;
 
-export const using = ['database'];
+// export const using = ['database'];
 
 declare module '@satorijs/core' {
   interface Events extends IIROSE.Events { }

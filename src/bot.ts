@@ -1,5 +1,5 @@
-import { Context } from 'koishi';
-import { Bot, Fragment, Schema, Universal } from '@satorijs/satori';
+import { Context, Bot, Fragment, Schema, Universal } from 'koishi';
+// import { Fragment, Schema, Universal } from '@satorijs/satori';
 import { SendOptions } from '@satorijs/protocol';
 import { IIROSE_WSsend, WsClient } from './ws';
 import { IIROSE_BotMessageEncoder } from './sendMessage';
@@ -7,37 +7,53 @@ import kick from './encoder/admin/kick';
 import mute from './encoder/admin/mute';
 import { messageObjList } from './messageTemp';
 import { Internal, InternalType } from './internal';
-import ws from 'ws';
 
-export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config = IIROSE_Bot.Config> extends Bot<C, T> {
+export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config = IIROSE_Bot.Config> extends Bot<C, T>
+{
   platform: string = 'iirose';
-  socket: ws;
+  socket: WebSocket;
+  public addData: {
+    uid: string;
+    username: string;
+    avatar: string;
+    room: string;
+    color: string;
+    data: Record<string, any>;
+  }[] = [];
 
-  constructor(ctx: C, config: T) {
+  constructor(ctx: C, config: T)
+  {
     super(ctx, config);
     ctx.plugin(WsClient, this);
     this.selfId = ctx.config.uid;
     this.userId = ctx.config.uid;
 
-    this.getSelf().then(v => {
-      this.user = v;
-    });
+    setTimeout(async () =>
+    {
+      this.getSelf().then(v =>
+      {
+        this.user = v;
+      });
+    }, 10000);
   }
 
-  async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions) {
+  async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions)
+  {
     if (!channelId.startsWith('public') && !channelId.startsWith('private')) { return; }
     const messages = await new IIROSE_BotMessageEncoder(this, `${channelId}:` + guildId, guildId, options).send(content);
     return messages.map(message => message.id);
   }
 
-  async sendPrivateMessage(userId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]> {
+  async sendPrivateMessage(userId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
+  {
 
     return this.sendMessage(`private:${userId}`, content);
   }
 
-  public inject = ['database'];
+  // public inject = ['database'];
 
-  async getSelf(): Promise<Universal.User> {
+  async getSelf(): Promise<Universal.User>
+  {
     let user: Universal.User = await this.getUser(this.ctx.config.uid);
     if (user.id == 'error')
     {
@@ -50,37 +66,43 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     return user;
   }
 
-  async getUser(userId: string, guildId?: string): Promise<Universal.User> {
+  async getUser(userId: string, guildId?: string): Promise<Universal.User>
+  {
     let user: Universal.User = {
       id: 'error',
       name: '用户数据库初始化ing',
       avatar: ''
     };
 
-    if (!this.ctx.database) { return user; }
-    const userDataTemp = await this.ctx.database.get('iiroseUser', { uid: userId });
+    let userData: { username: any; avatar: any; uid?: string; room?: string; color?: string; data?: Record<string, any>; };
 
-    if (userDataTemp.length > 0)
+    for (let v of this.addData)
     {
-      const userData = userDataTemp[0];
-      user = {
-        id: userId,
-        name: userData.username,
-        avatar: userData.avatar
-      };
+
+      if (v.uid == userId) { userData = v; break; }
     }
+
+    user = {
+      id: userId,
+      name: userData.username,
+      avatar: userData.avatar
+    };
+
     return user;
   }
 
-  async getMessage(channelId: string, messageId: string) {
+  async getMessage(channelId: string, messageId: string)
+  {
     return messageObjList[messageId];
   }
 
-  async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void> {
+  async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void>
+  {
     IIROSE_WSsend(this, kick(userName));
   }
 
-  async muteGuildMember(guildId: string, userName: string, duration: number, reason?: string): Promise<void> {
+  async muteGuildMember(guildId: string, userName: string, duration: number, reason?: string): Promise<void>
+  {
     let time: string;
 
     // 永久禁言
@@ -98,8 +120,10 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
   internal: InternalType = new Internal(this);
 }
 
-export namespace IIROSE_Bot {
-  export interface Config extends WsClient.Config {
+export namespace IIROSE_Bot
+{
+  export interface Config extends WsClient.Config
+  {
     usename: string;
     password: string;
     roomId: string;

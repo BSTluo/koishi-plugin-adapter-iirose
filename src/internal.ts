@@ -1,6 +1,6 @@
 import { IIROSE_Bot } from "./bot";
 import { IIROSE_WSsend } from './ws';
-import { Logger } from '@satorijs/satori';
+// import { Logger } from '@satorijs/satori';
 import kickFunction from './encoder/admin/kick';
 import cutOneFunction from './encoder/admin/media_cut';
 import cutAllFunction from './encoder/admin/media_clear';
@@ -16,7 +16,7 @@ import { Stock } from './decoder/Stock';
 import * as eventType from './event';
 import moveRoom from "./encoder/user/moveRoomStart";
 import payment from "./encoder/system/payment";
-
+import { Logger } from "koishi";
 
 const logger = new Logger('IIROSE-BOT');
 

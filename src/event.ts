@@ -1,8 +1,8 @@
-import { Fragment } from '@satorijs/satori';
+// import { Fragment } from '@satorijs/satori';
 import { MessageType } from './decoder';
 import { IIROSE_Bot } from './bot';
 import { Stock } from './decoder/Stock';
-import { Session } from 'koishi';
+import { Fragment, Session } from 'koishi';
 
 export interface kickData {
   username: string;

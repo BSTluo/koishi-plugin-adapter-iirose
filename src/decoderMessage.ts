@@ -1,11 +1,11 @@
 import { IIROSE_Bot } from './bot';
 import { MessageType } from './decoder';
-import { h } from '@satorijs/satori';
+// import { h } from '@satorijs/satori';
 import { passiveEvent } from './event';
 import { messageObjList } from './messageTemp';
 import { UserList } from './decoder/Userlist';
 import { GetUserListCallback } from './decoder/GetUserListCallback';
-import { Session } from 'koishi';
+import { Session, h } from 'koishi';
 
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
   // 定义会话列表
