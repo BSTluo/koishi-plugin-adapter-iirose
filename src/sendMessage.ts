@@ -51,7 +51,6 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
     // console.log('type', type);
     // console.log('attrs', attrs);
     // console.log('children', children);
-
     switch (type)
     {
       case 'video': {
@@ -139,7 +138,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           this.outDataOringin += ` [*${attrs.name}*] `;
         } else if (attrs.hasOwnProperty('roomId'))
         {
-          this.outDataOringin += ` [_${attrs.name}_] `;
+          this.outDataOringin += ` [_${attrs.roomId}_] `;
         }
         break;
       }

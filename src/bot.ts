@@ -39,11 +39,10 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 
   async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
   {
-    if (!channelId.startsWith('public') && !channelId.startsWith('private'))
+    if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private')))
     {
       return [];
     }
-
     const messages = await new IIROSE_BotMessageEncoder(this, `${channelId}:` + guildId, guildId, options).send(content);
 
     return messages.map(message => message.id).filter(id => id !== undefined) as string[];

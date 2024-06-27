@@ -90,13 +90,40 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         // 作为事件
         const data = obj.leaveRoom;
         if (!data) return
-        const session = {
-          // 开启兼容
-          // type: 'guild-deleted',
-          type: 'room-leave',
+        // const session = {
+        //   // 开启兼容
+        //   // type: 'guild-deleted',
+        //   type: 'room-leave',
+        //   userId: data.uid,
+        //   username: data.username,
+        //   timestamp: Number(data.timestamp),
+        //   author: {
+        //     userId: data.uid,
+        //     avatar: data.avatar,
+        //     username: data.username,
+        //   },
+        //   platform: 'iirose',
+        //   guildId: data.room,
+        //   selfId: bot.ctx.config.uid,
+        //   bot: bot,
+        //   data: data,
+        //   user: {
+        //     id: data.uid,
+        //     name: data.username
+        //   },
+        //   message: {
+        //     messageId: data.uid + 'leaveRoom',
+        //     content: 'leaveRoom',
+        //     elements: h.parse('leaveRoom'),
+        //   }
+        // };
+
+        // const botSession = bot.session(session) as Session;
+        // botSession.guildId = bot.ctx.config.roomId
+
+        const sessionV2: passiveEvent.leaveRoomEvent = {
+          type: 'leaveRoom',
           userId: data.uid,
-          username: data.username,
-          timestamp: Number(data.timestamp),
           author: {
             userId: data.uid,
             avatar: data.avatar,
@@ -105,23 +132,18 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           platform: 'iirose',
           guildId: data.room,
           selfId: bot.ctx.config.uid,
-          bot: bot,
-          data: data,
-          user: {
-            id: data.uid,
-            name: data.username
+          send: (data) =>
+          {
+            // eslint-disable-next-line no-prototype-builtins
+            if (data.public) { bot.sendMessage('public:', data.public.message); }
+            // eslint-disable-next-line no-prototype-builtins
+            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
           },
-          message: {
-            messageId: data.uid + 'leaveRoom',
-            content: 'leaveRoom',
-            elements: h.parse('leaveRoom'),
-          }
-        };
+          bot: bot,
+          data: data
+        }
 
-        const botSession = bot.session(session) as Session;
-        botSession.guildId = bot.ctx.config.roomId
-
-        bot.ctx.emit('iirose/leaveRoom', botSession);
+        bot.ctx.emit('iirose/leaveRoom', sessionV2);
         break;
       }
 
@@ -129,13 +151,36 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         // 作为事件
         const data = obj.joinRoom;
         if (!data) return
-        const session = {
-          // 开启兼容
-          // type: 'guild-added',
-          type: 'room-join',
+        // const session = {
+        //   // 开启兼容
+        //   // type: 'guild-added',
+        //   type: 'room-join',
+        //   userId: data.uid,
+        //   username: data.username,
+        //   timestamp: Number(data.timestamp),
+        //   author: {
+        //     userId: data.uid,
+        //     avatar: data.avatar,
+        //     username: data.username,
+        //   },
+        //   platform: 'iirose',
+        //   guildId: bot.ctx.config.roomId,
+        //   selfId: bot.ctx.config.uid,
+        //   bot: bot,
+        //   data: data,
+        //   user: {
+        //     id: data.uid,
+        //     name: data.username
+        //   },
+        //   message: {
+        //     messageId: data.uid + 'joinRoom',
+        //     content: 'joinRoom',
+        //     elements: h.parse('joinRoom'),
+        //   },
+        // };
+        const sessionV2: passiveEvent.joinRoomEvent = {
+          type: 'joinRoom',
           userId: data.uid,
-          username: data.username,
-          timestamp: Number(data.timestamp),
           author: {
             userId: data.uid,
             avatar: data.avatar,
@@ -144,22 +189,22 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           platform: 'iirose',
           guildId: bot.ctx.config.roomId,
           selfId: bot.ctx.config.uid,
+          send: (data) =>
+          {
+            // eslint-disable-next-line no-prototype-builtins
+            if (data.public) { bot.sendMessage('public:', data.public.message); }
+            // eslint-disable-next-line no-prototype-builtins
+            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+          },
           bot: bot,
-          data: data,
-          user: {
-            id: data.uid,
-            name: data.username
-          },
-          message: {
-            messageId: data.uid + 'joinRoom',
-            content: 'joinRoom',
-            elements: h.parse('joinRoom'),
-          },
-        };
+          data: data
 
-        const botSession = bot.session(session);
-        botSession.guildId = bot.ctx.config.roomId
-        bot.ctx.emit('iirose/joinRoom', botSession);
+
+        }
+
+        // const botSession = bot.session(session) as Session;
+        // botSession.guildId = bot.ctx.config.roomId
+        bot.ctx.emit('iirose/joinRoom', sessionV2);
         break;
       }
 
