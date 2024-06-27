@@ -157,7 +157,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           },
         };
 
-        const botSession = bot.session(session) as Session;
+        const botSession = bot.session(session);
         botSession.guildId = bot.ctx.config.roomId
         bot.ctx.emit('iirose/joinRoom', botSession);
         break;
