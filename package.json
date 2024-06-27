@@ -34,5 +34,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BSTluo/koishi-plugin-adapter-iirose.git"
+  },
+  "devDependencies": {
+    "@types/pako": "^2.0.3"
   }
 }

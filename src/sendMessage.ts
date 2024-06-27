@@ -175,12 +175,12 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
         let file: Buffer | fs.ReadStream;
         let uid: string;
-        let config;
+        let config: { contentType: string; filename: string } | undefined;
         if (attrs.src.startsWith('file://'))
         {
           const fileUrl = new URL(attrs.src);
           file = fs.createReadStream(fileUrl);
-          uid = this.bot.ctx.config.uid;
+          uid = this.bot.config.uid;
         }
 
         if (attrs.src.startsWith('data:image'))
@@ -188,44 +188,54 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           // 创建一个FormData实例
           const base64ImgStr = attrs.src.replace(/^data:image\/[a-z]+;base64,/, '');
           file = Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' };
-          uid = this.bot.ctx.config.uid;
+          uid = this.bot.config.uid;
           config = { contentType: 'image/png', filename: 'x.png' };
         }
 
         try
         {
           const formData = new FormData();
-
-          JSON.parse(this.bot.ctx.config.picFormData, (key, value) =>
+          JSON.parse(this.bot.config.picFormData, (key, value) =>
           {
             if (key == '') { return; }
-            if (value == '[file]') { (config) ? formData.append(key, file, config) : formData.append(key, file); }
-            if (value == '[uid]') { formData.append(key, uid); }
+            if (value == '[file]')
+            {
+              config ? formData.append(key, file, config) : formData.append(key, file);
+            }
+            if (value == '[uid]')
+            {
+              console.log('uid', uid);
+              console.log('key', key);
+              formData.append(key, uid);
+            }
+
             // formData.append(key, value); 加了这个会导致上传失败，意义不明
           });
 
           // 发送formData到后端
-          const response = await axios.post(this.bot.ctx.config.picLink, formData, {
+          const response = await axios.post(this.bot.config.picLink, formData, {
             headers: formData.getHeaders(),
           });
-          let outData = response;
-          const match = this.bot.ctx.config.picBackLink.match(/\[([\s\S]+?)\]/g);
+          let outData = response.data; // 确保你正确地访问了响应数据
+          const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
           if (match)
           {
             match.forEach(element =>
             {
               const urlStr = element.replace(/[\[\]]/g, '');
-              const repNodeList = urlStr.split('.');
-              outData = outData[repNodeList];
+              // const repNodeList = urlStr.split('.');
 
-              this.outDataOringin += `[${(this.bot.ctx.config.picBackLink).replace(element, outData)}]`;
+              // 使用reduce来访问嵌套属性
+              // outData = repNodeList.reduce((acc, key) => acc[key], outData);
+              console.log('outData', outData);
+              this.outDataOringin += `[${(this.bot.config.picBackLink).replace(element, outData)}]`;
+              console.log('outDataOringin', this.outDataOringin);
             });
           }
         } catch (error)
         {
-          // console.log(error);
           this.outDataOringin += '[图片显示异常]';
-          // console.error(error);
+          console.error(error);
         }
 
         break;
