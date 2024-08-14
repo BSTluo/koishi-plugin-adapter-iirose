@@ -21,6 +21,15 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     data: Record<string, any>;
   }[] = [];
 
+  static usage = `# 配置说明
+
+1. BOT账号是指用户名
+2. BOT唯一标识是不带[@@]的纯小写英文+数字部分
+3. BOT密码是需要将密码通过md5转换后得到的32位小写英文+数字，点击”32位小写md5“部分可以前往转换页面，将密码贴入pass部分，复制md5：后面的值即可
+4. 房间id是房间地址内纯英文+数字的部分
+5. 另外！此插件开启后，机器人账号会自动上线。在此插件开启后，除非必要，否则禁止人工上线机器人账号。对机器人用户名或是密码或是前往其他的房间都会导致此插件丢失与机器人的链接，需要先关闭插件后，更新对应的配置，再启动插件，才可继续正常使用。
+`;
+
   constructor(ctx: C, config: T)
   {
     super(ctx, config);
