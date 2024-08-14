@@ -11,7 +11,7 @@ import { Internal, InternalType } from './internal';
 export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config = IIROSE_Bot.Config> extends Bot<C, T>
 {
   platform: string = 'iirose';
-  socket: WebSocket;
+  socket: WebSocket | undefined = undefined;
   public addData: {
     uid: string;
     username: string;
@@ -46,11 +46,15 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     }, 10000);
   }
 
-  async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions)
+  async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
   {
-    if (!channelId.startsWith('public') && !channelId.startsWith('private')) { return; }
+    if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private')))
+    {
+      return [];
+    }
     const messages = await new IIROSE_BotMessageEncoder(this, `${channelId}:` + guildId, guildId, options).send(content);
-    return messages.map(message => message.id);
+
+    return messages.map(message => message.id).filter(id => id !== undefined) as string[];
   }
 
   async sendPrivateMessage(userId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
@@ -83,13 +87,15 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
       avatar: ''
     };
 
-    let userData: { username: any; avatar: any; uid?: string; room?: string; color?: string; data?: Record<string, any>; };
 
+    let userData: { username: string; avatar: string; uid?: string; room?: string; color?: string; data?: Record<string, any>; } | undefined = undefined;
     for (let v of this.addData)
     {
 
       if (v.uid == userId) { userData = v; break; }
     }
+
+    if (userData == undefined) { return user; }
 
     user = {
       id: userId,
@@ -123,6 +129,8 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
       time = String(duration / 1000);
     }
 
+    if (reason == undefined) { reason = ''; }
+
     IIROSE_WSsend(this, mute('all', userName, time, reason));
   }
 
@@ -137,10 +145,14 @@ export namespace IIROSE_Bot
     password: string;
     roomId: string;
     roomPassword: string;
-    oldRoomId: string;
+    oldRoomId?: string;
     uid: string;
     Signature: string;
     color: string;
+    picFormData: string;
+    picLink: string;
+    picBackLink: string;
+    timeout: number;
   }
 
   export const Config: Schema<Config> = Schema.intersect([

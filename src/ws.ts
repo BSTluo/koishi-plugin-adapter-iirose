@@ -34,7 +34,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   private event: (() => boolean)[] = [];
   // public inject = ['database'];
 
-  live: NodeJS.Timeout;
+  live: NodeJS.Timeout | null = null;
   loginObj: {
     r: string;
     n: string;
@@ -43,15 +43,14 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     mo: string;
     mb: string;
     mu: string;
-    lr: string;
+    lr?: string;
     rp: string;
     fp: string;
-  };
+  } | null = null;
 
   constructor(ctx: C, bot: IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>)
   {
     super(ctx, bot);
-
     // ctx.model.extend('iiroseUser', {
     //   // 向用户表中注入字符串字段 foo
     //   uid: 'string',
@@ -69,6 +68,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
    * 准备ws通信
    * @returns 
    */
+
   async prepare()
   {
     const iiroseList = ['m1', 'm2', 'm8', 'm9', 'm'];
@@ -103,21 +103,22 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     const roomIdReg = /\s*\[_([\s\S]+)_\]\s*/;
     const userNameReg = /\s*\[\*([\s\S]+)\*\]\s*/;
 
-    const roomIdConfig = this.bot.ctx.config.roomId;
-    const userNameConfig = this.bot.ctx.config.usename;
-    let username = (userNameReg.test(userNameConfig)) ? userNameConfig.match(userNameReg)[1] : userNameConfig;
+    const roomIdConfig = this.bot.config.roomId;
+    const userNameConfig = this.bot.config.usename;
+    let username = (userNameReg.test(userNameConfig)) ? userNameConfig.match(userNameReg)?.[1] : userNameConfig;
+    let room = (roomIdReg.test(roomIdConfig)) ? roomIdConfig.match(roomIdReg)?.[1] : roomIdConfig;
 
     this.loginObj = {
-      r: (roomIdReg.test(roomIdConfig)) ? roomIdConfig.match(roomIdReg)[1] : roomIdConfig,
-      n: username,
-      p: this.bot.ctx.config.password,
+      r: room || this.bot.config.roomId,
+      n: username || this.bot.config.usename,
+      p: this.bot.config.password,
       st: 'n',
-      mo: this.bot.ctx.config.Signature,
+      mo: this.bot.config.Signature,
       mb: '',
       mu: '01',
-      lr: this.bot.ctx.config.oldRoomId,
-      rp: this.bot.ctx.config.roomPassword,
-      fp: `@${md5(username)}`
+      lr: this.bot.config.oldRoomId,
+      rp: this.bot.config.roomPassword,
+      fp: `@${md5(username || this.bot.config.usename)}`
     };
 
     (this.loginObj.lr) ? '' : delete this.loginObj.lr;
@@ -149,6 +150,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   accept()
   {
     // 花园登陆报文
+    if (!this.bot.socket) { return; }
     this.bot.socket.addEventListener('message', async (event) =>
     {
       // @ts-ignore
@@ -169,20 +171,21 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       // console.log(funcObj)
       // 将会话上报
 
-      if (funcObj.hasOwnProperty('manyMessage'))
+      if (funcObj.manyMessage)
       {
         funcObj.manyMessage.slice().reverse().forEach(element =>
         {
-
-          const test = {};
+          if (!element.type) { return; }
+          const test: Record<string, any> = {};
           const type = element.type;
-          test[type] = element;
 
+          test[type] = element;
           decoderMessage(test, this.bot);
         });
       } else if (funcObj.hasOwnProperty('userlist'))
       {
         const userData = funcObj.userlist;
+        if (!userData) { return; }
         userData.forEach(async e =>
         {
           if (!e.uid) { return; }
@@ -255,6 +258,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
           logger.error(message);
 
           tryTime = 0;
+          if (!this.bot.socket) { return; }
           this.bot.socket.removeEventListener('close', () => { });
           this.bot.socket.removeEventListener('message', () => { });
           return this.stop();
@@ -272,16 +276,27 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   async stop()
   {
     this.bot.status = Universal.Status.DISCONNECT;
-    if (this.event.length > 0) { stopEventsServer(this.event); }
-    this.socket?.removeEventListener('close', () => { });
-    this.socket?.removeEventListener('message', () => { });
-    this.bot.socket?.removeEventListener('close', () => { });
-    this.bot.socket?.removeEventListener('message', () => { });
 
-    this.socket?.close();
-    this.bot.socket?.close();
-    this.socket = null;
-    this.bot.socket = null;
+    if (this.event.length > 0)
+    {
+      stopEventsServer(this.event); // 停止事件服务器的逻辑
+    }
+
+    // 移除事件监听器
+    if (this.socket)
+    {
+      this.socket.removeEventListener('close', () => { });
+      this.socket.removeEventListener('message', () => { });
+      this.socket.close();
+    }
+
+    if (this.bot.socket)
+    {
+      this.bot.socket.removeEventListener('close', () => { });
+      this.bot.socket.removeEventListener('message', () => { });
+      this.bot.socket.close();
+    }
+    this.bot.socket = undefined;
   }
 
   /**
@@ -295,7 +310,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     {
       const startTime = Date.now();
       const ws = await this.bot.ctx.http.ws(url);
-      const timeout: number = this.config['timeout'];
+      const timeout: number = this.bot.config.timeout;
       const timeoutId = setTimeout(() =>
       {
         ws.close();
@@ -325,13 +340,14 @@ export namespace WsClient
 {
   export interface Config extends Adapter.WsClientConfig { }
 
-  export const Config: Schema<Config> = Schema.intersect([
-    Adapter.WsClientConfig,
-  ] as const);
+  // export const Config: Schema<Config> = Schema.intersect([
+  //   Adapter.WsClientConfig,
+  // ] as const);
 }
 
 export function IIROSE_WSsend(bot: IIROSE_Bot, data: string)
 {
+  if (!bot.socket) { return; }
   if (bot.socket.readyState == 0) { return; }
   const buffer = Buffer.from(data);
   const unintArray: any = Uint8Array.from(buffer);
