@@ -16,7 +16,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
     switch (key)
     {
       case 'userlist': {
-        if (!obj.userlist) return
+        if (!obj.userlist) return;
         const data: GetUserListCallback[] = obj.userlist;
 
         const session: passiveEvent.getUserListCallbackEvent = {
@@ -43,7 +43,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
       }
 
       case 'publicMessage': {
-        if (!obj.publicMessage) return
+        if (!obj.publicMessage) return;
         messageObjList[String(obj.publicMessage.messageId)] = {
           messageId: String(obj.publicMessage.messageId),
           isDirect: true,
@@ -89,41 +89,14 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
       case 'leaveRoom': {
         // 作为事件
         const data = obj.leaveRoom;
-        if (!data) return
-        // const session = {
-        //   // 开启兼容
-        //   // type: 'guild-deleted',
-        //   type: 'room-leave',
-        //   userId: data.uid,
-        //   username: data.username,
-        //   timestamp: Number(data.timestamp),
-        //   author: {
-        //     userId: data.uid,
-        //     avatar: data.avatar,
-        //     username: data.username,
-        //   },
-        //   platform: 'iirose',
-        //   guildId: data.room,
-        //   selfId: bot.ctx.config.uid,
-        //   bot: bot,
-        //   data: data,
-        //   user: {
-        //     id: data.uid,
-        //     name: data.username
-        //   },
-        //   message: {
-        //     messageId: data.uid + 'leaveRoom',
-        //     content: 'leaveRoom',
-        //     elements: h.parse('leaveRoom'),
-        //   }
-        // };
-
-        // const botSession = bot.session(session) as Session;
-        // botSession.guildId = bot.ctx.config.roomId
-
-        const sessionV2: passiveEvent.leaveRoomEvent = {
-          type: 'leaveRoom',
+        if (!data) return;
+        const session = {
+          // 开启兼容
+          // type: 'guild-deleted',
+          type: 'room-leave',
           userId: data.uid,
+          username: data.username,
+          timestamp: Number(data.timestamp),
           author: {
             userId: data.uid,
             avatar: data.avatar,
@@ -132,55 +105,61 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           platform: 'iirose',
           guildId: data.room,
           selfId: bot.ctx.config.uid,
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
           bot: bot,
-          data: data
-        }
+          data: data,
+          user: {
+            id: data.uid,
+            name: data.username
+          },
+          message: {
+            messageId: data.uid + 'leaveRoom',
+            content: 'leaveRoom',
+            elements: h.parse('leaveRoom'),
+          }
+        };
 
-        bot.ctx.emit('iirose/leaveRoom', sessionV2);
-        break;
-      }
+        const botSession = bot.session(session) as Session;
+        botSession.guildId = bot.ctx.config.roomIdfa;
+        bot.ctx.emit('iirose/leaveRoom', botSession);
 
-      case 'joinRoom': {
-        // 作为事件
-        const data = obj.joinRoom;
-        if (!data) return
-        // const session = {
-        //   // 开启兼容
-        //   // type: 'guild-added',
-        //   type: 'room-join',
+        // const sessionV2: passiveEvent.leaveRoomEvent = {
+        //   type: 'leaveRoom',
         //   userId: data.uid,
         //   username: data.username,
-        //   timestamp: Number(data.timestamp),
         //   author: {
         //     userId: data.uid,
         //     avatar: data.avatar,
         //     username: data.username,
         //   },
         //   platform: 'iirose',
-        //   guildId: bot.ctx.config.roomId,
+        //   guildId: data.room,
         //   selfId: bot.ctx.config.uid,
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
         //   bot: bot,
-        //   data: data,
-        //   user: {
-        //     id: data.uid,
-        //     name: data.username
-        //   },
-        //   message: {
-        //     messageId: data.uid + 'joinRoom',
-        //     content: 'joinRoom',
-        //     elements: h.parse('joinRoom'),
-        //   },
-        // };
-        const sessionV2: passiveEvent.joinRoomEvent = {
-          type: 'joinRoom',
+        //   data: data
+        // }
+
+        // bot.ctx.emit('iirose/leaveRoom', sessionV2);
+        break;
+      }
+
+      case 'joinRoom': {
+        // 作为事件
+        const data = obj.joinRoom;
+        if (!data) return;
+        const session = {
+          // 开启兼容
+          // type: 'guild-added',
+          type: 'room-join',
           userId: data.uid,
+          username: data.username,
+          timestamp: Number(data.timestamp),
           author: {
             userId: data.uid,
             avatar: data.avatar,
@@ -189,27 +168,54 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           platform: 'iirose',
           guildId: bot.ctx.config.roomId,
           selfId: bot.ctx.config.uid,
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
           bot: bot,
-          data: data
+          data: data,
+          user: {
+            id: data.uid,
+            name: data.username
+          },
+          message: {
+            messageId: data.uid + 'joinRoom',
+            content: 'joinRoom',
+            elements: h.parse('joinRoom'),
+          },
+        };
 
+        const botSession = bot.session(session) as Session;
+        botSession.guildId = bot.ctx.config.roomId
+        bot.ctx.emit('iirose/joinRoom', botSession);
 
-        }
+        // const sessionV2: passiveEvent.joinRoomEvent = {
+        //   type: 'joinRoom',
+        //   userId: data.uid,
+        //   username: data.username,
+        //   author: {
+        //     userId: data.uid,
+        //     avatar: data.avatar,
+        //     username: data.username,
+        //   },
+        //   platform: 'iirose',
+        //   guildId: bot.ctx.config.roomId,
+        //   selfId: bot.ctx.config.uid,
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data
+        // };
 
         // const botSession = bot.session(session) as Session;
         // botSession.guildId = bot.ctx.config.roomId
-        bot.ctx.emit('iirose/joinRoom', sessionV2);
+        // bot.ctx.emit('iirose/joinRoom', sessionV2);
         break;
       }
 
       case 'privateMessage': {
-        if (!obj.privateMessage) return
+        if (!obj.privateMessage) return;
         messageObjList[String(obj.privateMessage.messageId)] = {
           messageId: String(obj.privateMessage.messageId),
           isDirect: true,
@@ -254,7 +260,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
 
       case 'damaku': {
         const data = obj.damaku;
-        if (!data) return
+        if (!data) return;
         const session: passiveEvent.damakuEvent = {
           type: 'damaku',
           userId: data.username,

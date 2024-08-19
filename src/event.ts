@@ -42,6 +42,7 @@ export interface EventsCallBackOrigin
 {
   type: string;
   userId?: string;
+  username?: string;
   timestamp?: number;
   author?: {
     userId: string;
@@ -169,8 +170,10 @@ export interface StockSession extends Stock
 
 export interface Events
 {
-  'iirose/leaveRoom'(session: passiveEvent.joinRoomEvent): void;
-  'iirose/joinRoom'(session: passiveEvent.leaveRoomEvent): void;
+  // 'iirose/leaveRoom'(session: passiveEvent.joinRoomEvent): void;
+  // 'iirose/joinRoom'(session: passiveEvent.leaveRoomEvent): void;
+  'iirose/leaveRoom'(session: Session): void;
+  'iirose/joinRoom'(session: Session): void;
   'iirose/newDamaku'(session: passiveEvent.damakuEvent): void;
   'iirose/switchRoom'(session: passiveEvent.switchRoomEvent): void;
   'iirose/newMusic'(session: passiveEvent.musicEvent): void;
