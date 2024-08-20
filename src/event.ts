@@ -3,6 +3,7 @@ import { MessageType } from './decoder';
 import { IIROSE_Bot } from './bot';
 import { Stock } from './decoder/Stock';
 import { Fragment, Session } from 'koishi';
+import { GetUserListCallback } from './decoder/GetUserListCallback';
 
 export interface kickData
 {
@@ -86,74 +87,6 @@ export interface StockGet
   (stockData: Stock): void;
 }
 
-export namespace passiveEvent
-{
-  export interface leaveRoomEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['leaveRoom'];
-  }
-
-  export interface joinRoomEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['joinRoom'];
-  }
-
-  export interface damakuEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['damaku'];
-  }
-
-  export interface switchRoomEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['switchRoom'];
-  }
-
-  export interface musicEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['music'];
-  }
-
-  export interface paymentCallbackEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['paymentCallback'];
-  }
-
-  export interface getUserListCallbackEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['getUserListCallback'];
-  }
-
-  export interface userProfileCallbackEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['userProfileCallback'];
-  }
-
-  export interface bankCallbackEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['bankCallback'];
-  }
-
-  export interface mediaListCallbackEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['mediaListCallback'];
-  }
-
-  export interface selfMoveEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['selfMove'];
-  }
-
-  export interface beforeMoveRoomStartEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['beforeMoveRoomStart'];
-  }
-
-  export interface mailboxMessageEvent extends EventsCallBackOrigin
-  {
-    data: MessageType['mailboxMessage'];
-  }
-}
-
 export interface StockSession extends Stock
 {
   send?: (data: {
@@ -172,19 +105,19 @@ export interface Events
 {
   // 'iirose/leaveRoom'(session: passiveEvent.joinRoomEvent): void;
   // 'iirose/joinRoom'(session: passiveEvent.leaveRoomEvent): void;
-  'iirose/leaveRoom'(session: Session): void;
-  'iirose/joinRoom'(session: Session): void;
-  'iirose/newDamaku'(session: passiveEvent.damakuEvent): void;
-  'iirose/switchRoom'(session: passiveEvent.switchRoomEvent): void;
-  'iirose/newMusic'(session: passiveEvent.musicEvent): void;
-  'iirose/before-payment'(session: passiveEvent.paymentCallbackEvent): void;
-  'iirose/before-getUserList'(session: passiveEvent.getUserListCallbackEvent): void;
-  'iirose/before-userProfile'(session: passiveEvent.userProfileCallbackEvent): void;
-  'iirose/before-bank'(session: passiveEvent.bankCallbackEvent): void;
-  'iirose/before-mediaList'(session: passiveEvent.mediaListCallbackEvent): void;
-  'iirose/selfMove'(session: passiveEvent.selfMoveEvent): void;
-  'iirose/BeforeMoveRoomStart'(session: passiveEvent.beforeMoveRoomStartEvent): void;
-  'iirose/mailboxMessage'(session: passiveEvent.mailboxMessageEvent): void;
+  'iirose/leaveRoom'(session: Session, data: MessageType['leaveRoom']): void;
+  'iirose/joinRoom'(session: Session, data: MessageType['joinRoom']): void;
+  'iirose/newDamaku'(session: Session, data: MessageType['damaku']): void;
+  'iirose/switchRoom'(session: Session, data: MessageType['switchRoom']): void;
+  'iirose/newMusic'(session: Session, data: MessageType['music']): void;
+  'iirose/before-payment'(session: Session, data: MessageType['paymentCallback']): void;
+  'iirose/before-getUserList'(session: Session, data: GetUserListCallback[]): void;
+  'iirose/before-userProfile'(session: Session, data: MessageType['userProfileCallback']): void;
+  'iirose/before-bank'(session: Session, data: MessageType['bankCallback']): void;
+  'iirose/before-mediaList'(session: Session, data: MessageType['mediaListCallback']): void;
+  'iirose/selfMove'(session: Session, data: MessageType['selfMove']): void;
+  'iirose/BeforeMoveRoomStart'(session: Session, data: MessageType['beforeMoveRoomStart']): void;
+  'iirose/mailboxMessage'(session: Session, data: MessageType['mailboxMessage']): void;
   'iirose/kick'(kickData: kickData): void;
   'iirose/cut-one'(cutOne: cutOne): void;
   'iirose/cut-all'(): void;

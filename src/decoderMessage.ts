@@ -1,11 +1,11 @@
 import { IIROSE_Bot } from './bot';
 import { MessageType } from './decoder';
 // import { h } from '@satorijs/satori';
-import { passiveEvent } from './event';
 import { messageObjList } from './messageTemp';
 import { UserList } from './decoder/Userlist';
 import { GetUserListCallback } from './decoder/GetUserListCallback';
 import { Session, h } from 'koishi';
+import { platform } from 'os';
 
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
 {
@@ -18,27 +18,34 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
       case 'userlist': {
         if (!obj.userlist) return;
         const data: GetUserListCallback[] = obj.userlist;
-
-        const session: passiveEvent.getUserListCallbackEvent = {
-          // 开启兼容
-          // type: 'guild-deleted',
+        const event = {
+          selfId: bot.ctx.config.uid,
           type: 'userlist',
           platform: 'iirose',
-          selfId: bot.ctx.config.uid,
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
-          bot: bot,
-          data: data
+          timestamp: Date.now()
         };
+        const session = bot.session(event);
+
+        // const session: passiveEvent.getUserListCallbackEvent = {
+        //   // 开启兼容
+        //   // type: 'guild-deleted',
+        //   type: 'userlist',
+        //   platform: 'iirose',
+        //   selfId: bot.ctx.config.uid,
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data
+        // };
 
         // 大包触发
-        bot.ctx.emit('iirose/before-getUserList', session);
+        bot.ctx.emit('iirose/before-getUserList', session, data);
         break;
       }
 
@@ -90,23 +97,13 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         // 作为事件
         const data = obj.leaveRoom;
         if (!data) return;
-        const session = {
-          // 开启兼容
-          // type: 'guild-deleted',
+        const event = {
+          selfId: bot.ctx.config.uid,
           type: 'room-leave',
+          platform: 'iirose',
+          timestamp: Date.now(),
           userId: data.uid,
           username: data.username,
-          timestamp: Number(data.timestamp),
-          author: {
-            userId: data.uid,
-            avatar: data.avatar,
-            username: data.username,
-          },
-          platform: 'iirose',
-          guildId: data.room,
-          selfId: bot.ctx.config.uid,
-          bot: bot,
-          data: data,
           user: {
             id: data.uid,
             name: data.username
@@ -115,12 +112,41 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
             messageId: data.uid + 'leaveRoom',
             content: 'leaveRoom',
             elements: h.parse('leaveRoom'),
-          }
+          },
+          guildId: data.room,
         };
 
-        const botSession = bot.session(session) as Session;
-        botSession.guildId = bot.ctx.config.roomIdfa;
-        bot.ctx.emit('iirose/leaveRoom', botSession);
+        // const session = {
+        //   // 开启兼容
+        //   // type: 'guild-deleted',
+        //   type: 'room-leave',
+        //   userId: data.uid,
+        //   username: data.username,
+        //   timestamp: Number(data.timestamp),
+        //   author: {
+        //     userId: data.uid,
+        //     avatar: data.avatar,
+        //     username: data.username,
+        //   },
+        //   platform: 'iirose',
+        //   guildId: data.room,
+        //   selfId: bot.ctx.config.uid,
+        //   bot: bot,
+        //   data: data,
+        //   user: {
+        //     id: data.uid,
+        //     name: data.username
+        //   },
+        //   message: {
+        //     messageId: data.uid + 'leaveRoom',
+        //     content: 'leaveRoom',
+        //     elements: h.parse('leaveRoom'),
+        //   }
+        // };
+
+        const session = bot.session(event);
+        session.guildId = bot.ctx.config.roomIdfa;
+        bot.ctx.emit('iirose/leaveRoom', session, data);
 
         // const sessionV2: passiveEvent.leaveRoomEvent = {
         //   type: 'leaveRoom',
@@ -153,9 +179,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         // 作为事件
         const data = obj.joinRoom;
         if (!data) return;
-        const session = {
-          // 开启兼容
-          // type: 'guild-added',
+        const event = {
           type: 'room-join',
           userId: data.uid,
           username: data.username,
@@ -181,9 +205,9 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           },
         };
 
-        const botSession = bot.session(session) as Session;
-        botSession.guildId = bot.ctx.config.roomId
-        bot.ctx.emit('iirose/joinRoom', botSession);
+        const session = bot.session(event);
+        session.guildId = bot.ctx.config.roomId;
+        bot.ctx.emit('iirose/joinRoom', session, data);
 
         // const sessionV2: passiveEvent.joinRoomEvent = {
         //   type: 'joinRoom',
@@ -261,52 +285,82 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
       case 'damaku': {
         const data = obj.damaku;
         if (!data) return;
-        const session: passiveEvent.damakuEvent = {
+        const event = {
           type: 'damaku',
           userId: data.username,
+          username: data.username,
+          timestamp: Date.now(),
           author: {
             userId: data.username,
             avatar: data.avatar,
             username: data.username,
           },
           platform: 'iirose',
-          // 房间地址
-          guildId: 'damaku',
+          guildId: bot.ctx.config.roomId,
           selfId: bot.ctx.config.uid,
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+          user: {
+            id: data.username,
+            name: data.username
           },
-          bot: bot,
-          data: data
+          message: {
+            id: `${data.username}damaku`,
+            content: data.message,
+          },
         };
 
-        bot.ctx.emit('iirose/newDamaku', session);
+        // const session: passiveEvent.damakuEvent = {
+        //   type: 'damaku',
+        //   userId: data.username,
+        //   author: {
+        //     userId: data.username,
+        //     avatar: data.avatar,
+        //     username: data.username,
+        //   },
+        //   platform: 'iirose',
+        //   // 房间地址
+        //   guildId: 'damaku',
+        //   selfId: bot.ctx.config.uid,
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data
+        // };
+
+        const session = bot.session(event);
+        bot.ctx.emit('iirose/newDamaku', session, data);
         break;
       }
 
       case 'switchRoom': {
         // 这玩意真的是机器人能够拥有的吗
 
-        const session: passiveEvent.switchRoomEvent = {
+        const event = {
           type: 'switchRoom',
           platform: 'iirose',
-          guildId: bot.config.roomId,
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
-          bot: bot,
-          data: obj.switchRoom
+          guildId: bot.config.roomId
         };
+        const session = bot.session(event);
+        // const session: passiveEvent.switchRoomEvent = {
+        //   type: 'switchRoom',
+        //   platform: 'iirose',
+        //   guildId: bot.config.roomId,
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: obj.switchRoom
+        // };
 
-        bot.ctx.emit('iirose/switchRoom', session);
+        bot.ctx.emit('iirose/switchRoom', session, obj.switchRoom);
         break;
       }
 
@@ -314,147 +368,191 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         // 音乐
         const data = obj.music;
 
-        const session: passiveEvent.musicEvent = {
+        // const session: passiveEvent.musicEvent = {
+        //   type: 'music',
+        //   platform: 'iirose',
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data
+        // };
+        const event = {
           type: 'music',
           platform: 'iirose',
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
-          bot: bot,
-          data: data
+          guildId: bot.config.roomId
         };
+        const session = bot.session(event);
 
-        bot.ctx.emit('iirose/newMusic', session);
+        bot.ctx.emit('iirose/newMusic', session, data);
         break;
       }
 
       case 'paymentCallback': {
         const data = obj.paymentCallback;
 
-        const session: passiveEvent.paymentCallbackEvent = {
+        // const session: passiveEvent.paymentCallbackEvent = {
+        //   type: 'paymentCallback',
+        //   platform: 'iirose',
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data
+        // };
+
+        const event = {
           type: 'paymentCallback',
           platform: 'iirose',
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
-          bot: bot,
-          data: data
+          guildId: bot.config.roomId
         };
+        const session = bot.session(event);
 
-        bot.ctx.emit('iirose/before-payment', session);
+        bot.ctx.emit('iirose/before-payment', session, data);
         break;
       }
 
       case 'getUserListCallback': {
         const data = obj.getUserListCallback;
 
-        const session: passiveEvent.getUserListCallbackEvent = {
+        // const session: passiveEvent.getUserListCallbackEvent = {
+        //   type: 'getUserListCallback',
+        //   platform: 'iirose',
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data
+        // };
+
+        const event = {
           type: 'getUserListCallback',
           platform: 'iirose',
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
-          bot: bot,
-          data: data
+          guildId: bot.config.roomId
         };
+        const session = bot.session(event);
 
-        bot.ctx.emit('iirose/before-getUserList', session);
+        bot.ctx.emit('iirose/before-getUserList', session, data);
         break;
       }
 
       case 'userProfileCallback': {
         const data = obj.userProfileCallback;
 
-        const session: passiveEvent.userProfileCallbackEvent = {
+        // const session: passiveEvent.userProfileCallbackEvent = {
+        //   type: 'userProfileCallback',
+        //   platform: 'iirose',
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data
+        // };
+        const event = {
           type: 'userProfileCallback',
           platform: 'iirose',
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
-          bot: bot,
-          data: data
+          guildId: bot.config.roomId
         };
+        const session = bot.session(event);
 
-        bot.ctx.emit('iirose/before-userProfile', session);
+        bot.ctx.emit('iirose/before-userProfile', session, data);
         break;
       }
 
       case 'bankCallback': {
         const data = obj.bankCallback;
 
-        const session: passiveEvent.bankCallbackEvent = {
+        // const session: passiveEvent.bankCallbackEvent = {
+        //   type: 'bankCallback',
+        //   platform: 'iirose',
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data
+        // };
+        const event = {
           type: 'bankCallback',
           platform: 'iirose',
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
-          bot: bot,
-          data: data
+          guildId: bot.config.roomId
         };
 
-        bot.ctx.emit('iirose/before-bank', session);
+        const session = bot.session(event);
+        bot.ctx.emit('iirose/before-bank', session, data);
         break;
       }
 
       case 'mediaListCallback': {
         const data = obj.mediaListCallback;
 
-        const session: passiveEvent.mediaListCallbackEvent = {
+        // const session: passiveEvent.mediaListCallbackEvent = {
+        //   type: 'mediaListCallback',
+        //   platform: 'iirose',
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data
+        // };
+        const event = {
           type: 'mediaListCallback',
           platform: 'iirose',
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
-          bot: bot,
-          data: data
+          guildId: bot.config.roomId
         };
 
-        bot.ctx.emit('iirose/before-mediaList', session);
+        const session = bot.session(event);
+        bot.ctx.emit('iirose/before-mediaList', session, data);
         break;
       }
 
       case 'selfMove': {
         const data = obj.selfMove;
 
-        const session: passiveEvent.selfMoveEvent = {
+        // const session: passiveEvent.selfMoveEvent = {
+        //   type: 'selfMove',
+        //   platform: 'iirose',
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data
+        // };
+        const event = {
           type: 'selfMove',
           platform: 'iirose',
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
-          bot: bot,
-          data: data
+          guildId: bot.config.roomId
         };
 
-        bot.ctx.emit('iirose/selfMove', session);
+        const session = bot.session(event);
+        bot.ctx.emit('iirose/selfMove', session, data);
         // 自身移动房间
         break;
       }
@@ -462,6 +560,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
       case 'beforeMoveRoomStart': {
         const data = obj.beforeMoveRoomStart;
         bot.internal.moveRoomStart();
+
+        const event = {
+          type: 'moveRoomStart',
+          platform: 'iirose',
+          guildId: bot.config.roomId
+        };
+
+        const session = bot.session(event);
+        bot.ctx.emit('iirose/BeforeMoveRoomStart', session, data);
         // 自身移动房间
         break;
       }
@@ -469,21 +576,29 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
       case 'mailboxMessage': {
         const data = obj.mailboxMessage;
 
-        const session: passiveEvent.mailboxMessageEvent = {
+        // const session: passiveEvent.mailboxMessageEvent = {
+        //   type: 'mailboxMessage',
+        //   platform: 'iirose',
+        //   send: (data) =>
+        //   {
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
+        //     // eslint-disable-next-line no-prototype-builtins
+        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        //   },
+        //   bot: bot,
+        //   data: data,
+        // };
+
+        const event = {
           type: 'mailboxMessage',
           platform: 'iirose',
-          send: (data) =>
-          {
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.public) { bot.sendMessage('public:', data.public.message); }
-            // eslint-disable-next-line no-prototype-builtins
-            if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-          },
-          bot: bot,
-          data: data,
+          guildId: bot.config.roomId
         };
 
-        bot.ctx.emit('iirose/mailboxMessage', session);
+        const session = bot.session(event);
+
+        bot.ctx.emit('iirose/mailboxMessage', session, data);
         break;
       }
 

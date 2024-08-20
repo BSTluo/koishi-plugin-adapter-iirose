@@ -203,8 +203,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
             }
             if (value == '[uid]')
             {
-              console.log('uid', uid);
-              console.log('key', key);
+              // console.log('uid', uid);
+              // console.log('key', key);
               formData.append(key, uid);
             }
 
@@ -226,9 +226,9 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
               // 使用reduce来访问嵌套属性
               // outData = repNodeList.reduce((acc, key) => acc[key], outData);
-              console.log('outData', outData);
+              // console.log('outData', outData);
               this.outDataOringin += `[${(this.bot.config.picBackLink).replace(element, outData)}]`;
-              console.log('outDataOringin', this.outDataOringin);
+              // console.log('outDataOringin', this.outDataOringin);
             });
           }
         } catch (error)
