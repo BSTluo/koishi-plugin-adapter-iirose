@@ -47,13 +47,15 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     lr?: string;
     rp?: string;
     fp?: string;
-    i?: string,
-    nc?: string,
-    s?: string,
-    uid?: string,
+
+    // 游客专用
+    i?: string, // 头像
+    nc?: string, // 颜色
+    s?: string, // 性别
+    uid?: string, // 唯一标识
     li?: string, // 重复游客ID才需要
-    la?: string,
-    vc?: string,
+    la?: string, // 注册地址
+    vc?: string, // 设备版本号
   }
 
   move: boolean = false;
