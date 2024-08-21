@@ -35,18 +35,28 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   // public inject = ['database'];
 
   live: NodeJS.Timeout | null = null;
+
   loginObj: {
-    r: string;
-    n: string;
-    p: string;
-    st: string;
-    mo: string;
-    mb: string;
-    mu: string;
+    r?: string;
+    n?: string;
+    p?: string;
+    st?: string;
+    mo?: string;
+    mb?: string;
+    mu?: string; // 关系到服务器给不给你媒体信息
     lr?: string;
-    rp: string;
-    fp: string;
-  } | null = null;
+    rp?: string;
+    fp?: string;
+    i?: string,
+    nc?: string,
+    s?: string,
+    uid?: string,
+    li?: string, // 重复游客ID才需要
+    la?: string,
+    vc?: string,
+  }
+
+  move: boolean = false;
 
   constructor(ctx: C, bot: IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>)
   {
@@ -108,18 +118,57 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     let username = (userNameReg.test(userNameConfig)) ? userNameConfig.match(userNameReg)?.[1] : userNameConfig;
     let room = (roomIdReg.test(roomIdConfig)) ? roomIdConfig.match(roomIdReg)?.[1] : roomIdConfig;
 
-    this.loginObj = {
-      r: room || this.bot.config.roomId,
-      n: username || this.bot.config.usename,
-      p: this.bot.config.password,
-      st: 'n',
-      mo: this.bot.config.Signature,
-      mb: '',
-      mu: '01',
-      lr: this.bot.config.oldRoomId,
-      rp: this.bot.config.roomPassword,
-      fp: `@${md5(username || this.bot.config.usename)}`
-    };
+    // 蔷薇游客登陆报文
+    // this.loginObj = {
+    //   r: room || this.bot.config.roomId,
+    //   n: "‌",
+    //   i: "cartoon/600215",
+    //   // nc: "3d5d58",
+    //   // s: "1",
+    //   // st: "n",
+    //   // mo: "",
+    //   // uid: "X000000000000",
+    //   // li: "152249236006",
+    //   // mb: "",
+    //   // mu: "01",
+    //   // la: "MY",
+    //   // vc: "1120",
+    //   fp: `@${md5(``)}`
+    // };
+
+    if (this.bot.config.smStart && this.bot.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+    {
+      this.loginObj = {
+        r: this.bot.config.smRoom,
+        n: this.bot.config.smUsername,
+        i: this.bot.config.smImage,
+        nc: this.bot.config.smColor,
+        s: this.bot.config.smGender,
+        st: this.bot.config.smst,
+        mo: this.bot.config.smmo,
+        uid: this.bot.config.smUid,
+        li: this.bot.config.smli,
+        mb: this.bot.config.smmb,
+        mu: this.bot.config.smmu,
+        la: this.bot.config.smLocation,
+        vc: this.bot.config.smvc,
+        fp: `@${md5(this.bot.config.smUsername)}`
+      }
+    } else
+    {
+      this.loginObj = {
+        r: room || this.bot.config.roomId,
+        n: username || this.bot.config.usename,
+        p: this.bot.config.password,
+        st: 'n',
+        mo: this.bot.config.Signature,
+        mb: '',
+        mu: '01',
+        lr: this.bot.config.oldRoomId,
+        rp: this.bot.config.roomPassword,
+        fp: `@${md5(username || this.bot.config.usename)}`
+      };
+    }
 
     (this.loginObj.lr) ? '' : delete this.loginObj.lr;
 
@@ -149,6 +198,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
    */
   accept()
   {
+
     // 花园登陆报文
     if (!this.bot.socket) { return; }
     this.bot.socket.addEventListener('message', async (event) =>
@@ -166,7 +216,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       {
         message = Buffer.from(array).toString('utf8');
       }
-
+      // console.log(message.slice(0, 5));
       const funcObj = decoder(this.bot, message);
       // console.log(funcObj)
       // 将会话上报
@@ -237,8 +287,6 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     {
       if (this.bot.status == Universal.Status.RECONNECT || this.bot.status == Universal.Status.DISCONNECT || this.bot.status == Universal.Status.OFFLINE || code == 1000) { return; }
       logger.warn(`websocket closed with ${code}`);
-
-
       // 重连
       const restart = async () =>
       {
