@@ -204,7 +204,7 @@ export namespace IIROSE_Bot
       smmu: Schema.string().default(''),
       smLocation: Schema.string().default(''),
       smvc: Schema.string().default(''),
-    }).description('仅供测试')
+    }).description('内部开发人员使用，不需要填写')
   ]);
 }
 
