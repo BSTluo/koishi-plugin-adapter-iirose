@@ -19,6 +19,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
   async flush(): Promise<void>
   {
+    if (this.bot.config.hangUpMode) { return; }
     IIROSE_WSsend(this.bot, this.outDataOringinObj);
   }
 

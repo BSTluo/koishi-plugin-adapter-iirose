@@ -7,7 +7,6 @@ import kick from './encoder/admin/kick';
 import mute from './encoder/admin/mute';
 import { messageObjList } from './messageTemp';
 import { Internal, InternalType } from './internal';
-import { start } from 'repl';
 
 export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config = IIROSE_Bot.Config> extends Bot<C, T>
 {
@@ -154,6 +153,7 @@ export namespace IIROSE_Bot
     picLink: string;
     picBackLink: string;
     timeout: number;
+    hangUpMode: boolean;
     smStart: boolean;
     smPassword: string;
     smRoom: string;
@@ -186,7 +186,8 @@ export namespace IIROSE_Bot
       picFormData: Schema.string().description('图床formData包，[file]为图片文件').default('{"f[]": "[file]","i":"[uid]"}'),
       picLink: Schema.string().description('图床接口').default('https://f.iirose.com/lib/php/system/file_upload.php'),
       picBackLink: Schema.string().description('图床返回url(data为接口返回的data,可以使用data.xxx)').default('http://r.iirose.com/[data]'),
-      timeout: Schema.number().min(100).max(5000).default(500).description('bot多久才连接超时(毫秒)')
+      timeout: Schema.number().min(100).max(5000).default(500).description('bot多久才连接超时(毫秒)'),
+      hangUpMode: Schema.boolean().default(false).description('是否开启挂机模式'),
     }).description('其他配置'),
     Schema.object({
       smStart: Schema.boolean().default(false),
