@@ -173,7 +173,6 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         fp: `@${md5(username || this.bot.config.usename)}`
       };
     }
-
     (this.loginObj.lr) ? '' : delete this.loginObj.lr;
 
     socket.addEventListener('open', () =>
