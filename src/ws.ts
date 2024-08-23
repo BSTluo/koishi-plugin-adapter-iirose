@@ -156,6 +156,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         vc: this.bot.config.smvc,
         fp: `@${md5(this.bot.config.smUsername)}`
       }
+
+      logger.info('已启用蔷薇游客模式');
     } else
     {
       this.loginObj = {
@@ -218,7 +220,34 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       {
         message = Buffer.from(array).toString('utf8');
       }
-      // console.log(message.slice(0, 5));
+
+      if (message.startsWith(`%*"0`))
+      {
+        logger.error('名字被占用');
+      } else if (message.startsWith(`%*"1`))
+      {
+        logger.error('用户名不存在');
+      } else if (message.startsWith(`%*"2`))
+      {
+        logger.error('密码错误');
+      } else if (message.startsWith(`%*"4`))
+      {
+        logger.error('今日可尝试登录次数达到上限');
+      } else if (message.startsWith(`%*"5`))
+      {
+        logger.error('房间密码错误');
+      } else if (message.startsWith(`%*"x`))
+      {
+        logger.error('用户被封禁');
+      } else if (message.startsWith(`%*"n0`))
+      {
+        logger.error('房间无法进入');
+      }
+      else if (message.startsWith(`%*"`))
+      {
+        logger.info('登陆成功');
+      }
+
       const funcObj = decoder(this.bot, message);
       // console.log(funcObj)
       // 将会话上报
