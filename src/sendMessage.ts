@@ -11,6 +11,7 @@ import PrivateMessage from './encoder/messages/PrivateMessage';
 import Like from './encoder/system/Like';
 import { IIROSE_WSsend } from './ws';
 import { musicOrigin } from './event';
+import { messageObjList } from './messageTemp';
 
 export class IIROSE_BotMessageEncoder<C extends Context = Context> extends MessageEncoder<C, IIROSE_Bot<C>>
 {
@@ -93,7 +94,12 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
       }
 
       case 'quote': {
-        const messData = await this.bot.getMessage('', attrs.id);
+        let id = attrs.id
+        if (!id) {
+          id = Object.keys(messageObjList).pop()
+        }
+
+        const messData = await this.bot.getMessage('', id);
 
         this.outDataOringin = `${messData.content} (_hr) ${messData.author.username}_${Math.round(new Date().getTime() / 1e3)} (hr_) ` + this.outDataOringin;
         break;
@@ -174,7 +180,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
         let file: Buffer | fs.ReadStream;
         let uid: string;
-        let config: { contentType: string; filename: string } | undefined;
+        let config: { contentType: string; filename: string; } | undefined;
         if (attrs.src.startsWith('file://'))
         {
           const fileUrl = new URL(attrs.src);
