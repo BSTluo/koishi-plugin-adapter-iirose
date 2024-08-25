@@ -58,7 +58,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     vc?: string, // 设备版本号
   }
 
-  move: boolean = false;
+  firstLogin: boolean = false;
 
   constructor(ctx: C, bot: IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>)
   {
@@ -220,31 +220,37 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         message = Buffer.from(array).toString('utf8');
       }
 
-      if (message.startsWith(`%*"0`))
+      if (!this.firstLogin)
       {
-        logger.error('名字被占用');
-      } else if (message.startsWith(`%*"1`))
-      {
-        logger.error('用户名不存在');
-      } else if (message.startsWith(`%*"2`))
-      {
-        logger.error('密码错误');
-      } else if (message.startsWith(`%*"4`))
-      {
-        logger.error('今日可尝试登录次数达到上限');
-      } else if (message.startsWith(`%*"5`))
-      {
-        logger.error('房间密码错误');
-      } else if (message.startsWith(`%*"x`))
-      {
-        logger.error('用户被封禁');
-      } else if (message.startsWith(`%*"n0`))
-      {
-        logger.error('房间无法进入');
-      }
-      else if (message.startsWith(`%*"`))
-      {
-        logger.info('登陆成功');
+        this.firstLogin = true;
+
+        if (message.startsWith(`%*"0`))
+        {
+          logger.error(`名字被占用，用户名：${this.loginObj.n}`);
+        } else if (message.startsWith(`%*"1`))
+        {
+          logger.error('用户名不存在');
+        } else if (message.startsWith(`%*"2`))
+        {
+          logger.error(`密码错误，用户名：${this.loginObj.n}`);
+        } else if (message.startsWith(`%*"4`))
+        {
+          logger.error(`今日可尝试登录次数达到上限，用户名：${this.loginObj.n}`);
+        } else if (message.startsWith(`%*"5`))
+        {
+          logger.error(`房间密码错误，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
+        } else if (message.startsWith(`%*"x`))
+        {
+          logger.error(`用户被封禁，用户名：${this.loginObj.n}`);
+        } else if (message.startsWith(`%*"n0`))
+        {
+          logger.error(`房间无法进入，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
+        }
+        else if (message.startsWith(`%*"`))
+        {
+          logger.info(`登陆成功，用户名：${this.loginObj.n}`);
+        }
+
       }
 
       const funcObj = decoder(this.bot, message);
