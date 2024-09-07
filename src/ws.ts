@@ -83,12 +83,15 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
   async prepare()
   {
+    logger.info('websocket client preparing');
+
     const iiroseList = ['m1', 'm2', 'm8', 'm9', 'm'];
     let faseter = '';
     let maximumSpeed = 100000;
 
     let allErrors: boolean;
-
+    let dispose = false;
+    this.ctx.on('dispose', () => { dispose = true; });
     do
     {
       allErrors = true;
@@ -105,9 +108,18 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
           }
         }
       }
+      if (allErrors)
+      {
+        logger.warn('所有服务器都无法连接，将在5秒后重试...');
+        await new Promise(r => setTimeout(r, 5000));
+      }
+      if (dispose) { return; }
     } while (allErrors);
 
     const socket = await this.bot.ctx.http.ws(`wss://${faseter}.iirose.com:8778`);
+
+    logger.success(`websocket client prepared, connecting to wss://${faseter}.iirose.com:8778`);
+
     this.bot.socket = socket;
     // socket = this.socket
     // this.socket.binaryType = 'arraybuffer'
