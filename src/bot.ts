@@ -45,8 +45,6 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
       this.userId = ctx.config.uid;
     }
 
-
-
     setTimeout(async () =>
     {
       this.getSelf().then(v =>
