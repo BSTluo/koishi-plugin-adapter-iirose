@@ -1,5 +1,4 @@
 // import { Logger } from '@satorijs/satori';
-import { Status } from '@satorijs/protocol';
 import { IIROSE_Bot } from './bot';
 import kickFunction from './encoder/admin/kick';
 import cutOneFunction from './encoder/admin/media_cut';

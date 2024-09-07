@@ -34,8 +34,18 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
   {
     super(ctx, config);
     ctx.plugin(WsClient, this);
-    this.selfId = ctx.config.uid;
-    this.userId = ctx.config.uid;
+
+    if (this.config.smStart && this.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+    {
+      this.selfId = ctx.config.smUid;
+      this.userId = ctx.config.smUid;
+    } else
+    {
+      this.selfId = ctx.config.uid;
+      this.userId = ctx.config.uid;
+    }
+
+
 
     setTimeout(async () =>
     {
@@ -70,11 +80,21 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     let user: Universal.User = await this.getUser(this.ctx.config.uid);
     if (user.id == 'error')
     {
-      user = {
-        id: this.ctx.config.uid,
-        name: this.ctx.config.usename,
-        avatar: 'http://p26-tt.byteimg.com/origin/pgc-image/cabc74beb5794b97b1b300a2b8817e05'
-      };
+
+      if (this.config.smStart && this.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+      {
+        user = {
+          id: this.ctx.config.smUid,
+          name: this.ctx.config.smUsername,
+          avatar: 'http://p26-tt.byteimg.com/origin/pgc-image/cabc74beb5794b97b1b300a2b8817e05'
+        };
+      } else
+
+        user = {
+          id: this.ctx.config.uid,
+          name: this.ctx.config.usename,
+          avatar: 'http://p26-tt.byteimg.com/origin/pgc-image/cabc74beb5794b97b1b300a2b8817e05'
+        };
     }
     return user;
   }
@@ -207,7 +227,7 @@ export namespace IIROSE_Bot
   //     smvc: Schema.string().default(''),
   //   }).description('杂项，不需要填写')
   // ]);
-  
+
   export const Config: Schema<any> = Schema.intersect([
     Schema.object({
       usename: Schema.string().required().description('BOT账号'),
