@@ -18,8 +18,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
       case 'userlist': {
         if (!obj.userlist) return;
         const data: GetUserListCallback[] = obj.userlist;
+
+        let uid = bot.ctx.config.uid
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
+          uid = bot.ctx.config.smUid
+        }
+
         const event = {
-          selfId: bot.ctx.config.uid,
+          selfId: uid,
           type: 'userlist',
           platform: 'iirose',
           timestamp: Date.now()
@@ -80,13 +87,25 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           },
           timestamp: Number(data.timestamp),
         });
+
+        let uid = bot.ctx.config.uid
+        let guildId = bot.ctx.config.roomId
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
+          uid = bot.ctx.config.smUid
+          guildId = bot.ctx.config.smRoom
+        }
+
         session.platform = 'iirose';
         session.subtype = 'group';
         session.subsubtype = 'group';
-        session.guildId = bot.ctx.config.roomId;
+        session.guildId = guildId;
         session.content = data.message;
-        session.channelId = `public:${bot.ctx.config.roomId}`;
-        session.selfId = bot.ctx.config.uid;
+        session.channelId = `public:${guildId}`;
+
+
+
+        session.selfId = uid;
         session.isDirect = false;
 
         bot.dispatch(session);
@@ -97,8 +116,16 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         // 作为事件
         const data = obj.leaveRoom;
         if (!data) return;
+
+        let uid = bot.ctx.config.uid
+
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
+          uid = bot.ctx.config.smUid
+        }
+
         const event = {
-          selfId: bot.ctx.config.uid,
+          selfId: uid,
           type: 'room-leave',
           platform: 'iirose',
           timestamp: Date.now(),
@@ -179,6 +206,16 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         // 作为事件
         const data = obj.joinRoom;
         if (!data) return;
+
+        let uid = bot.ctx.config.uid
+        let guildId = bot.ctx.config.roomId
+
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
+          uid = bot.ctx.config.smUid
+          guildId = bot.ctx.config.sm
+        }
+
         const event = {
           type: 'room-join',
           userId: data.uid,
@@ -190,8 +227,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
             username: data.username,
           },
           platform: 'iirose',
-          guildId: bot.ctx.config.roomId,
-          selfId: bot.ctx.config.uid,
+          guildId: guildId,
+          selfId: uid,
           bot: bot,
           data: data,
           user: {
@@ -206,7 +243,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
-        session.guildId = bot.ctx.config.roomId;
+        session.guildId = guildId;
         bot.ctx.emit('iirose/joinRoom', session, data);
 
         // const sessionV2: passiveEvent.joinRoomEvent = {
@@ -275,7 +312,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         session.guildId = data.uid;
         session.content = data.message;
         session.channelId = `private:${data.uid}`;
-        session.selfId = bot.ctx.config.uid;
+
+        let uid = bot.ctx.config.uid
+
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
+          uid = bot.ctx.config.smUid
+        }
+
+        session.selfId = uid;
         session.isDirect = true;
 
         bot.dispatch(session);
@@ -285,6 +330,15 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
       case 'damaku': {
         const data = obj.damaku;
         if (!data) return;
+
+        let uid = bot.ctx.config.uid
+        let guildId = bot.ctx.config.roomId
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
+          uid = bot.ctx.config.smUid
+          guildId = bot.ctx.config.smRoom
+        }
+
         const event = {
           type: 'damaku',
           userId: data.username,
@@ -296,8 +350,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
             username: data.username,
           },
           platform: 'iirose',
-          guildId: bot.ctx.config.roomId,
-          selfId: bot.ctx.config.uid,
+          guildId: guildId,
+          selfId: uid,
           user: {
             id: data.username,
             name: data.username

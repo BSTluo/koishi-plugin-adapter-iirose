@@ -56,7 +56,14 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
 
       if (len[key].uid)
       {
-        if (len[key].uid !== bot.ctx.config.uid) { newObj[key] = len[key]; }
+        let uid = bot.ctx.config.uid
+
+        if (bot.config.smStart && bot.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
+          uid = bot.ctx.config.smUid;
+        }
+
+        if (len[key].uid !== uid) { newObj[key] = len[key]; }
       } else
       {
         newObj[key] = len[key];
