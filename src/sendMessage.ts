@@ -76,28 +76,90 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
       }
 
       case 'audio': {
+        const url = attrs.link || attrs.url || attrs.src;
+        let file: Buffer | fs.ReadStream;
+        let uid: string;
+        let config: { contentType: string; filename: string; } | undefined;
+        if (url.startsWith('file://'))
+        {
+          const fileUrl = new URL(url);
+          file = fs.createReadStream(fileUrl);
+          uid = this.bot.config.uid;
+        }
+
+        if (url.startsWith('data:audio'))
+        {
+          // 创建一个FormData实例
+          const base64ImgStr = url.replace(/^data:audio\/[a-z]+;base64,/, '');
+          file = Buffer.from(base64ImgStr, 'base64');
+          uid = this.bot.config.uid;
+          config = { contentType: 'audio/mpeg', filename: 'x.mp3' };
+        }
+
+        try
+        {
+          const formData = new FormData();
+          JSON.parse(this.bot.config.picFormData, (key, value) =>
+          {
+            if (key == '') { return; }
+            if (value == '[file]')
+            {
+              config ? formData.append(key, file, config) : formData.append(key, file);
+            }
+            if (value == '[uid]')
+            {
+              formData.append(key, uid);
+            }
+
+          });
+
+          // 发送formData到后端
+          const response = await axios.post(this.bot.config.picLink, formData, {
+            headers: formData.getHeaders(),
+          });
+          let outData = response.data; // 确保你正确地访问了响应数据
+
+          const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
+
+          if (match)
+          {
+            match.forEach(element =>
+            {
+              const urlStr = element.replace(/[\[\]]/g, '');
+              this.outDataOringin += `${(this.bot.config.picBackLink).replace(element, outData)}`;
+            });
+          }
+          break;
+        } catch (error)
+        {
+          this.outDataOringin += '[音频异常]';
+          console.error(error);
+        }
+
         const obj: musicOrigin = {
           type: 'music',
           name: attrs.name,
           signer: attrs.author,
           cover: attrs.cover,
-          link: attrs.link || attrs.url,
-          url: attrs.url,
+          link: url,
+          url: url,
           duration: attrs.duration,
           bitRate: attrs.bitRate,
           color: attrs.color,
           lyrics: (attrs.lyrics) ? attrs.lyrics : '',
           origin: (attrs.origin) ? attrs.origin : null
         };
+
         this.bot.internal.makeMusic(obj);
         // ctx.emit('iirose/makeMusic', obj);
         break;
       }
 
       case 'quote': {
-        let id = attrs.id
-        if (!id) {
-          id = Object.keys(messageObjList).pop()
+        let id = attrs.id;
+        if (!id)
+        {
+          id = Object.keys(messageObjList).pop();
         }
 
         const messData = await this.bot.getMessage('', id);
