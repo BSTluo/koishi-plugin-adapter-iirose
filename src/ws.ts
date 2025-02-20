@@ -196,6 +196,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       IIROSE_WSsend(this.bot, loginPack);
       this.event = startEventsServer(this.bot);
       this.bot.online();
+      
       this.live = setInterval(() =>
       {
         if (this.bot.status == Universal.Status.ONLINE)

@@ -236,8 +236,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
             }
           }
           if (i > 0) { break; }
-          if (!this.outDataOringin.startsWith('\\\\\\*\n')) { this.outDataOringin = '\\\\\\*\n' + this.outDataOringin; }
-          this.outDataOringin += `![](${attrs.src})`;
+          // if (!this.outDataOringin.startsWith('\\\\\\*\n')) { this.outDataOringin = '\\\\\\*\n' + this.outDataOringin; }
+          this.outDataOringin += `[${attrs.src}]`;
           break;
         }
 
