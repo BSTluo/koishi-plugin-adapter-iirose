@@ -79,7 +79,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           user: {
             id: data.uid,
             name: data.username,
-            avatar: data.avatar
+            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
           },
           message: {
             messageId: String(data.messageId),
@@ -224,7 +224,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           timestamp: Number(data.timestamp),
           author: {
             userId: data.uid,
-            avatar: data.avatar,
+            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`,
             username: data.username,
           },
           platform: 'iirose',
@@ -299,7 +299,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           user: {
             id: data.uid,
             name: data.username,
-            avatar: data.avatar
+            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
           },
           message: {
             messageId: String(data.messageId),
@@ -348,7 +348,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           timestamp: Date.now(),
           author: {
             userId: data.username,
-            avatar: data.avatar,
+            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`,
             username: data.username,
           },
           platform: 'iirose',
