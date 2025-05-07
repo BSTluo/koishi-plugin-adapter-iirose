@@ -79,6 +79,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           user: {
             id: data.uid,
             name: data.username,
+            avatar: data.avatar
           },
           message: {
             messageId: String(data.messageId),
@@ -298,6 +299,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           user: {
             id: data.uid,
             name: data.username,
+            avatar: data.avatar
           },
           message: {
             messageId: String(data.messageId),
