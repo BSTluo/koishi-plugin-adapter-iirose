@@ -229,9 +229,9 @@ export namespace IIROSE_Bot
   export const Config: Schema<any> = Schema.intersect([
     Schema.object({
       usename: Schema.string().required().description('BOT账号'),
-      uid: Schema.string().required().description('BOT的唯一标识').pattern(/(\s*\[\@([\s\S]+)\@\]\s*)|([a-z0-9]+)/),
-      password: Schema.string().required().role('secret').description('BOT的密码的[32位小写md5](https://cmd5.com/hash.aspx?s=)'),
-      roomId: Schema.string().required().description('BOT的初始房间地址').pattern(/(\s*\[\_([\s\S]+)\_\]\s*)|([a-z0-9]+)/),
+      uid: Schema.string().required().description('BOT的唯一标识').pattern(/[a-z0-9]{13}/),
+      password: Schema.string().required().role('secret').description('BOT的密码的[32位小写md5](https://cmd5.com/hash.aspx?s=)').pattern(/[a-z0-9]{32}/),
+      roomId: Schema.string().required().description('BOT的初始房间地址').pattern(/([a-z0-9]{13})/),
       roomPassword: Schema.string().default('').description('BOT的初始房间密码(可空)'),
       oldRoomId: Schema.string().default('').description('一般不需要填写，仅内部使用'),
       Signature: Schema.string().default('').description('BOT签名'),
