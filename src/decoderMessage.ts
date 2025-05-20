@@ -10,7 +10,7 @@ import { platform } from 'os';
 export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
 {
   // 定义会话列表
-
+  // console.log('decoderMessage', obj);
   for (const key in obj)
   {
     switch (key)
@@ -19,10 +19,10 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         if (!obj.userlist) return;
         const data: GetUserListCallback[] = obj.userlist;
 
-        let uid = bot.ctx.config.uid
+        let uid = bot.ctx.config.uid;
         if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
         {
-          uid = bot.ctx.config.smUid
+          uid = bot.ctx.config.smUid;
         }
 
         const event = {
@@ -89,12 +89,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           timestamp: Number(data.timestamp),
         });
 
-        let uid = bot.ctx.config.uid
-        let guildId = bot.ctx.config.roomId
+        let uid = bot.ctx.config.uid;
+        let guildId = bot.ctx.config.roomId;
         if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
         {
-          uid = bot.ctx.config.smUid
-          guildId = bot.ctx.config.smRoom
+          uid = bot.ctx.config.smUid;
+          guildId = bot.ctx.config.smRoom;
         }
 
         session.platform = 'iirose';
@@ -118,11 +118,11 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         const data = obj.leaveRoom;
         if (!data) return;
 
-        let uid = bot.ctx.config.uid
+        let uid = bot.ctx.config.uid;
 
         if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
         {
-          uid = bot.ctx.config.smUid
+          uid = bot.ctx.config.smUid;
         }
 
         const event = {
@@ -208,13 +208,13 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         const data = obj.joinRoom;
         if (!data) return;
 
-        let uid = bot.ctx.config.uid
-        let guildId = bot.ctx.config.roomId
+        let uid = bot.ctx.config.uid;
+        let guildId = bot.ctx.config.roomId;
 
         if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
         {
-          uid = bot.ctx.config.smUid
-          guildId = bot.ctx.config.sm
+          uid = bot.ctx.config.smUid;
+          guildId = bot.ctx.config.sm;
         }
 
         const event = {
@@ -315,11 +315,11 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         session.content = data.message;
         session.channelId = `private:${data.uid}`;
 
-        let uid = bot.ctx.config.uid
+        let uid = bot.ctx.config.uid;
 
         if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
         {
-          uid = bot.ctx.config.smUid
+          uid = bot.ctx.config.smUid;
         }
 
         session.selfId = uid;
@@ -333,12 +333,12 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         const data = obj.damaku;
         if (!data) return;
 
-        let uid = bot.ctx.config.uid
-        let guildId = bot.ctx.config.roomId
+        let uid = bot.ctx.config.uid;
+        let guildId = bot.ctx.config.roomId;
         if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
         {
-          uid = bot.ctx.config.smUid
-          guildId = bot.ctx.config.smRoom
+          uid = bot.ctx.config.smUid;
+          guildId = bot.ctx.config.smRoom;
         }
 
         const event = {
@@ -706,7 +706,7 @@ function clearMsg(msg: string)
 
         findIndex++;
         msg1 = msg1.replace(v, `#$${findIndex}$#`);
-        stringTemp.push(v);
+        stringTemp.push(v.slice(0,-1));
       });
 
       stringTemp.forEach((v, index) =>
@@ -715,6 +715,6 @@ function clearMsg(msg: string)
       });
     }
   }
-
+  
   return msg1;
 }
