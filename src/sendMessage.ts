@@ -13,6 +13,31 @@ import { IIROSE_WSsend } from './ws';
 import { musicOrigin } from './event';
 import { messageObjList } from './messageTemp';
 
+async function getMediaMetadata(url: string)
+{
+  const response = await axios.get(url, {
+    responseType: 'stream'
+  });
+
+  const mm = await import('music-metadata');
+  // 解析媒体文件流的元数据
+  const metadata = await mm.parseStream(response.data, null, { duration: true });
+
+  const { common, format } = metadata;
+
+  return {
+    title: common.title || ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我歌曲名字欸'][Math.floor(Math.random() * 7)],
+    artist: common.artist || ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我音乐家的名字欸'][Math.floor(Math.random() * 7)],
+    album: common.album || ['群星', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我专辑的名字欸'][Math.floor(Math.random() * 7)],
+    duration: format.duration || 0,
+    bitrate: format.bitrate || 0,
+    picture: common.picture?.[0] ? {
+      format: common.picture[0].format,
+      data: Buffer.from(common.picture[0].data).toString('base64') // 如果你想用作封面图
+    } : 'https://www.loliapi.com/acg/'
+  };
+}
+
 export class IIROSE_BotMessageEncoder<C extends Context = Context> extends MessageEncoder<C, IIROSE_Bot<C>>
 {
   private outDataOringin: string = '';
@@ -56,17 +81,20 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
     switch (type)
     {
       case 'video': {
+        const url = attrs.link || attrs.url || attrs.src;
+        const metadata = await getMediaMetadata(url);
+
         const obj: musicOrigin = {
           type: "video",
-          name: attrs.name,
-          signer: attrs.author,
-          cover: attrs.cover,
-          link: attrs.link || attrs.url || attrs.src,
-          url: attrs.url || attrs.src,
-          duration: attrs.duration,
-          bitRate: attrs.bitRate,
+          name: attrs.name || metadata.title,
+          signer: attrs.author || metadata.artist,
+          cover: attrs.cover || metadata.picture,
+          link: url,
+          url: url,
+          duration: attrs.duration || metadata.duration,
+          bitRate: attrs.bitRate || metadata.bitrate,
           color: attrs.color,
-          lyrics: (attrs.lyrics) ? attrs.lyrics : '',
+          lyrics: (attrs.lyrics) ? attrs.lyrics : (Math.random() > 0.9) ? '' : '俺不中嘞，插件没给俺歌词啊喵',
           origin: (attrs.origin) ? attrs.origin : null
         };
 
@@ -76,7 +104,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
       }
 
       case 'audio': {
-        const url = attrs.link || attrs.url || attrs.src;
+        let url = attrs.link || attrs.url || attrs.src;
         let file: Buffer | fs.ReadStream;
         let uid: string;
         let config: { contentType: string; filename: string; } | undefined;
@@ -96,57 +124,75 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           config = { contentType: 'audio/mpeg', filename: 'x.mp3' };
         }
 
-        try
+        if (!url.startsWith('http'))
         {
-          const formData = new FormData();
-          JSON.parse(this.bot.config.picFormData, (key, value) =>
+          try
           {
-            if (key == '') { return; }
-            if (value == '[file]')
+            const formData = new FormData();
+
+            JSON.parse(this.bot.config.picFormData, (key, value) =>
             {
-              config ? formData.append(key, file, config) : formData.append(key, file);
-            }
-            if (value == '[uid]')
-            {
-              formData.append(key, uid);
-            }
+              if (key == '') { return; }
+              if (value == '[file]')
+              {
+                config ? formData.append(key, file, config) : formData.append(key, file);
+              }
+              if (value == '[uid]')
+              {
+                formData.append(key, uid);
+              }
 
-          });
-
-          // 发送formData到后端
-          const response = await axios.post(this.bot.config.picLink, formData, {
-            headers: formData.getHeaders(),
-          });
-          let outData = response.data; // 确保你正确地访问了响应数据
-
-          const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
-
-          if (match)
-          {
-            match.forEach(element =>
-            {
-              const urlStr = element.replace(/[\[\]]/g, '');
-              this.outDataOringin += `${(this.bot.config.picBackLink).replace(element, outData)}`;
             });
+
+            // 发送formData到后端
+            const response = await axios.post(this.bot.config.picLink, formData, {
+              headers: formData.getHeaders(),
+            });
+            let outData = response.data; // 确保你正确地访问了响应数据
+
+            const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
+
+            if (match)
+            {
+              match.forEach(element =>
+              {
+                // const urlStr = element.replace(/[\[\]]/g, '');
+                // 这里返回的data必须是类似a.mp3的这样的格式
+                url = `${(this.bot.config.picBackLink).replace(element, outData)}`;
+              });
+            }
+            break;
+          } catch (error)
+          {
+            this.outDataOringin += '[音频异常]';
+            console.error(error);
           }
-          break;
-        } catch (error)
-        {
-          this.outDataOringin += '[音频异常]';
-          console.error(error);
         }
+
+        function getRandomColor()
+        {
+          const letters = '0123456789ABCDEF';
+          let color = '#';
+          for (let i = 0; i < 6; i++)
+          {
+            color += letters[Math.floor(Math.random() * 16)];
+          }
+          return color;
+        }
+
+        const metadata = await getMediaMetadata(url);
 
         const obj: musicOrigin = {
           type: 'music',
-          name: attrs.name,
-          signer: attrs.author,
-          cover: attrs.cover,
+          name: attrs.name || metadata.title,
+          signer: attrs.author || metadata.artist,
+          cover: attrs.cover || metadata.picture,
           link: url,
           url: url,
-          duration: attrs.duration,
-          bitRate: attrs.bitRate,
-          color: attrs.color,
-          lyrics: (attrs.lyrics) ? attrs.lyrics : '',
+          duration: attrs.duration || metadata.duration,
+          bitRate: attrs.bitRate || metadata.bitrate,
+          color: attrs.color || getRandomColor(),
+          lyrics: (attrs.lyrics) ? attrs.lyrics : (Math.random() > 0.9) ? '' : '俺不中嘞，插件没给俺歌词啊喵',
           origin: (attrs.origin) ? attrs.origin : null
         };
 
