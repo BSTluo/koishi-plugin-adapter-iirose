@@ -152,6 +152,12 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     IIROSE_WSsend(this, mute('all', userName, time, reason));
   }
 
+  async deleteMessage(channelId: string, messageId: string): Promise<void>
+  {
+
+    return;
+  }
+
   internal: InternalType = new Internal(this);
 }
 
