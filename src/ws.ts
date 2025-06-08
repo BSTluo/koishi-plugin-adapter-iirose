@@ -1,5 +1,5 @@
 // import { Universal, Adapter, Logger, Schema } from '@satorijs/satori';
-import { Context, Universal, Adapter, Logger, Schema } from 'koishi';
+import { Context, Universal, Adapter, Logger, Schema, sleep } from 'koishi';
 import { IIROSE_Bot } from './bot';
 import pako from 'pako';
 import { decoder } from './decoder';
@@ -56,7 +56,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     li?: string, // 重复游客ID才需要
     la?: string, // 注册地址
     vc?: string, // 设备版本号
-  }
+  };
 
   firstLogin: boolean = false;
 
@@ -92,6 +92,10 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     let allErrors: boolean;
     let dispose = false;
     this.ctx.on('dispose', () => { dispose = true; });
+
+    // let time = 5;
+    // let tryTime = 0;
+
     do
     {
       allErrors = true;
@@ -113,6 +117,14 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         logger.warn('所有服务器都无法连接，将在5秒后重试...');
         await new Promise(r => setTimeout(r, 5000));
       }
+      // tryTime++;
+      // if (tryTime > time)
+      // {
+      //   dispose = true;
+      //   logger.error(`无法连接到任何IIROSE服务器，请检查网络连接或服务器状态，重试次数已达上限。`);
+      //   this.bot.stop();
+      // }
+
       if (dispose) { return; }
     } while (allErrors);
 
@@ -167,7 +179,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         la: this.bot.config.smLocation,
         vc: this.bot.config.smvc,
         fp: `@${md5(this.bot.config.smUsername)}`
-      }
+      };
 
       logger.info('已启用蔷薇游客模式');
     } else
@@ -196,7 +208,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       IIROSE_WSsend(this.bot, loginPack);
       this.event = startEventsServer(this.bot);
       this.bot.online();
-      
+
       this.live = setInterval(() =>
       {
         if (this.bot.status == Universal.Status.ONLINE)
@@ -214,9 +226,13 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
    */
   accept()
   {
-
+    this.firstLogin = false;
     // 花园登陆报文
-    if (!this.bot.socket) { return; }
+    if (!this.bot.socket)
+    {
+      this.ctx.logger('iirose').error('WebSocket connection is not established.');
+      return;
+    }
     this.bot.socket.addEventListener('message', async (event) =>
     {
       // @ts-ignore
@@ -328,9 +344,9 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   {
     this.bot.socket = await this.prepare();
     this.accept();
-
-    let time = 5;
-    let tryTime = 0;
+    if (!this.bot.socket) { this.bot.stop(); return; }
+    // let time = 5;
+    // let tryTime = 0;
 
     this.bot.socket.addEventListener('close', async ({ code, reason }) =>
     {
@@ -339,27 +355,32 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       // 重连
       const restart = async () =>
       {
-
-        if (tryTime <= time)
+        setTimeout(async () =>
         {
-          logger.warn(`${reason.toString()}, will retry in ${5000}ms...`);
-          setTimeout(async () =>
-          {
-            this.bot.socket = await this.prepare();
-            this.accept();
-            tryTime++;
-          }, 5000);
-        } else
-        {
-          const message = `failed to connect to IIROSE, code: ${code}`;
-          logger.error(message);
+          this.bot.socket = await this.prepare();
+          this.accept();
+        }, 5000);
+        // if (tryTime <= time)
+        // {
+        //   logger.warn(`${reason.toString()}, will retry in ${5000}ms...`);
+        // setTimeout(async () =>
+        // {
+        //   this.bot.socket = await this.prepare();
+        //   this.accept();
+        //   tryTime++;
+        // }, 5000);
+        //   await sleep(5000);
+        // } else
+        // {
+        //   const message = `failed to connect to IIROSE, code: ${code}`;
+        //   logger.error(message);
 
-          tryTime = 0;
-          if (!this.bot.socket) { return; }
-          this.bot.socket.removeEventListener('close', () => { });
-          this.bot.socket.removeEventListener('message', () => { });
-          return this.stop();
-        }
+        //   tryTime = 0;
+        //   if (!this.bot.socket) { return; }
+        //   this.bot.socket.removeEventListener('close', () => { });
+        //   this.bot.socket.removeEventListener('message', () => { });
+        //   return this.stop();
+        // }
       };
 
       restart();
