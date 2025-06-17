@@ -32,7 +32,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 
   constructor(ctx: C, config: T)
   {
-    super(ctx, config);
+    super(ctx, config, 'iirose-bot');
     ctx.plugin(WsClient, this);
 
     if (this.config.smStart && this.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')

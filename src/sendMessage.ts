@@ -241,7 +241,14 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
               this.outDataOringin += ` [*${dataJson.name}*] `;
             } else
             {
-              this.outDataOringin += ` [@${attrs.id}@] `;
+              if (/[a-z0-9]+/.test(attrs.id))
+              {
+
+                this.outDataOringin += ` [@${attrs.id}@] `;
+              } else
+              {
+                this.outDataOringin += ` [*${attrs.id}*] `;
+              }
             }
           } catch (error)
           {
