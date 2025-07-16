@@ -47,6 +47,10 @@ export async function upload(http: HTTP, url: string, file: Buffer, config: IIRO
     throw Object.assign(error, data);
   }
 
-  
+  setTimeout(async () =>
+  {
+    await axios.get(data.data.data.links.delete_url);
+  }, 6000 * 5);
+
   return data.data.data.links.url;
 }
