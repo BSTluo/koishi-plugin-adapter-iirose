@@ -28,6 +28,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 3. BOT密码是需要将密码通过md5转换后得到的32位小写英文+数字，点击”32位小写md5“部分可以前往转换页面，将密码贴入pass部分，复制md5：后面的值即可
 4. 房间id是房间地址内纯英文+数字的部分
 5. 另外！此插件开启后，机器人账号会自动上线。在此插件开启后，除非必要，否则禁止人工上线机器人账号。对机器人用户名或是密码或是前往其他的房间都会导致此插件丢失与机器人的链接，需要先关闭插件后，更新对应的配置，再启动插件，才可继续正常使用。
+6. 请注意，现在需要使用hello图床的令牌来上传图片，令牌可以在[Hello图床](https://www.helloimg.com/)获取。请将令牌填入picToken部分。
 `;
 
   constructor(ctx: C, config: T)
@@ -165,6 +166,7 @@ export namespace IIROSE_Bot
 {
   export interface Config extends WsClient.Config
   {
+    picToken: any;
     usename: string;
     password: string;
     roomId: string;
@@ -244,9 +246,10 @@ export namespace IIROSE_Bot
       color: Schema.string().default('66ccff').description('BOT气泡颜色')
     }).description('BOT配置'),
     Schema.object({
-      picFormData: Schema.string().description('图床formData包，[file]为图片文件').default('{"f[]": "[file]","i":"[uid]"}'),
-      picLink: Schema.string().description('图床接口').default('https://f.iirose.com/lib/php/system/file_upload.php'),
-      picBackLink: Schema.string().description('图床返回url(data为接口返回的data,可以使用data.xxx)').default('http://r.iirose.com/[data]'),
+      picToken: Schema.string().required().default('').description('请填入[Hello图床](https://www.helloimg.com/)的令牌,PS:hello图床的字样可以点'),
+      // picFormData: Schema.string().description('图床formData包，[file]为图片文件').default('{"file": "[file]","i":"[uid]"}'),
+      // picLink: Schema.string().description('图床接口').default('https://f.iirose.com/lib/php/system/file_upload.php'),
+      // picBackLink: Schema.string().description('图床返回url(data为接口返回的data,可以使用data.xxx)').default('http://r.iirose.com/[data]'),
       timeout: Schema.number().min(100).max(5000).default(500).description('bot多久才连接超时(毫秒)'),
       hangUpMode: Schema.boolean().default(false).description('是否开启挂机模式'),
     }).description('其他配置'),

@@ -12,6 +12,7 @@ import Like from './encoder/system/Like';
 import { IIROSE_WSsend } from './ws';
 import { musicOrigin } from './event';
 import { messageObjList } from './messageTemp';
+import { upload } from './uploads';
 
 async function getMediaMetadata(url: string)
 {
@@ -105,13 +106,13 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
       case 'audio': {
         let url = attrs.link || attrs.url || attrs.src;
-        let file: Buffer | fs.ReadStream;
+        let file: Buffer;
         let uid: string;
         let config: { contentType: string; filename: string; } | undefined;
         if (url.startsWith('file://'))
         {
           const fileUrl = new URL(url);
-          file = fs.createReadStream(fileUrl);
+          file = fs.readFileSync(fileUrl);
           uid = this.bot.config.uid;
         }
 
@@ -130,37 +131,34 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           {
             const formData = new FormData();
 
-            JSON.parse(this.bot.config.picFormData, (key, value) =>
-            {
-              if (key == '') { return; }
-              if (value == '[file]')
-              {
-                config ? formData.append(key, file, config) : formData.append(key, file);
-              }
-              if (value == '[uid]')
-              {
-                formData.append(key, uid);
-              }
+            // JSON.parse(this.bot.config.picFormData, (key, value) =>
+            // {
+            //   if (key == '') { return; }
+            //   if (value == '[file]')
+            //   {
+            //     config ? formData.append(key, file, config) : formData.append(key, file);
+            //   }
+            //   if (value == '[uid]')
+            //   {
+            //     formData.append(key, uid);
+            //   }
 
-            });
+            // });
 
             // 发送formData到后端
-            const response = await axios.post(this.bot.config.picLink, formData, {
-              headers: formData.getHeaders(),
-            });
-            let outData = response.data; // 确保你正确地访问了响应数据
+            url = await upload(this.bot.ctx.http,'https://www.helloimg.com/api/v1', file, this.bot.config)
+            
+            // const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
 
-            const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
-
-            if (match)
-            {
-              match.forEach(element =>
-              {
-                // const urlStr = element.replace(/[\[\]]/g, '');
-                // 这里返回的data必须是类似a.mp3的这样的格式
-                url = `${(this.bot.config.picBackLink).replace(element, outData)}`;
-              });
-            }
+            // if (match)
+            // {
+            //   match.forEach(element =>
+            //   {
+            //     // const urlStr = element.replace(/[\[\]]/g, '');
+            //     // 这里返回的data必须是类似a.mp3的这样的格式
+            //     url = `${(this.bot.config.picBackLink).replace(element, outData)}`;
+            //   });
+            // }
             break;
           } catch (error)
           {
@@ -294,13 +292,13 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           break;
         }
 
-        let file: Buffer | fs.ReadStream;
+        let file: Buffer<ArrayBuffer>;
         let uid: string;
         let config: { contentType: string; filename: string; } | undefined;
         if (attrs.src.startsWith('file://'))
         {
           const fileUrl = new URL(attrs.src);
-          file = fs.createReadStream(fileUrl);
+          file = fs.readFileSync(fileUrl.pathname);
           uid = this.bot.config.uid;
         }
 
@@ -308,51 +306,56 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
         {
           // 创建一个FormData实例
           const base64ImgStr = attrs.src.replace(/^data:image\/[a-z]+;base64,/, '');
-          file = Buffer.from(base64ImgStr, 'base64'), { contentType: 'image/png', filename: 'x.png' };
+          file = Buffer.from(base64ImgStr, 'base64');
           uid = this.bot.config.uid;
           config = { contentType: 'image/png', filename: 'x.png' };
         }
 
         try
         {
-          const formData = new FormData();
-          JSON.parse(this.bot.config.picFormData, (key, value) =>
-          {
-            if (key == '') { return; }
-            if (value == '[file]')
-            {
-              config ? formData.append(key, file, config) : formData.append(key, file);
-            }
-            if (value == '[uid]')
-            {
-              // console.log('uid', uid);
-              // console.log('key', key);
-              formData.append(key, uid);
-            }
+          // JSON.parse(this.bot.config.picFormData, (key, value) =>
+          // {
+          //   if (key == '') { return; }
+          //   if (value == '[file]')
+          //   {
+          //     config ? formData.append(key, file, config) : formData.append(key, file);
+          //   }
+          //   if (value == '[uid]')
+          //   {
+          //     // console.log('uid', uid);
+          //     // console.log('key', key);
+          //     formData.append(key, uid);
+          //   }
 
             // formData.append(key, value); 加了这个会导致上传失败，意义不明
-          });
+          // });
 
+          
+
+            // 发送formData到后端
+           
           // 发送formData到后端
-          const response = await axios.post(this.bot.config.picLink, formData, {
-            headers: formData.getHeaders(),
-          });
-          let outData = response.data; // 确保你正确地访问了响应数据
-          const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
-          if (match)
-          {
-            match.forEach(element =>
-            {
-              const urlStr = element.replace(/[\[\]]/g, '');
-              // const repNodeList = urlStr.split('.');
+          // const response = await axios.post(this.bot.config.picLink, formData, {
+          //   headers: formData.getHeaders(),
+          // });
+          // let outData = response.data; // 确保你正确地访问了响应数据
+          // const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
+          // if (match)
+          // {
+          //   match.forEach(element =>
+          //   {
+          //     const urlStr = element.replace(/[\[\]]/g, '');
+          //     // const repNodeList = urlStr.split('.');
 
-              // 使用reduce来访问嵌套属性
-              // outData = repNodeList.reduce((acc, key) => acc[key], outData);
-              // console.log('outData', outData);
-              this.outDataOringin += `[${(this.bot.config.picBackLink).replace(element, outData)}]`;
-              // console.log('outDataOringin', this.outDataOringin);
-            });
-          }
+          //     // 使用reduce来访问嵌套属性
+          //     // outData = repNodeList.reduce((acc, key) => acc[key], outData);
+          //     // console.log('outData', outData);
+          //     this.outDataOringin += `[${(this.bot.config.picBackLink).replace(element, outData)}]`;
+          //     // console.log('outDataOringin', this.outDataOringin);
+          //   });
+          // }
+          const url = await upload(this.bot.ctx.http,'https://www.helloimg.com/api/v1', file, this.bot.config)
+          this.outDataOringin += `[${url}]`;
         } catch (error)
         {
           this.outDataOringin += '[图片显示异常]';
