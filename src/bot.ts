@@ -195,8 +195,8 @@ export namespace IIROSE_Bot
     smmu: string;
     smLocation: string;
     smvc: string;
-    retryTime: number;
-    retryCount: number;
+    // retryTime: number;
+    // retryCount: number;
     picKill: number;
   }
 
