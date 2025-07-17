@@ -195,6 +195,9 @@ export namespace IIROSE_Bot
     smmu: string;
     smLocation: string;
     smvc: string;
+    retryTime: number;
+    retryCount: number;
+    picKill: number;
   }
 
   // export const Config: Schema<Config> = Schema.intersect([
@@ -247,11 +250,14 @@ export namespace IIROSE_Bot
     }).description('BOT配置'),
     Schema.object({
       picToken: Schema.string().required().default('').description('请填入[Hello图床](https://www.helloimg.com/)的令牌,PS:hello图床的字样可以点'),
+      picKill: Schema.number().default(5).description('图片自动销毁时间(单位:分钟)'),
       // picFormData: Schema.string().description('图床formData包，[file]为图片文件').default('{"file": "[file]","i":"[uid]"}'),
       // picLink: Schema.string().description('图床接口').default('https://f.iirose.com/lib/php/system/file_upload.php'),
       // picBackLink: Schema.string().description('图床返回url(data为接口返回的data,可以使用data.xxx)').default('http://r.iirose.com/[data]'),
       timeout: Schema.number().min(100).max(5000).default(500).description('bot多久才连接超时(毫秒)'),
       hangUpMode: Schema.boolean().default(false).description('是否开启挂机模式'),
+      // retryTime: Schema.number().default(5000).description('重试连接间隔时间(毫秒)'),
+      // retryCount: Schema.number().default(5).description('重试连接次数'),
     }).description('其他配置'),
     Schema.union([
       Schema.object({

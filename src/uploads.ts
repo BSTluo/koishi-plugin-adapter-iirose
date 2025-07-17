@@ -50,7 +50,7 @@ export async function upload(http: HTTP, url: string, file: Buffer, config: IIRO
   setTimeout(async () =>
   {
     await axios.get(data.data.data.links.delete_url);
-  }, 6000 * 5);
+  }, 6000 * config.picKill);
 
   return data.data.data.links.url;
 }
