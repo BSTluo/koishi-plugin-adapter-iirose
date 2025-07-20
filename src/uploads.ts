@@ -6,51 +6,26 @@ import axios from "axios";
 
 export async function upload(http: HTTP, url: string, file: Buffer, config: IIROSE_Bot.Config)
 {
-  const imgToken = await axios.post(`${url}/images/tokens`, {
-    num: 1,
-    seconds: 60
-  }, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${config.picToken}`,
-      'Accept': 'application/json'
-    }
-  });
 
-  if (!imgToken.status) { return new Error('获取上传令牌失败'); }
-
-  const token = imgToken.data.data.tokens[0].token;
   const formData = new FormData();
+  
+  formData.append('source', file, "example.jpeg");
+  formData.append('expiration', `PT${config.picKill}M`);
+  formData.append('key', config.picToken);
 
-  formData.append('file', file, {
-    filename: 'example.jpg',
-    contentType: 'image/jpeg',
-  });
-
-  formData.append('token', token);
-
-  const data = await axios.post(`${url}/upload`, formData, {
+  const data = await axios.post(`${url}/api/1/upload`, formData, {
     headers: {
       ...formData.getHeaders(),
-      'Authorization': `Bearer ${config.picToken}`,
-      'Accept': 'application/json'
+      'X-API-Key': config.picToken,
+      "Content-Type": "multipart/form-data",
     }
   });
 
-  if (!data.data.status)
+  if (data.data.status_code != 200)
   {
-    throw new Error('上传失败');
-  }
-  if (!data.data.data)
-  {
-    const error = new Error(data.data.message || '上传失败');
-    throw Object.assign(error, data);
+    console.log(data.data)
+    throw new Error('上传失败！请检查控制台');
   }
 
-  setTimeout(async () =>
-  {
-    await axios.get(data.data.data.links.delete_url);
-  }, 6000 * config.picKill);
-
-  return data.data.data.links.url;
+  return data.data.image.url;
 }

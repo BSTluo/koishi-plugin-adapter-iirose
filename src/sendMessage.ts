@@ -146,7 +146,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
             // });
 
             // 发送formData到后端
-            url = await upload(this.bot.ctx.http,'https://www.helloimg.com/api/v1', file, this.bot.config)
+            url = await upload(this.bot.ctx.http, this.bot.config.picLink, file, this.bot.config)
             
             // const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
 
@@ -354,12 +354,12 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           //     // console.log('outDataOringin', this.outDataOringin);
           //   });
           // }
-          const url = await upload(this.bot.ctx.http,'https://www.helloimg.com/api/v1', file, this.bot.config)
+          const url = await upload(this.bot.ctx.http, this.bot.config.picLink, file, this.bot.config)
           this.outDataOringin += `[${url}]`;
         } catch (error)
         {
           this.outDataOringin += '[图片显示异常]';
-          console.error(error);
+          //console.error(error);
         }
 
         break;
