@@ -249,7 +249,7 @@ export namespace IIROSE_Bot
       color: Schema.string().default('66ccff').description('BOT气泡颜色')
     }).description('BOT配置'),
     Schema.object({
-      picLink: Schema.string().required().description('图床接口(默认[freeimghost](https://freeimghost.net))').default('https://freeimghost.net'),
+      picLink: Schema.string().description('图床接口(默认[freeimghost](https://freeimghost.net))').default('https://freeimghost.net'),
       picToken: Schema.string().required().default('').description('请填入[freeimghost](https://freeimghost.net/settings/api)的令牌,PS:蓝字可以点'),
       picKill: Schema.number().default(5).description('图片自动销毁时间(单位:分钟)'),
       // picFormData: Schema.string().description('图床formData包，[file]为图片文件').default('{"file": "[file]","i":"[uid]"}'),
