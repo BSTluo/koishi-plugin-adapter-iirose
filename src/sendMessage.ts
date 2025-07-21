@@ -12,7 +12,7 @@ import Like from './encoder/system/Like';
 import { IIROSE_WSsend } from './ws';
 import { musicOrigin } from './event';
 import { messageObjList } from './messageTemp';
-import { upload } from './uploads';
+import { } from 'koishi-plugin-filemanager';
 
 async function getMediaMetadata(url: string)
 {
@@ -146,8 +146,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
             // });
 
             // 发送formData到后端
-            url = await upload(this.bot.ctx.http, this.bot.config.picLink, file, this.bot.config)
-            
+            url = await this.bot.ctx.fileManager.audio.upload(file, this.bot.ctx.fileManager.makeTempName() + '.mp3');
+
             // const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
 
             // if (match)
@@ -327,13 +327,13 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           //     formData.append(key, uid);
           //   }
 
-            // formData.append(key, value); 加了这个会导致上传失败，意义不明
+          // formData.append(key, value); 加了这个会导致上传失败，意义不明
           // });
 
-          
 
-            // 发送formData到后端
-           
+
+          // 发送formData到后端
+
           // 发送formData到后端
           // const response = await axios.post(this.bot.config.picLink, formData, {
           //   headers: formData.getHeaders(),
@@ -354,7 +354,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           //     // console.log('outDataOringin', this.outDataOringin);
           //   });
           // }
-          const url = await upload(this.bot.ctx.http, this.bot.config.picLink, file, this.bot.config)
+          const url = await this.bot.ctx.fileManager.img.upload(file, `${this.bot.ctx.fileManager.makeTempName()}.png`);
           this.outDataOringin += `[${url}]`;
         } catch (error)
         {
