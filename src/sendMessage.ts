@@ -146,7 +146,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
             // });
 
             // 发送formData到后端
-            url = await this.bot.ctx.fileManager.audio.upload(file, this.bot.ctx.fileManager.makeTempName() + '.mp3');
+            url = await this.bot.ctx.filemanager.audio.upload(file, this.bot.ctx.filemanager.makeTempName() + '.mp3');
 
             // const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
 
@@ -355,7 +355,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           //   });
           // }
 
-          const url = await this.bot.ctx.fileManager.img.upload(file, `${this.bot.ctx.fileManager.makeTempName()}.png`);
+          const url = await this.bot.ctx.filemanager.img.upload(file, `${this.bot.ctx.filemanager.makeTempName()}.png`);
           this.outDataOringin += `[${url}]`;
 
 

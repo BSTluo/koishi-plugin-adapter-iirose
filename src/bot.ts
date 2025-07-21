@@ -21,7 +21,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     data: Record<string, any>;
   }[] = [];
 
-  static inject = ['fileManager']
+  static inject = ['filemanager']
 
   static usage = `# 配置说明
 
