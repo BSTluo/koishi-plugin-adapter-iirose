@@ -21,6 +21,8 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     data: Record<string, any>;
   }[] = [];
 
+  static inject = ['fileManager']
+
   static usage = `# 配置说明
 
 1. BOT账号是指用户名

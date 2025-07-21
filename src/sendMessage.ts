@@ -354,8 +354,11 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           //     // console.log('outDataOringin', this.outDataOringin);
           //   });
           // }
+
           const url = await this.bot.ctx.fileManager.img.upload(file, `${this.bot.ctx.fileManager.makeTempName()}.png`);
           this.outDataOringin += `[${url}]`;
+
+
         } catch (error)
         {
           this.outDataOringin += '[图片显示异常]';
