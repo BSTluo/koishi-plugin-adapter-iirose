@@ -72,6 +72,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         obj.publicMessage.message = clearMsg(obj.publicMessage.message);
+
         const data = obj.publicMessage;
 
         const session = bot.session({
@@ -705,16 +706,17 @@ function clearMsg(msg: string)
         }
 
         findIndex++;
-        msg1 = msg1.replace(v, `#$${findIndex}$#`);
-        stringTemp.push(v.slice(0,-1));
+        msg1 = msg1.replace(v, `\^\$${findIndex}\$\^`);
+        stringTemp.push(v);
+
       });
 
       stringTemp.forEach((v, index) =>
       {
-        msg1 = msg1.replace(`#$${index}$#`, reg[1] + v + reg[2]);
+        msg1 = msg1.replace(`\^\$${index}\$\^`, reg[1] + v + reg[2]);
       });
     }
   }
-  
+
   return msg1;
 }
