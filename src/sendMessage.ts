@@ -356,7 +356,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           // }
 
           const url = await this.bot.ctx.filemanager.img.upload(file, `${this.bot.ctx.filemanager.makeTempName()}.png`);
-          this.outDataOringin += `[${url}]`;
+          this.outDataOringin += `[${url}#e]`;
 
 
         } catch (error)

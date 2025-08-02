@@ -707,8 +707,7 @@ function clearMsg(msg: string)
 
         findIndex++;
         msg1 = msg1.replace(v, `\^\$${findIndex}\$\^`);
-        stringTemp.push(v);
-
+        stringTemp.push(v.trim());
       });
 
       stringTemp.forEach((v, index) =>
