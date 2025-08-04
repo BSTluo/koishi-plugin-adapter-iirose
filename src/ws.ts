@@ -233,8 +233,13 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       this.ctx.logger('iirose').error('WebSocket connection is not established.');
       return;
     }
+
+    let setTimeoutId: NodeJS.Timeout;
+
     this.bot.socket.addEventListener('message', async (event) =>
     {
+      // 清除旧的延迟
+      clearTimeout(setTimeoutId);
       // @ts-ignore
       const array = new Uint8Array(event.data);
 
@@ -334,6 +339,11 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       {
         decoderMessage(funcObj, this.bot);
       }
+
+      setTimeoutId = setTimeout(() =>
+      {
+        this.bot.socket?.close(); // 保活
+      }, 120000); // 2分钟没有消息就断开连接
     });
   }
 
