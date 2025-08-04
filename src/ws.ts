@@ -343,7 +343,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       setTimeoutId = setTimeout(() =>
       {
         this.bot.socket?.close(); // 保活
-      }, 120000); // 2分钟没有消息就断开连接
+      }, this.bot.config.timeoutPlus ); // (默认)5分钟没有消息就断开连接
     });
   }
 
