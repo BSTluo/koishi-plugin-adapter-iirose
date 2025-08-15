@@ -63,8 +63,9 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     {
       return [];
     }
-    const messages = await new IIROSE_BotMessageEncoder(this, `${channelId}:` + guildId, guildId, options).send(content);
-
+    const finalChannelId = guildId ? `${channelId}:${guildId}` : channelId;
+    const messages = await new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options).send(content);
+  
     return messages.map(message => message.id).filter(id => id !== undefined) as string[];
   }
 
