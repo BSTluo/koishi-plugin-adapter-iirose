@@ -362,8 +362,16 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
     this.bot.socket.addEventListener('close', async ({ code, reason }) =>
     {
-      if (this.bot.config.debugMode) {logger.info('websocket测试停止成功');}
-      if (this.bot.status == Universal.Status.RECONNECT || this.bot.status == Universal.Status.DISCONNECT || this.bot.status == Universal.Status.OFFLINE || code == 1000) { return; }
+      if (this.bot.config.debugMode) {logger.info('websocket测试：接受到停止信号');}
+      if (
+        this.bot.status == Universal.Status.RECONNECT ||
+        this.bot.status == Universal.Status.DISCONNECT ||
+        this.bot.status == Universal.Status.OFFLINE ||
+        code == 1000
+      ) {
+        logger.warn('websocket停止：因为某种原因不进行重启');
+        return;
+      }
       logger.warn(`websocket closed with ${code}`);
       // 重连
       const restart = async () =>
