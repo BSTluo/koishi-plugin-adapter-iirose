@@ -31,6 +31,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 4. 房间id是房间地址内纯英文+数字的部分
 5. 另外！此插件开启后，机器人账号会自动上线。在此插件开启后，除非必要，否则禁止人工上线机器人账号。对机器人用户名或是密码或是前往其他的房间都会导致此插件丢失与机器人的链接，需要先关闭插件后，更新对应的配置，再启动插件，才可继续正常使用。
 6. 请注意，现在需要使用 filemanager 插件上传图片，插件可以在插件市场获取。不配置 filemanager 插件将无法运行该适配器。
+7. 如果配置出现问题 / 插件出bug / 有什么想反馈的新功能的话，可以进群 1059933235 （
 `;
 
   constructor(ctx: C, config: T)
@@ -181,6 +182,7 @@ export namespace IIROSE_Bot
     timeout: number;
     timeoutPlus: number;
     hangUpMode: boolean;
+    debugMode: boolean;
     smStart: boolean;
     smPassword: string;
     smRoom: string;
@@ -250,6 +252,7 @@ export namespace IIROSE_Bot
       timeout: Schema.number().min(100).max(5000).default(500).description('bot多久才连接超时(毫秒)'),
       timeoutPlus: Schema.number().min(200000).default(500000).description('bot保活:多久(毫秒)后服务器仍未响应就强制重连'),
       hangUpMode: Schema.boolean().default(false).description('是否开启挂机模式'),
+      debugMode: Schema.boolean().default(false).description('是否开启调试模式\n开发者不对开启调试模式出现的任何情况负责（其实主要是日志可能会刷屏'),
       // retryTime: Schema.number().default(5000).description('重试连接间隔时间(毫秒)'),
       // retryCount: Schema.number().default(5).description('重试连接次数'),
     }).description('其他配置'),

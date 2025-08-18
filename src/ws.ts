@@ -6,6 +6,7 @@ import { decoder } from './decoder';
 import { decoderMessage } from './decoderMessage';
 import { startEventsServer, stopEventsServer } from './utils';
 import md5 from 'md5';
+import { log } from 'console';
 
 // declare module 'koishi' {
 //   interface Tables
@@ -342,7 +343,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
       setTimeoutId = setTimeout(() =>
       {
-        logger.warn('测试');
+        if (this.bot.config.debugMode) {logger.warn('bot保活：没能接收到消息，断开链接');}
         this.bot.socket?.close(); // 保活
       }, this.bot.config.timeoutPlus ); // (默认)5分钟没有消息就断开连接
     });
@@ -361,7 +362,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
     this.bot.socket.addEventListener('close', async ({ code, reason }) =>
     {
-      logger.info('websocket测试停止成功');
+      if (this.bot.config.debugMode) {logger.info('websocket测试停止成功');}
       if (this.bot.status == Universal.Status.RECONNECT || this.bot.status == Universal.Status.DISCONNECT || this.bot.status == Universal.Status.OFFLINE || code == 1000) { return; }
       logger.warn(`websocket closed with ${code}`);
       // 重连
@@ -477,8 +478,14 @@ export namespace WsClient
 
 export function IIROSE_WSsend(bot: IIROSE_Bot, data: string)
 {
-  if (!bot.socket) { return; }
-  if (bot.socket.readyState == 0) { return; }
+  if (!bot.socket) { //布豪！
+    logger.error("布豪！ !bot.socket !!! 请联系开发者")
+    return;
+  }
+  if (bot.socket.readyState == 0) {
+    logger.error("布豪！ bot.socket.readyState == 0 !!! 请联系开发者")
+    return;
+  }
   const buffer = Buffer.from(data);
   const unintArray: any = Uint8Array.from(buffer);
 
