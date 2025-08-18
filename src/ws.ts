@@ -342,6 +342,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
       setTimeoutId = setTimeout(() =>
       {
+        logger.warn('测试');
         this.bot.socket?.close(); // 保活
       }, this.bot.config.timeoutPlus ); // (默认)5分钟没有消息就断开连接
     });
@@ -360,6 +361,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
     this.bot.socket.addEventListener('close', async ({ code, reason }) =>
     {
+      logger.info('websocket测试停止成功');
       if (this.bot.status == Universal.Status.RECONNECT || this.bot.status == Universal.Status.DISCONNECT || this.bot.status == Universal.Status.OFFLINE || code == 1000) { return; }
       logger.warn(`websocket closed with ${code}`);
       // 重连
