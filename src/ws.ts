@@ -346,7 +346,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
       this.setTimeoutId = setTimeout(async () =>
       {
-        if (this.bot.config.debugMode) { logger.warn('bot保活：没能接收到消息，断开链接'); }
+        logger.warn('bot保活：时限内没能接收到消息，断开链接');
         await this.bot.adapter.disconnect(this.bot);
         await this.bot.adapter.connect(this.bot);
       }, this.bot.config.timeoutPlus); // (默认)5分钟没有消息就断开连接
@@ -374,7 +374,12 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         code == 1000
       )
       {
-        logger.warn('websocket停止：因为某种原因不进行重启');
+        if (this.bot.config.debugMode) {
+          logger.warn("websocket停止：因为某种原因不被动进行重启");
+          logger.info(
+            "websocket停止：↑如果是因为bot保活，那上面那个就是预期行为"
+          );
+        } // 这整个代码已经变成“基于bug运行”了！
         return;
       }
       logger.warn(`websocket closed with ${code}`);
