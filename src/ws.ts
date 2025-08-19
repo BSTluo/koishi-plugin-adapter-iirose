@@ -36,6 +36,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   // public inject = ['database'];
 
   live: NodeJS.Timeout | null = null;
+  private setTimeoutId: NodeJS.Timeout | null = null;
 
   loginObj: {
     r?: string;
@@ -235,12 +236,14 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       return;
     }
 
-    let setTimeoutId: NodeJS.Timeout;
 
     this.bot.socket.addEventListener('message', async (event) =>
     {
       // 清除旧的延迟
-      clearTimeout(setTimeoutId);
+      if (this.setTimeoutId) {
+        clearTimeout(this.setTimeoutId);
+        this.setTimeoutId = null;
+      }
       // @ts-ignore
       const array = new Uint8Array(event.data);
 
@@ -341,7 +344,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         decoderMessage(funcObj, this.bot);
       }
 
-      setTimeoutId = setTimeout(async () =>
+      this.setTimeoutId = setTimeout(async () =>
       {
         if (this.bot.config.debugMode) { logger.warn('bot保活：没能接收到消息，断开链接'); }
         await this.bot.adapter.disconnect(this.bot);
@@ -436,6 +439,12 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       this.bot.socket.removeEventListener('close', () => { });
       this.bot.socket.removeEventListener('message', () => { });
       this.bot.socket.close();
+    }
+    
+    // 清除保活定时器
+    if (this.setTimeoutId) {
+      clearTimeout(this.setTimeoutId);
+      this.setTimeoutId = null;
     }
     this.bot.socket = undefined;
   }
