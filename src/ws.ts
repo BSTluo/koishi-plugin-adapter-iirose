@@ -344,13 +344,12 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         decoderMessage(funcObj, this.bot);
       }
 
-      this.setTimeoutId = setTimeout(() =>
+      this.setTimeoutId = setTimeout(async () =>
       {
-        if (this.bot.config.debugMode) {logger.warn('bot保活：没能接收到消息，断开链接');}
-        this.bot.status = Universal.Status.RECONNECT
-        this.bot.socket?.close(); // 保活
-        this.bot.status = Universal.Status.RECONNECT;
-      }, this.bot.config.timeoutPlus ); // (默认)5分钟没有消息就断开连接
+        if (this.bot.config.debugMode) { logger.warn('bot保活：没能接收到消息，断开链接'); }
+        await this.bot.adapter.disconnect(this.bot);
+        await this.bot.adapter.connect(this.bot);
+      }, this.bot.config.timeoutPlus); // (默认)5分钟没有消息就断开连接
     });
   }
 
@@ -367,13 +366,14 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
     this.bot.socket.addEventListener('close', async ({ code, reason }) =>
     {
-      if (this.bot.config.debugMode) {logger.info('websocket测试：接受到停止信号');}
+      if (this.bot.config.debugMode) { logger.info('websocket测试：接受到停止信号'); }
       if (
         this.bot.status == Universal.Status.RECONNECT ||
         this.bot.status == Universal.Status.DISCONNECT ||
         this.bot.status == Universal.Status.OFFLINE ||
         code == 1000
-      ) {
+      )
+      {
         logger.warn('websocket停止：因为某种原因不进行重启');
         return;
       }
@@ -497,12 +497,14 @@ export namespace WsClient
 
 export function IIROSE_WSsend(bot: IIROSE_Bot, data: string)
 {
-  if (!bot.socket) { //布豪！
-    logger.error("布豪！ !bot.socket !!! 请联系开发者")
+  if (!bot.socket)
+  { //布豪！
+    logger.error("布豪！ !bot.socket !!! 请联系开发者");
     return;
   }
-  if (bot.socket.readyState == 0) {
-    logger.error("布豪！ bot.socket.readyState == 0 !!! 请联系开发者")
+  if (bot.socket.readyState == 0)
+  {
+    logger.error("布豪！ bot.socket.readyState == 0 !!! 请联系开发者");
     return;
   }
   const buffer = Buffer.from(data);
