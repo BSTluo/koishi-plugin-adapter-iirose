@@ -349,6 +349,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         if (this.bot.config.debugMode) {logger.warn('bot保活：没能接收到消息，断开链接');}
         this.bot.status = Universal.Status.RECONNECT
         this.bot.socket?.close(); // 保活
+        this.bot.status = Universal.Status.RECONNECT;
       }, this.bot.config.timeoutPlus ); // (默认)5分钟没有消息就断开连接
     });
   }
