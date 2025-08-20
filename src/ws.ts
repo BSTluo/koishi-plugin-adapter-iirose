@@ -258,6 +258,25 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         message = Buffer.from(array).toString('utf8');
       }
 
+      const currentUsername = this.bot.config.smStart ? this.bot.config.smUsername : this.bot.config.usename;
+      
+      if (message.includes('>') && message.includes(currentUsername)) {
+        const messageIdMatch = message.match(/(\d{12,})$/);
+        if (messageIdMatch) {
+          const messageId = messageIdMatch[1];
+          
+          const userPattern = new RegExp(`>${currentUsername}>`, 'i');
+          if (userPattern.test(message)) {
+            if (this.bot.messageIdResolvers.length > 0) {
+              const resolver = this.bot.messageIdResolvers.shift();
+              if (resolver) {
+                resolver(messageId);
+              }
+            }
+          }
+        }
+      }
+
       if (!this.firstLogin)
       {
         this.firstLogin = true;

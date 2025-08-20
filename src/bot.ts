@@ -12,6 +12,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 {
   platform: string = 'iirose';
   socket: WebSocket | undefined = undefined;
+  public messageIdResolvers: ((messageId: string) => void)[] = [];
   public addData: {
     uid: string;
     username: string;
@@ -65,9 +66,26 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
       return [];
     }
     const finalChannelId = guildId ? `${channelId}:${guildId}` : channelId;
-    const messages = await new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options).send(content);
-  
-    return messages.map(message => message.id).filter(id => id !== undefined) as string[];
+    
+    const messageIdPromise = new Promise<string>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('等待消息ID超时'));
+      }, 3000);
+      
+      this.messageIdResolvers.push((messageId: string) => {
+        clearTimeout(timeout);
+        resolve(messageId);
+      });
+    });
+    
+    await new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options).send(content);
+    
+    try {
+      const messageId = await messageIdPromise;
+      return [messageId];
+    } catch (error) {
+      return [];
+    }
   }
 
   async sendPrivateMessage(userId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
