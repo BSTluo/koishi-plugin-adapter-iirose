@@ -198,6 +198,7 @@ export namespace IIROSE_Bot
     Signature: string;
     color: string;
     timeout: number;
+    timeoutPlusEnable: number;
     timeoutPlus: number;
     hangUpMode: boolean;
     debugMode: boolean;
@@ -268,7 +269,8 @@ export namespace IIROSE_Bot
     }).description('BOT配置'),
     Schema.object({
       timeout: Schema.number().min(100).max(5000).default(500).description('bot多久才连接超时(毫秒)'),
-      timeoutPlus: Schema.number().min(200000).default(500000).description('bot保活:多久(毫秒)后服务器仍未响应就强制重连').deprecated(),
+      timeoutPlusEnable: Schema.boolean().default(false).description('bot保活:是否开启').experimental(),
+      timeoutPlus: Schema.number().min(200000).default(500000).description('bot保活:多久(毫秒)后服务器仍未响应就强制重连').experimental(),
       hangUpMode: Schema.boolean().default(false).description('是否开启挂机模式'),
       debugMode: Schema.boolean().default(false).description('是否开启调试模式\n开发者不对开启调试模式出现的任何情况负责（其实主要是日志可能会刷屏'),
       // retryTime: Schema.number().default(5000).description('重试连接间隔时间(毫秒)'),

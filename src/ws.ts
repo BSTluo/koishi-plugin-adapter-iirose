@@ -239,33 +239,32 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
     this.bot.socket.addEventListener('message', async (event) =>
     {
-      // // 清除旧的延迟定时器，确保彻底清除
-      // if (this.setTimeoutId) {
-      //   clearTimeout(this.setTimeoutId);
-      //   this.setTimeoutId = null;
-      // }
-      // @ts-ignore
+      // 清除旧的延迟
+      if (this.bot.config.timeoutPlus && this.setTimeoutId) {
+        clearTimeout(this.setTimeoutId);
+        this.setTimeoutId = null;
+      }
       const array = new Uint8Array(event.data);
 
       let message: string;
-      if (array[0] === 1)
-      {
+      if (array[0] === 1) {
         message = pako.inflate(array.slice(1), {
-          to: 'string',
+          to: "string",
         });
-      } else
-      {
-        message = Buffer.from(array).toString('utf8');
+      } else {
+        message = Buffer.from(array).toString("utf8");
       }
 
-      const currentUsername = this.bot.config.smStart ? this.bot.config.smUsername : this.bot.config.usename;
-      
-      if (message.includes('>') && message.includes(currentUsername)) {
+      const currentUsername = this.bot.config.smStart
+        ? this.bot.config.smUsername
+        : this.bot.config.usename;
+
+      if (message.includes(">") && message.includes(currentUsername)) {
         const messageIdMatch = message.match(/(\d{12,})$/);
         if (messageIdMatch) {
           const messageId = messageIdMatch[1];
-          
-          const userPattern = new RegExp(`>${currentUsername}>`, 'i');
+
+          const userPattern = new RegExp(`>${currentUsername}>`, "i");
           if (userPattern.test(message)) {
             if (this.bot.messageIdResolvers.length > 0) {
               const resolver = this.bot.messageIdResolvers.shift();
@@ -277,69 +276,72 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         }
       }
 
-      if (!this.firstLogin)
-      {
+      if (!this.firstLogin) {
         this.firstLogin = true;
 
-        if (message.startsWith(`%*"0`))
-        {
+        if (message.startsWith(`%*"0`)) {
           logger.error(`名字被占用，用户名：${this.loginObj.n}`);
-        } else if (message.startsWith(`%*"1`))
-        {
-          logger.error('用户名不存在');
-        } else if (message.startsWith(`%*"2`))
-        {
+        } else if (message.startsWith(`%*"1`)) {
+          logger.error("用户名不存在");
+        } else if (message.startsWith(`%*"2`)) {
           logger.error(`密码错误，用户名：${this.loginObj.n}`);
-        } else if (message.startsWith(`%*"4`))
-        {
-          logger.error(`今日可尝试登录次数达到上限，用户名：${this.loginObj.n}`);
-        } else if (message.startsWith(`%*"5`))
-        {
-          logger.error(`房间密码错误，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
-        } else if (message.startsWith(`%*"x`))
-        {
+        } else if (message.startsWith(`%*"4`)) {
+          logger.error(
+            `今日可尝试登录次数达到上限，用户名：${this.loginObj.n}`
+          );
+        } else if (message.startsWith(`%*"5`)) {
+          logger.error(
+            `房间密码错误，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`
+          );
+        } else if (message.startsWith(`%*"x`)) {
           logger.error(`用户被封禁，用户名：${this.loginObj.n}`);
-        } else if (message.startsWith(`%*"n0`))
-        {
-          logger.error(`房间无法进入，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
-        }
-        else if (message.startsWith(`%*"`))
-        {
+        } else if (message.startsWith(`%*"n0`)) {
+          logger.error(
+            `房间无法进入，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`
+          );
+        } else if (message.startsWith(`%*"`)) {
           logger.info(`登陆成功，用户名：${this.loginObj.n}`);
         }
-
       }
 
       const funcObj = decoder(this.bot, message);
       // console.log(funcObj)
       // 将会话上报
 
-      if (funcObj.manyMessage)
-      {
-        funcObj.manyMessage.slice().reverse().forEach(element =>
-        {
-          if (!element.type) { return; }
-          const test: Record<string, any> = {};
-          const type = element.type;
+      if (funcObj.manyMessage) {
+        funcObj.manyMessage
+          .slice()
+          .reverse()
+          .forEach((element) => {
+            if (!element.type) {
+              return;
+            }
+            const test: Record<string, any> = {};
+            const type = element.type;
 
-          test[type] = element;
-          decoderMessage(test, this.bot);
-        });
-      } else if (funcObj.hasOwnProperty('userlist'))
-      {
+            test[type] = element;
+            decoderMessage(test, this.bot);
+          });
+      } else if (funcObj.hasOwnProperty("userlist")) {
         const userData = funcObj.userlist;
-        if (!userData) { return; }
-        userData.forEach(async e =>
-        {
-          if (!e.uid) { return; }
+        if (!userData) {
+          return;
+        }
+        userData.forEach(async (e) => {
+          if (!e.uid) {
+            return;
+          }
           let avatar = e.avatar;
 
-          if (e.avatar.startsWith('cartoon') || e.avatar.startsWith('scenery') || e.avatar.startsWith('male') || e.avatar.startsWith('popular') || e.avatar.startsWith('anime'))
-          {
+          if (
+            e.avatar.startsWith("cartoon") ||
+            e.avatar.startsWith("scenery") ||
+            e.avatar.startsWith("male") ||
+            e.avatar.startsWith("popular") ||
+            e.avatar.startsWith("anime")
+          ) {
             avatar = `https://static.codemao.cn/rose/v0/images/icon/${e.avatar}.jpg`;
-          }
-          else if (e.avatar.startsWith('http://r.iirose.com'))
-          {
+          } else if (e.avatar.startsWith("http://r.iirose.com")) {
             avatar = `http://z.iirose.com/lib/php/function/loadImg.php?s=${e.avatar}`;
           }
 
@@ -349,7 +351,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
             avatar: avatar,
             room: e.room,
             color: e.color,
-            data: {}
+            data: {},
           });
 
           // 更新自己的头像
@@ -358,20 +360,17 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         this.bot.user = await this.bot.getSelf();
 
         decoderMessage(funcObj, this.bot);
-      } else
-      {
+      } else {
         decoderMessage(funcObj, this.bot);
       }
 
-      
-      // this.setTimeoutId = setTimeout(async () =>
-      // {
-      //   // 立即清空定时器ID，防止重复执行
-      //   this.setTimeoutId = null;
-      //   logger.warn('bot保活：时限内没能接收到消息，断开链接');
-      //   await this.bot.adapter.disconnect(this.bot);
-      //   await this.bot.adapter.connect(this.bot);
-      // }, this.bot.config.timeoutPlus); // (默认)5分钟没有消息就断开连接
+      if (this.bot.config.timeoutPlus) {
+        this.setTimeoutId = setTimeout(async () => {
+          logger.warn("bot保活：时限内没能接收到消息，断开链接");
+          await this.bot.adapter.disconnect(this.bot);
+          await this.bot.adapter.connect(this.bot);
+        }, this.bot.config.timeoutPlus);// (默认)5分钟没有消息就断开连接
+      } 
     });
   }
 
