@@ -239,11 +239,11 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
     this.bot.socket.addEventListener('message', async (event) =>
     {
-      // 清除旧的延迟
-      if (this.setTimeoutId) {
-        clearTimeout(this.setTimeoutId);
-        this.setTimeoutId = null;
-      }
+      // // 清除旧的延迟定时器，确保彻底清除
+      // if (this.setTimeoutId) {
+      //   clearTimeout(this.setTimeoutId);
+      //   this.setTimeoutId = null;
+      // }
       // @ts-ignore
       const array = new Uint8Array(event.data);
 
@@ -363,12 +363,15 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         decoderMessage(funcObj, this.bot);
       }
 
-      this.setTimeoutId = setTimeout(async () =>
-      {
-        logger.warn('bot保活：时限内没能接收到消息，断开链接');
-        await this.bot.adapter.disconnect(this.bot);
-        await this.bot.adapter.connect(this.bot);
-      }, this.bot.config.timeoutPlus); // (默认)5分钟没有消息就断开连接
+      
+      // this.setTimeoutId = setTimeout(async () =>
+      // {
+      //   // 立即清空定时器ID，防止重复执行
+      //   this.setTimeoutId = null;
+      //   logger.warn('bot保活：时限内没能接收到消息，断开链接');
+      //   await this.bot.adapter.disconnect(this.bot);
+      //   await this.bot.adapter.connect(this.bot);
+      // }, this.bot.config.timeoutPlus); // (默认)5分钟没有消息就断开连接
     });
   }
 
@@ -465,7 +468,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       this.bot.socket.close();
     }
     
-    // 清除保活定时器
+    // 清除保活定时器，确保彻底清除
     if (this.setTimeoutId) {
       clearTimeout(this.setTimeoutId);
       this.setTimeoutId = null;
