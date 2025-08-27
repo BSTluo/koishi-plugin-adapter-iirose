@@ -9,6 +9,16 @@
     "dist"
   ],
   "license": "MIT",
+  "contributors": [
+    "BSTluo <1946831552@qq.com>",
+    "jingming295 <jingming295@gmail.com>",
+    "shangxueink <1919892171@qq.com>"
+  ],
+  "homepage": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/tree/main",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BSTluo/koishi-plugin-adapter-iirose.git"
+  },
   "keywords": [
     "bot",
     "iirose",
@@ -28,16 +38,6 @@
   "peerDependencies": {
     "koishi": "^4.18.8",
     "koishi-plugin-filemanager": "^0.0.3"
-  },
-  "contributors": [
-    "BSTluo <1946831552@qq.com>",
-    "jingming295 <jingming295@gmail.com>",
-    "shangxueink <1919892171@qq.com>"
-  ],
-  "homepage": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/tree/main",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/BSTluo/koishi-plugin-adapter-iirose.git"
   },
   "devDependencies": {
     "@types/pako": "^2.0.3",

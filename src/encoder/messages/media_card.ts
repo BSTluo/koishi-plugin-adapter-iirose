@@ -2,12 +2,9 @@ import { musicOrigin } from '../../event';
 import PublicMessage from './PublicMessage';
 import { encode } from 'html-entities';
 
-export default (type: 'music' | 'video', title: string, singer: string, cover: string, color: string, duration: number, BitRate: number = 320, origin?: musicOrigin['origin']) =>
-{
-  function parseBitrate(bitrate: number)
-  {
-    switch (bitrate)
-    {
+export default (type: 'music' | 'video', title: string, singer: string, cover: string, color: string, duration: number, BitRate: number = 320, origin?: musicOrigin['origin']) => {
+  function parseBitrate(bitrate: number) {
+    switch (bitrate) {
       case 10000:
         return '1e4';
       case 20000:
@@ -19,8 +16,7 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
     }
   }
 
-  function durationToText(duration: number)
-  {
+  function durationToText(duration: number) {
     const secondsInMinute = 60;
     const secondsInHour = secondsInMinute * 60;
     const secondsInDay = secondsInHour * 24;
@@ -67,52 +63,40 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
     const seconds = duration % secondsInMinute;
 
     let text = '';
-    if (billionYears > 0)
-    {
+    if (billionYears > 0) {
       text += `${billionYears}亿年 `;
     }
-    if (hundredMillionYears > 0)
-    {
+    if (hundredMillionYears > 0) {
       text += `${hundredMillionYears}亿年 `;
     }
-    if (tenMillionYears > 0)
-    {
+    if (tenMillionYears > 0) {
       text += `${tenMillionYears}千万年 `;
     }
-    if (millionYears > 0)
-    {
+    if (millionYears > 0) {
       text += `${millionYears}百万年 `;
     }
-    if (hundredThousandYears > 0)
-    {
+    if (hundredThousandYears > 0) {
       text += `${hundredThousandYears}十万年 `;
     }
-    if (tenThousandYears > 0)
-    {
+    if (tenThousandYears > 0) {
       text += `${tenThousandYears}万年 `;
     }
-    if (millennia > 0)
-    {
+    if (millennia > 0) {
       text += `${millennia}千年 `;
     }
-    if (years > 0)
-    {
+    if (years > 0) {
       text += `${years}年 `;
     }
-    if (days > 0)
-    {
+    if (days > 0) {
       text += `${days}天 `;
     }
-    if (hours > 0)
-    {
+    if (hours > 0) {
       text += `${hours}小时 `;
     }
-    if (minutes > 0)
-    {
+    if (minutes > 0) {
       text += `${minutes}分钟 `;
     }
-    if (seconds > 0)
-    {
+    if (seconds > 0) {
       text += `${seconds}秒`;
     }
 
@@ -144,40 +128,32 @@ export default (type: 'music' | 'video', title: string, singer: string, cover: s
   let data: string;
 
   let t: string;
-  if (origin && origin !== 'null' && origin !== 'undefined')
-  {
+  if (origin && origin !== 'null' && origin !== 'undefined') {
     t = origin;
-  } else
-  {
+  } else {
     t = type;
   }
 
   title = encode(title);
   singer = encode(singer);
   color = encode(color);
-  if (type === 'music')
-  {
-    if (!BitRate)
-    {
+  if (type === 'music') {
+    if (!BitRate) {
       data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>>11451${durationToText(duration)}`;
-    } else
-    {
+    } else {
       data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>${parseBitrate(BitRate)}`;
     }
   } else {
-    if (!BitRate)
-    {
+    if (!BitRate) {
       data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>>11451${durationToText(duration)}`;
-    } else
-    {
+    } else {
       data = `m__4${typeMap[t]}>${title}>${singer}>${cover}>${color}>>${parseBitrate(BitRate)}>>${durationToText(duration)}`;
     }
   }
   return PublicMessage(data, color);
 };
 
-function formatSeconds(seconds: number): string
-{
+function formatSeconds(seconds: number): string {
   const minutes: number = Math.floor(seconds / 60);
   const remainingSeconds: number = seconds % 60;
   const formattedMinutes: string = minutes < 10 ? `0${minutes}` : `${minutes}`;

@@ -5,42 +5,35 @@ import { Stock } from './decoder/Stock';
 import { Fragment, Session } from 'koishi';
 import { GetUserListCallback } from './decoder/GetUserListCallback';
 
-export interface kickData
-{
+export interface kickData {
   username: string;
 }
 
-export interface cutOne
-{
+export interface cutOne {
   id?: string;
 }
 
-export interface setMaxUser
-{
+export interface setMaxUser {
   maxMember: number;
 }
 
-export interface whiteList
-{
+export interface whiteList {
   username: string;
   time: string;
   intro?: string;
 }
 
-export interface damaku
-{
+export interface damaku {
   message: string;
   color: string;
 }
 
-export interface move
-{
+export interface move {
   roomId: string;
   roomPassword?: string;
 }
 
-export interface EventsCallBackOrigin
-{
+export interface EventsCallBackOrigin {
   type: string;
   userId?: string;
   username?: string;
@@ -67,8 +60,7 @@ export interface EventsCallBackOrigin
   data?: any;
 }
 
-export interface musicOrigin
-{
+export interface musicOrigin {
   type: 'music' | 'video';
   name: string;
   signer: string;
@@ -82,13 +74,11 @@ export interface musicOrigin
   origin: 'netease' | 'bilibili' | 'null' | 'undefined' | null;
 }
 
-export interface StockGet
-{
+export interface StockGet {
   (stockData: Stock): void;
 }
 
-export interface StockSession extends Stock
-{
+export interface StockSession extends Stock {
   send?: (data: {
     public?: {
       message: Fragment;
@@ -101,8 +91,7 @@ export interface StockSession extends Stock
   bot?: IIROSE_Bot;
 }
 
-export interface Events
-{
+export interface Events {
   // 'iirose/leaveRoom'(session: passiveEvent.joinRoomEvent): void;
   // 'iirose/joinRoom'(session: passiveEvent.leaveRoomEvent): void;
   'iirose/leaveRoom'(session: Session, data: MessageType['leaveRoom']): void;

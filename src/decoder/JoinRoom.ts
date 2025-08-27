@@ -1,7 +1,6 @@
 import { decode } from 'html-entities';
 
-export interface SystemMessage
-{
+export interface SystemMessage {
   timestamp: number;
   avatar: string;
   username: string;
@@ -12,15 +11,11 @@ export interface SystemMessage
 
 }
 
-export const joinRoom = (message: string) =>
-{
+export const joinRoom = (message: string) => {
   const tmp = message.split('>');
-  if (tmp.length === 12)
-  {
-    if (/\d+/.test(tmp[0]))
-    {
-      if (tmp[3] === "'1")
-      {
+  if (tmp.length === 12) {
+    if (/\d+/.test(tmp[0])) {
+      if (tmp[3] === "'1") {
         const msg = {
           timestamp: Number(tmp[0]),
           avatar: tmp[1],
