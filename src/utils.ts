@@ -45,12 +45,15 @@ export function rgbaToHex(rgba: string): string {
   return `${rHex}${gHex}${bHex}`;
 }
 
-export const startEventsServer = (bot: IIROSE_Bot) => {
+export const startEventsServer = (bot: IIROSE_Bot) =>
+{
   let event: (() => boolean)[] = [];
 
-  event.push(bot.ctx.on('iirose/moveRoom', async moveData => {
+  event.push(bot.ctx.on('iirose/moveRoom', async moveData =>
+  {
     const roomId = moveData.roomId;
-    if (!roomId) {
+    if (!roomId)
+    {
       if (bot.config.roomId === roomId) { return logger.debug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 '); }
       bot.config.roomId = bot.config.roomId;
       return logger.debug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
@@ -64,7 +67,8 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
     await bot.adapter.connect(bot);
   }));
 
-  event.push(bot.ctx.on('iirose/kick', (kickData: EventType.kickData) => {
+  event.push(bot.ctx.on('iirose/kick', (kickData: EventType.kickData) =>
+  {
     /* 示例data
     kickData: {
         username: '用户名'
@@ -73,7 +77,8 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
     IIROSE_WSsend(bot, kickFunction(kickData.username));
   }));
 
-  event.push(bot.ctx.on('iirose/cut-one', (cutOne: EventType.cutOne) => {
+  event.push(bot.ctx.on('iirose/cut-one', (cutOne: EventType.cutOne) =>
+  {
     /* 示例data
     cutOneData: {
         id: '歌曲id'
@@ -83,14 +88,16 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
     (cutOne.hasOwnProperty('id')) ? IIROSE_WSsend(bot, cutOneFunction(cutOne.id)) : IIROSE_WSsend(bot, cutOneFunction());
   }));
 
-  event.push(bot.ctx.on('iirose/cut-all', () => {
+  event.push(bot.ctx.on('iirose/cut-all', () =>
+  {
     /* 示例data
     （无）
     */
     IIROSE_WSsend(bot, cutAllFunction());
   }));
 
-  event.push(bot.ctx.on('iirose/setMaxUser', (setMaxUser: EventType.setMaxUser) => {
+  event.push(bot.ctx.on('iirose/setMaxUser', (setMaxUser: EventType.setMaxUser) =>
+  {
     /* 示例data
     setMaxUser: {
       maxMember: 人数（为空则清除限制？）
@@ -100,7 +107,8 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
     (setMaxUser.hasOwnProperty('number')) ? IIROSE_WSsend(bot, setMaxUserFunction(setMaxUser.maxMember)) : IIROSE_WSsend(bot, setMaxUserFunction());
   }));
 
-  event.push(bot.ctx.on('iirose/whiteList', (whiteList: EventType.whiteList) => {
+  event.push(bot.ctx.on('iirose/whiteList', (whiteList: EventType.whiteList) =>
+  {
     /* 示例data
     data: {
       username: 用户名,
@@ -113,7 +121,8 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
     (whiteList.hasOwnProperty('intro')) ? IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time));
   }));
 
-  event.push(bot.ctx.on('iirose/damaku', (damaku: EventType.damaku) => {
+  event.push(bot.ctx.on('iirose/damaku', (damaku: EventType.damaku) =>
+  {
     /* 示例data
     data: {
       message: 弹幕内容,
@@ -123,26 +132,32 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
     IIROSE_WSsend(bot, damakuFunction(damaku.message, damaku.color));
   }));
 
-  event.push(bot.ctx.on('iirose/makeMusic', (musicOrigin: EventType.musicOrigin) => {
+  event.push(bot.ctx.on('iirose/makeMusic', (musicOrigin: EventType.musicOrigin) =>
+  {
     const { type, name, signer, cover, link, url, duration, bitRate, color, lyrics, origin } = musicOrigin;
     IIROSE_WSsend(bot, mediaCard(type, name, signer, cover, color, duration, bitRate, origin));
     IIROSE_WSsend(bot, mediaData(type, name, signer, cover, link, url, duration, lyrics, origin));
   }));
 
-  event.push(bot.ctx.on('iirose/stockBuy', (numberData: number) => {
+  event.push(bot.ctx.on('iirose/stockBuy', (numberData: number) =>
+  {
     IIROSE_WSsend(bot, StockBuy(numberData));
   }));
 
-  event.push(bot.ctx.on('iirose/stockSell', (numberData: number) => {
+  event.push(bot.ctx.on('iirose/stockSell', (numberData: number) =>
+  {
     IIROSE_WSsend(bot, StockSell(numberData));
   }));
 
-  event.push(bot.ctx.on('iirose/stockGet', (callBack: EventType.StockGet) => {
+  event.push(bot.ctx.on('iirose/stockGet', (callBack: EventType.StockGet) =>
+  {
     IIROSE_WSsend(bot, StockGet());
-    bot.ctx.once('iirose/stockBackCall', (stockData: EventType.StockSession) => {
+    bot.ctx.once('iirose/stockBackCall', (stockData: EventType.StockSession) =>
+    {
       const outData: EventType.StockSession = stockData;
       outData.bot = bot;
-      outData.send = (data) => {
+      outData.send = (data) =>
+      {
         // eslint-disable-next-line no-prototype-builtins
         if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message); }
         // eslint-disable-next-line no-prototype-builtins
@@ -159,8 +174,10 @@ export const startEventsServer = (bot: IIROSE_Bot) => {
   return event;
 };
 
-export const stopEventsServer = (event: (() => boolean)[]) => {
-  event.forEach((element: () => boolean) => {
+export const stopEventsServer = (event: (() => boolean)[]) =>
+{
+  event.forEach((element: () => boolean) =>
+  {
     element();
   });
 };
