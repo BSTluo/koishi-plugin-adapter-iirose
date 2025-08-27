@@ -13,9 +13,9 @@ import { IIROSE_WSsend } from './ws';
 import { musicOrigin } from './event';
 import { messageObjList } from './messageTemp';
 import { } from 'koishi-plugin-filemanager';
+import { rgbaToHex } from './utils';
 
-async function getMediaMetadata(url: string)
-{
+async function getMediaMetadata(url: string) {
   const response = await axios.get(url, {
     responseType: 'stream'
   });
@@ -39,19 +39,16 @@ async function getMediaMetadata(url: string)
   };
 }
 
-export class IIROSE_BotMessageEncoder<C extends Context = Context> extends MessageEncoder<C, IIROSE_Bot<C>>
-{
+export class IIROSE_BotMessageEncoder<C extends Context = Context> extends MessageEncoder<C, IIROSE_Bot<C>> {
   private outDataOringin: string = '';
   private outDataOringinObj: string = '';
 
-  async flush(): Promise<void>
-  {
+  async flush(): Promise<void> {
     if (this.bot.config.hangUpMode) { return; }
     IIROSE_WSsend(this.bot, this.outDataOringinObj);
   }
 
-  async sendData(message: string): Promise<void>
-  {
+  async sendData(message: string): Promise<void> {
     IIROSE_WSsend(this.bot, message);
   }
 
@@ -60,10 +57,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
    * @param text 
    * @returns 
    */
-  escapeSpecialCharacters(text: string | null): string | null
-  {
-    if (text === null)
-    {
+  escapeSpecialCharacters(text: string | null): string | null {
+    if (text === null) {
       return text;
     }
     return text
@@ -73,14 +68,12 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
       .replace(/>/g, '&gt;');
   }
 
-  async visit(element: h): Promise<void>
-  {
+  async visit(element: h): Promise<void> {
     const { type, attrs, children } = element;
     // console.log('type', type);
     // console.log('attrs', attrs);
     // console.log('children', children);
-    switch (type)
-    {
+    switch (type) {
       case 'video': {
         const url = attrs.link || attrs.url || attrs.src;
         const metadata = await getMediaMetadata(url);
@@ -109,15 +102,13 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
         let file: Buffer;
         let uid: string;
         let config: { contentType: string; filename: string; } | undefined;
-        if (url.startsWith('file://'))
-        {
+        if (url.startsWith('file://')) {
           const fileUrl = new URL(url);
           file = fs.readFileSync(fileUrl);
           uid = this.bot.config.uid;
         }
 
-        if (url.startsWith('data:audio'))
-        {
+        if (url.startsWith('data:audio')) {
           // 创建一个FormData实例
           const base64ImgStr = url.replace(/^data:audio\/[a-z]+;base64,/, '');
           file = Buffer.from(base64ImgStr, 'base64');
@@ -125,10 +116,8 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           config = { contentType: 'audio/mpeg', filename: 'x.mp3' };
         }
 
-        if (!url.startsWith('http'))
-        {
-          try
-          {
+        if (!url.startsWith('http')) {
+          try {
             const formData = new FormData();
 
             // JSON.parse(this.bot.config.picFormData, (key, value) =>
@@ -160,19 +149,16 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
             //   });
             // }
             break;
-          } catch (error)
-          {
+          } catch (error) {
             this.outDataOringin += '[音频异常]';
             console.error(error);
           }
         }
 
-        function getRandomColor()
-        {
+        function getRandomColor() {
           const letters = '0123456789ABCDEF';
           let color = '#';
-          for (let i = 0; i < 6; i++)
-          {
+          for (let i = 0; i < 6; i++) {
             color += letters[Math.floor(Math.random() * 16)];
           }
           return color;
@@ -201,8 +187,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
       case 'quote': {
         let id = attrs.id;
-        if (!id)
-        {
+        if (!id) {
           id = Object.keys(messageObjList).pop();
         }
 
@@ -213,11 +198,9 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
       }
 
       case 'text': {
-        if (this.outDataOringin.length > 0)
-        {
+        if (this.outDataOringin.length > 0) {
           this.outDataOringin += `${attrs.content}`;
-        } else
-        {
+        } else {
           this.outDataOringin += `${attrs.content}`;
         }
         break;
@@ -264,8 +247,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
         } else if (attrs.hasOwnProperty('name'))
         {
           this.outDataOringin += ` [*${attrs.name}*] `;
-        } else if (attrs.hasOwnProperty('roomId'))
-        {
+        } else if (attrs.hasOwnProperty('roomId')) {
           this.outDataOringin += ` [_${attrs.roomId}_] `;
         }
         break;
@@ -282,13 +264,10 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
       case 'image':
       case 'img': {
         let i = 0;
-        if (attrs.src.startsWith('http'))
-        {
+        if (attrs.src.startsWith('http')) {
           const arr = ['jpg', 'jpeg', 'png', 'gif'];
-          for (const iterator of arr)
-          {
-            if (attrs.src.endsWith(`.${iterator}`))
-            {
+          for (const iterator of arr) {
+            if (attrs.src.endsWith(`.${iterator}`)) {
               this.outDataOringin += `[${attrs.src}]`;
               i = 1;
               break;
@@ -303,15 +282,13 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
         let file: Buffer<ArrayBuffer>;
         let uid: string;
         let config: { contentType: string; filename: string; } | undefined;
-        if (attrs.src.startsWith('file://'))
-        {
+        if (attrs.src.startsWith('file://')) {
           const fileUrl = new URL(attrs.src);
           file = fs.readFileSync(fileUrl.pathname);
           uid = this.bot.config.uid;
         }
 
-        if (attrs.src.startsWith('data:image'))
-        {
+        if (attrs.src.startsWith('data:image')) {
           // 创建一个FormData实例
           const base64ImgStr = attrs.src.replace(/^data:image\/[a-z]+;base64,/, '');
           file = Buffer.from(base64ImgStr, 'base64');
@@ -319,8 +296,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           config = { contentType: 'image/png', filename: 'x.png' };
         }
 
-        try
-        {
+        try {
           // JSON.parse(this.bot.config.picFormData, (key, value) =>
           // {
           //   if (key == '') { return; }
@@ -367,8 +343,7 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
           this.outDataOringin += `[${url}#e]`;
 
 
-        } catch (error)
-        {
+        } catch (error) {
           this.outDataOringin += '[图片显示异常]';
           //console.error(error);
         }
@@ -412,24 +387,20 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
         break;
       }
     }
-    if (children.length > 0)
-    {
+    if (children.length > 0) {
       if (this.outDataOringin.length > 0) { this.outDataOringin += '\n'; }
 
-      for (const h of children)
-      {
+      for (const h of children) {
         await this.visit(h);
       }
     }
 
     if (this.outDataOringin.length <= 0) { return; }
 
-    if (this.channelId.startsWith('public:'))
-    {
-      this.outDataOringinObj = PublicMessage(this.outDataOringin, this.bot.config.color);
-    } else if (this.channelId.startsWith('private:'))
-    {
-      this.outDataOringinObj = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, this.bot.config.color);
+    if (this.channelId.startsWith('public:')) {
+      this.outDataOringinObj = PublicMessage(this.outDataOringin, rgbaToHex(this.bot.config.color));
+    } else if (this.channelId.startsWith('private:')) {
+      this.outDataOringinObj = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, rgbaToHex(this.bot.config.color));
     }
   }
 }

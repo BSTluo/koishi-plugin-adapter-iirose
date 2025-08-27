@@ -8,8 +8,7 @@ import mute from './encoder/admin/mute';
 import { messageObjList } from './messageTemp';
 import { Internal, InternalType } from './internal';
 
-export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config = IIROSE_Bot.Config> extends Bot<C, T>
-{
+export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config = IIROSE_Bot.Config> extends Bot<C, T> {
   platform: string = 'iirose';
   socket: WebSocket | undefined = undefined;
   public messageIdResolvers: ((messageId: string) => void)[] = [];
@@ -35,8 +34,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 7. 如果配置出现问题 / 插件出bug / 有什么想反馈的新功能的话，可以进群 1059933235 （
 `;
 
-  constructor(ctx: C, config: T)
-  {
+  constructor(ctx: C, config: T) {
     super(ctx, config, 'iirose-bot');
     ctx.plugin(WsClient, this);
 
@@ -50,10 +48,8 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
       this.userId = ctx.config.uid;
     }
 
-    setTimeout(async () =>
-    {
-      this.getSelf().then(v =>
-      {
+    setTimeout(async () => {
+      this.getSelf().then(v => {
         this.user = v;
       });
     }, 10000);
@@ -67,6 +63,9 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     }
     const finalChannelId = guildId ? `${channelId}:${guildId}` : channelId;
 
+    const messageIdPromise = new Promise<string>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+
     const messageIdPromise = new Promise<string>((resolve, reject) =>
     {
       const timeout = setTimeout(() =>
@@ -74,12 +73,15 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
         reject(new Error('等待消息ID超时'));
       }, 3000);
 
+      this.messageIdResolvers.push((messageId: string) => {
+
       this.messageIdResolvers.push((messageId: string) =>
       {
         clearTimeout(timeout);
         resolve(messageId);
       });
     });
+
 
     await new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options).send(content);
 
@@ -93,16 +95,14 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     }
   }
 
-  async sendPrivateMessage(userId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
-  {
+  async sendPrivateMessage(userId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]> {
 
     return this.sendMessage(`private:${userId}`, content);
   }
 
   // public inject = ['database'];
 
-  async getSelf(): Promise<Universal.User>
-  {
+  async getSelf(): Promise<Universal.User> {
     let user: Universal.User = await this.getUser(this.ctx.config.uid);
     if (user.id == 'error')
     {
@@ -125,8 +125,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     return user;
   }
 
-  async getUser(userId: string, guildId?: string): Promise<Universal.User>
-  {
+  async getUser(userId: string, guildId?: string): Promise<Universal.User> {
     let user: Universal.User = {
       id: 'error',
       name: '用户数据库初始化ing',
@@ -153,18 +152,15 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     return user;
   }
 
-  async getMessage(channelId: string, messageId: string)
-  {
+  async getMessage(channelId: string, messageId: string) {
     return messageObjList[messageId];
   }
 
-  async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void>
-  {
+  async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void> {
     IIROSE_WSsend(this, kick(userName));
   }
 
-  async muteGuildMember(guildId: string, userName: string, duration: number, reason?: string): Promise<void>
-  {
+  async muteGuildMember(guildId: string, userName: string, duration: number, reason?: string): Promise<void> {
     let time: string;
 
     // 永久禁言
@@ -181,8 +177,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     IIROSE_WSsend(this, mute('all', userName, time, reason));
   }
 
-  async deleteMessage(channelId: string, messageId: string): Promise<void>
-  {
+  async deleteMessage(channelId: string, messageId: string): Promise<void> {
 
     return;
   }
@@ -190,10 +185,8 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
   internal: InternalType = new Internal(this);
 }
 
-export namespace IIROSE_Bot
-{
-  export interface Config extends WsClient.Config
-  {
+export namespace IIROSE_Bot {
+  export interface Config extends WsClient.Config {
     picToken: any;
     usename: string;
     password: string;
@@ -271,7 +264,7 @@ export namespace IIROSE_Bot
       roomPassword: Schema.string().default('').description('BOT的初始房间密码(可空)'),
       oldRoomId: Schema.string().default('').description('一般不需要填写，仅内部使用'),
       Signature: Schema.string().default('').description('BOT签名'),
-      color: Schema.string().default('66ccff').description('BOT气泡颜色')
+      color: Schema.string().role('color').default('rgba(102, 204, 255, 1)').description('BOT气泡颜色')
     }).description('BOT配置'),
     Schema.object({
       timeout: Schema.number().min(100).max(5000).default(500).description('bot多久才连接超时(毫秒)'),

@@ -29,8 +29,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const logger = new Logger('IIROSE-BOT');
 
-export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>>
-{
+export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>> {
   // WSurl: string = 'wss://m2.iirose.com:8778';
   private event: (() => boolean)[] = [];
   // public inject = ['database'];
@@ -62,8 +61,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
   firstLogin: boolean = false;
 
-  constructor(ctx: C, bot: IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>)
-  {
+  constructor(ctx: C, bot: IIROSE_Bot<C, IIROSE_Bot.Config & WsClient.Config>) {
     super(ctx, bot);
     // ctx.model.extend('iiroseUser', {
     //   // 向用户表中注入字符串字段 foo
@@ -83,8 +81,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
    * @returns 
    */
 
-  async prepare()
-  {
+  async prepare() {
     logger.info('websocket client preparing');
 
     const iiroseList = ['m1', 'm2', 'm8', 'm9', 'm'];
@@ -98,24 +95,19 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     // let time = 5;
     // let tryTime = 0;
 
-    do
-    {
+    do {
       allErrors = true;
-      for (let webIndex of iiroseList)
-      {
+      for (let webIndex of iiroseList) {
         const speed: number | 'error' = await this.getLatency(`wss://${webIndex}.iirose.com:8778`);
-        if (speed != 'error')
-        {
+        if (speed != 'error') {
           allErrors = false;
-          if (maximumSpeed > speed)
-          {
+          if (maximumSpeed > speed) {
             faseter = webIndex;
             maximumSpeed = speed;
           }
         }
       }
-      if (allErrors)
-      {
+      if (allErrors) {
         logger.warn('所有服务器都无法连接，将在5秒后重试...');
         await new Promise(r => setTimeout(r, 5000));
       }
@@ -164,8 +156,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     //   fp: `@${md5(``)}`
     // };
 
-    if (this.bot.config.smStart && this.bot.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-    {
+    if (this.bot.config.smStart && this.bot.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
       this.loginObj = {
         r: this.bot.config.smRoom,
         n: this.bot.config.smUsername,
@@ -184,8 +175,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       };
 
       logger.info('已启用蔷薇游客模式');
-    } else
-    {
+    } else {
       this.loginObj = {
         r: room || this.bot.config.roomId,
         n: username || this.bot.config.usename,
@@ -201,8 +191,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
     }
     (this.loginObj.lr) ? '' : delete this.loginObj.lr;
 
-    socket.addEventListener('open', () =>
-    {
+    socket.addEventListener('open', () => {
 
       logger.success('websocket client opening');
       const loginPack = '*' + JSON.stringify(this.loginObj);
@@ -211,10 +200,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       this.event = startEventsServer(this.bot);
       this.bot.online();
 
-      this.live = setInterval(() =>
-      {
-        if (this.bot.status == Universal.Status.ONLINE)
-        {
+      this.live = setInterval(() => {
+        if (this.bot.status == Universal.Status.ONLINE) {
           IIROSE_WSsend(this.bot, '');
         }
       }, 30 * 1000); // 半分钟发一次包保活
@@ -226,19 +213,16 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   /**
    * 接受ws通信
    */
-  accept()
-  {
+  accept() {
     this.firstLogin = false;
     // 花园登陆报文
-    if (!this.bot.socket)
-    {
+    if (!this.bot.socket) {
       this.ctx.logger('iirose').error('WebSocket connection is not established.');
       return;
     }
 
 
-    this.bot.socket.addEventListener('message', async (event) =>
-    {
+    this.bot.socket.addEventListener('message', async (event) => {
       // 清除旧的延迟
       if (this.bot.config.timeoutPlus && this.setTimeoutId) {
         clearTimeout(this.setTimeoutId);
@@ -370,31 +354,28 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
           await this.bot.adapter.disconnect(this.bot);
           await this.bot.adapter.connect(this.bot);
         }, this.bot.config.timeoutPlus);// (默认)5分钟没有消息就断开连接
-      } 
+      }
     });
   }
 
   /**
    * 开始ws通信
    */
-  async start()
-  {
+  async start() {
     this.bot.socket = await this.prepare();
     this.accept();
     if (!this.bot.socket) { this.bot.stop(); return; }
     // let time = 5;
     // let tryTime = 0;
 
-    this.bot.socket.addEventListener('close', async ({ code, reason }) =>
-    {
+    this.bot.socket.addEventListener('close', async ({ code, reason }) => {
       if (this.bot.config.debugMode) { logger.info('websocket测试：接受到停止信号'); }
       if (
         this.bot.status == Universal.Status.RECONNECT ||
         this.bot.status == Universal.Status.DISCONNECT ||
         this.bot.status == Universal.Status.OFFLINE ||
         code == 1000
-      )
-      {
+      ) {
         if (this.bot.config.debugMode) {
           logger.warn("websocket停止：因为某种原因不被动进行重启");
           logger.info(
@@ -405,10 +386,8 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
       }
       logger.warn(`websocket closed with ${code}`);
       // 重连
-      const restart = async () =>
-      {
-        setTimeout(async () =>
-        {
+      const restart = async () => {
+        setTimeout(async () => {
           this.bot.socket = await this.prepare();
           this.accept();
         }, 5000);
@@ -443,30 +422,26 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
   /**
    * 关闭ws通信
    */
-  async stop()
-  {
+  async stop() {
     this.bot.status = Universal.Status.DISCONNECT;
 
-    if (this.event.length > 0)
-    {
+    if (this.event.length > 0) {
       stopEventsServer(this.event); // 停止事件服务器的逻辑
     }
 
     // 移除事件监听器
-    if (this.socket)
-    {
+    if (this.socket) {
       this.socket.removeEventListener('close', () => { });
       this.socket.removeEventListener('message', () => { });
       this.socket.close();
     }
 
-    if (this.bot.socket)
-    {
+    if (this.bot.socket) {
       this.bot.socket.removeEventListener('close', () => { });
       this.bot.socket.removeEventListener('message', () => { });
       this.bot.socket.close();
     }
-    
+
     // 清除保活定时器，确保彻底清除
     if (this.setTimeoutId) {
       clearTimeout(this.setTimeoutId);
@@ -480,21 +455,17 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
    * @param url 
    * @returns 
    */
-  private getLatency(url: string): Promise<number | 'error'>
-  {
-    return new Promise(async (resolve, reject) =>
-    {
+  private getLatency(url: string): Promise<number | 'error'> {
+    return new Promise(async (resolve, reject) => {
       const startTime = Date.now();
       const ws = await this.bot.ctx.http.ws(url);
       const timeout: number = this.bot.config.timeout;
-      const timeoutId = setTimeout(() =>
-      {
+      const timeoutId = setTimeout(() => {
         ws.close();
         resolve('error');
       }, timeout);
 
-      ws.addEventListener('open', () =>
-      {
+      ws.addEventListener('open', () => {
         const endTime = Date.now();
         const latency = endTime - startTime;
         clearTimeout(timeoutId);
@@ -502,8 +473,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         ws.close();
       });
 
-      ws.addEventListener('error', (error) =>
-      {
+      ws.addEventListener('error', (error) => {
         clearTimeout(timeoutId);
         resolve('error');
       });
@@ -512,8 +482,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
 
 }
 
-export namespace WsClient
-{
+export namespace WsClient {
   export interface Config extends Adapter.WsClientConfig { }
 
   // export const Config: Schema<Config> = Schema.intersect([
@@ -521,30 +490,25 @@ export namespace WsClient
   // ] as const);
 }
 
-export function IIROSE_WSsend(bot: IIROSE_Bot, data: string)
-{
-  if (!bot.socket)
-  { //布豪！
+export function IIROSE_WSsend(bot: IIROSE_Bot, data: string) {
+  if (!bot.socket) { //布豪！
     logger.error("布豪！ !bot.socket !!! 请联系开发者");
     return;
   }
-  if (bot.socket.readyState == 0)
-  {
+  if (bot.socket.readyState == 0) {
     logger.error("布豪！ bot.socket.readyState == 0 !!! 请联系开发者");
     return;
   }
   const buffer = Buffer.from(data);
   const unintArray: any = Uint8Array.from(buffer);
 
-  if (unintArray.length > 256)
-  {
+  if (unintArray.length > 256) {
     const deflatedData = pako.gzip(data);
     const deflatedArray: any = new Uint8Array(deflatedData.length + 1);
     deflatedArray[0] = 1;
     deflatedArray.set(deflatedData, 1);
     bot.socket.send(deflatedArray);
-  } else
-  {
+  } else {
     bot.socket.send(unintArray);
   }
 };

@@ -1,7 +1,6 @@
 import { IIROSE_Bot } from '../bot';
 
-export interface Stock
-{
+export interface Stock {
   userId: string;
   totalStock: number;
   totalMoney: number;
@@ -10,18 +9,14 @@ export interface Stock
   personalMoney: number;
 }
 
-export const stock = (message: string, bot: IIROSE_Bot) =>
-{
-  if (message.substr(0, 1) === '>')
-  {
+export const stock = (message: string, bot: IIROSE_Bot) => {
+  if (message.substr(0, 1) === '>') {
     const list = message.substr(1).split('>')[0].split('"');
-    if (list.length === 5)
-    {
+    if (list.length === 5) {
 
       let uid = bot.ctx.config.uid;
 
-      if (bot.config.smStart && bot.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-      {
+      if (bot.config.smStart && bot.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
         uid = bot.ctx.config.smUid;
       }
 

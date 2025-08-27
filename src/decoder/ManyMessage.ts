@@ -47,13 +47,11 @@ export class ManyMessage {
 }
 
 const replyMsg = (msg: string): replyMessage[] | null => {
-  if (msg.includes(' (_hr) '))
-  {
+  if (msg.includes(' (_hr) ')) {
     const replies: replyMessage[] = [];
 
     msg.split(' (hr_) ').forEach(e => {
-      if (e.includes(' (_hr) '))
-      {
+      if (e.includes(' (_hr) ')) {
         const tmp = e.split(' (_hr) ');
         const user = tmp[1].split('_');
 
@@ -66,8 +64,7 @@ const replyMsg = (msg: string): replyMessage[] | null => {
         replies.sort((a, b) => {
           return (a.time - b.time);
         });
-      } else
-      {
+      } else {
         // @ts-ignore
         replies.unshift(e);
       }
@@ -83,8 +80,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) => {
   if (input.substring(0, 1) !== '"') return null;
   const message: string = input.substring(1);
 
-  if (message.indexOf('<') !== -1)
-  {
+  if (message.indexOf('<') !== -1) {
     const tmp1 = message.split('<');
 
     const output: ManyMessage[] = [];
@@ -93,13 +89,10 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) => {
       const tmp = e.split('>');
       tmp[0] = tmp[0].replace('"', '');
 
-      if (/^\d+$/.test(tmp[0]))
-      {
-        if (tmp.length === 11)
-        {
+      if (/^\d+$/.test(tmp[0])) {
+        if (tmp.length === 11) {
           // PrivateMessage
-          if (!isNaN(Number(tmp[8])) && Number(tmp[8]) > -1 && Number(tmp[8]) < 5)
-          {
+          if (!isNaN(Number(tmp[8])) && Number(tmp[8]) > -1 && Number(tmp[8]) < 5) {
             if (bot.config.uid == tmp[1]) { return; }
             output.push(new ManyMessage({
               type: 'privateMessage',
@@ -111,8 +104,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) => {
               uid: tmp[1],
               messageId: Number(tmp[10]),
             }));
-          } else
-          {
+          } else {
             if (bot.config.uid == tmp[8]) { return; }
             const reply = replyMsg(tmp[3]);
             output.push(new ManyMessage({
@@ -128,11 +120,9 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) => {
               replyMessage: reply,
             }));
           }
-        } else if (tmp.length === 12)
-        {
+        } else if (tmp.length === 12) {
           if (bot.config.uid == tmp[8]) { return; }
-          if (tmp[3] === "'1")
-          {
+          if (tmp[3] === "'1") {
             const msg = {
               type: 'joinRoom',
               timestamp: Number(tmp[0]),
@@ -145,8 +135,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) => {
             };
             // JoinRoom
             output.push(new ManyMessage(msg));
-          } else if (tmp[3].substr(0, 2) === "'2")
-          {
+          } else if (tmp[3].substr(0, 2) === "'2") {
             const msg = {
               type: 'switchRoom',
               timestamp: Number(tmp[0]),
@@ -160,8 +149,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) => {
             };
             // SwitchRoom
             output.push(new ManyMessage(msg));
-          } else if (tmp[3] === "'3")
-          {
+          } else if (tmp[3] === "'3") {
             const msg = {
               type: 'leaveRoom',
               timestamp: Number(tmp[0]),

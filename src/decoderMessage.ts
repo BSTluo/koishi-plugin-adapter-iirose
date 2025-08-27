@@ -11,17 +11,14 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 {
   // 定义会话列表
   // console.log('decoderMessage', obj);
-  for (const key in obj)
-  {
-    switch (key)
-    {
+  for (const key in obj) {
+    switch (key) {
       case 'userlist': {
         if (!obj.userlist) return;
         const data: GetUserListCallback[] = obj.userlist;
 
         let uid = bot.ctx.config.uid;
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-        {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
           uid = bot.ctx.config.smUid;
         }
 
@@ -92,8 +89,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
         let uid = bot.ctx.config.uid;
         let guildId = bot.ctx.config.roomId;
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-        {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
           uid = bot.ctx.config.smUid;
           guildId = bot.ctx.config.smRoom;
         }
@@ -121,8 +117,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
         let uid = bot.ctx.config.uid;
 
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-        {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
           uid = bot.ctx.config.smUid;
         }
 
@@ -212,8 +207,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         let uid = bot.ctx.config.uid;
         let guildId = bot.ctx.config.roomId;
 
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-        {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
           uid = bot.ctx.config.smUid;
           guildId = bot.ctx.config.sm;
         }
@@ -318,8 +312,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
         let uid = bot.ctx.config.uid;
 
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-        {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
           uid = bot.ctx.config.smUid;
         }
 
@@ -336,8 +329,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
         let uid = bot.ctx.config.uid;
         let guildId = bot.ctx.config.roomId;
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-        {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
           uid = bot.ctx.config.smUid;
           guildId = bot.ctx.config.smRoom;
         }
@@ -684,22 +676,17 @@ async function clearMsg(msg: string, bot?: IIROSE_Bot)
   ];
 
   let msg1 = msg;
-  for (const reg of result)
-  {
+  for (const reg of result) {
     const Reg = reg[0];
     const matchArr = msg1.match(Reg);
 
-    if (matchArr)
-    {
+    if (matchArr) {
       let findIndex = -1;
       const stringTemp: string[] = [];
 
-      matchArr.forEach(v =>
-      {
-        if (reg.length > 3)
-        {
-          for (let i = 3; i < reg.length; i++)
-          {
+      matchArr.forEach(v => {
+        if (reg.length > 3) {
+          for (let i = 3; i < reg.length; i++) {
             msg1 = msg1.replace(reg[i], '');
             v = v.replace(reg[i], '');
           }
