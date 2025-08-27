@@ -55,8 +55,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     }, 10000);
   }
 
-  async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
-  {
+  async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]> {
     if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private')))
     {
       return [];
@@ -65,23 +64,14 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 
     const messageIdPromise = new Promise<string>((resolve, reject) => {
       const timeout = setTimeout(() => {
-
-    const messageIdPromise = new Promise<string>((resolve, reject) =>
-    {
-      const timeout = setTimeout(() =>
-      {
         reject(new Error('等待消息ID超时'));
       }, 3000);
 
       this.messageIdResolvers.push((messageId: string) => {
-
-      this.messageIdResolvers.push((messageId: string) =>
-      {
         clearTimeout(timeout);
         resolve(messageId);
       });
     });
-
 
     await new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options).send(content);
 
