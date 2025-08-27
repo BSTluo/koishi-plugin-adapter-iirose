@@ -22,7 +22,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     data: Record<string, any>;
   }[] = [];
 
-  static inject = ['filemanager']
+  static inject = ['filemanager'];
 
   static usage = `# 配置说明
 
@@ -66,24 +66,29 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
       return [];
     }
     const finalChannelId = guildId ? `${channelId}:${guildId}` : channelId;
-    
-    const messageIdPromise = new Promise<string>((resolve, reject) => {
-      const timeout = setTimeout(() => {
+
+    const messageIdPromise = new Promise<string>((resolve, reject) =>
+    {
+      const timeout = setTimeout(() =>
+      {
         reject(new Error('等待消息ID超时'));
       }, 3000);
-      
-      this.messageIdResolvers.push((messageId: string) => {
+
+      this.messageIdResolvers.push((messageId: string) =>
+      {
         clearTimeout(timeout);
         resolve(messageId);
       });
     });
-    
+
     await new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options).send(content);
-    
-    try {
+
+    try
+    {
       const messageId = await messageIdPromise;
       return [messageId];
-    } catch (error) {
+    } catch (error)
+    {
       return [];
     }
   }
@@ -135,6 +140,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 
       if (v.uid == userId) { userData = v; break; }
     }
+
 
     if (userData == undefined) { return user; }
 

@@ -358,7 +358,7 @@ export class WsClient<C extends Context = Context> extends Adapter.WsClient<C, I
         });
 
         this.bot.user = await this.bot.getSelf();
-
+        this.bot.internal.initUserData();
         decoderMessage(funcObj, this.bot);
       } else {
         decoderMessage(funcObj, this.bot);

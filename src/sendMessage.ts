@@ -226,33 +226,41 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
       case 'at': {
         if (attrs.hasOwnProperty('id'))
         {
-          try
-          {
-            const dataTemp = await fetch(`https://xc.null.red:8043/api/iirose/user/info?type=id&data=${attrs.id}`, {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            });
-            const dataJson = await dataTemp.json();
-            if (dataJson.code == 200)
-            {
-              this.outDataOringin += ` [*${dataJson.name}*] `;
-            } else
-            {
-              if (/[a-z0-9]+/.test(attrs.id))
-              {
+          // try
+          // {
+          //   const dataTemp = await fetch(`https://xc.null.red:8043/api/iirose/user/info?type=id&data=${attrs.id}`, {
+          //     headers: {
+          //       'Content-Type': 'application/json'
+          //     }
+          //   });
+          //   const dataJson = await dataTemp.json();
+          //   if (dataJson.code == 200)
+          //   {
+          //     this.outDataOringin += ` [*${dataJson.name}*] `;
+          //   } else
+          //   {
+          //     if (/[a-z0-9]+/.test(attrs.id))
+          //     {
 
-                this.outDataOringin += ` [@${attrs.id}@] `;
-              } else
-              {
-                this.outDataOringin += ` [*${attrs.id}*] `;
-              }
-            }
-          } catch (error)
+          //       this.outDataOringin += ` [@${attrs.id}@] `;
+          //     } else
+          //     {
+          //       this.outDataOringin += ` [*${attrs.id}*] `;
+          //     }
+          //   }
+          // } catch (error)
+          // {
+          //   this.outDataOringin += ` [@${attrs.id}@] `;
+          // }
+          const user = await this.bot.internal.getUserById(attrs.id);
+          const name = user.name;
+          if (name)
           {
-            this.outDataOringin += ` [@${attrs.id}@] `;
+            this.outDataOringin += ` [*${attrs.name}*] `;
+          } else
+          {
+            this.outDataOringin += ` [*${attrs.id}*] `;
           }
-
         } else if (attrs.hasOwnProperty('name'))
         {
           this.outDataOringin += ` [*${attrs.name}*] `;
