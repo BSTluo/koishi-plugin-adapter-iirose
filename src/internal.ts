@@ -16,7 +16,7 @@ import { Stock } from './decoder/Stock';
 import * as eventType from './event';
 import moveRoom from "./encoder/user/moveRoomStart";
 import payment from "./encoder/system/payment";
-import { Logger, Universal, User } from "koishi";
+import { Logger } from "koishi";
 
 const logger = new Logger('IIROSE-BOT');
 
@@ -121,35 +121,6 @@ export class Internal {
     const data = (message) ? payment(uid, money, message) : payment(uid, money);
     IIROSE_WSsend(this.bot, data);
   }
-
-  async getUserByName(name: string)
-  {
-    const id = this.UserData.name[name]
-    const user = await this.bot.getUser(id)
-    return user;
-  }
-
-  async getUserById(id: string)
-  {
-    const user = await this.bot.getUser(id)
-    return user;
-  }
-
-  initUserData()
-  {
-    this.UserData.name = {};
-    this.UserData.id = {};
-
-    this.bot.addData.forEach(v=>{
-      const name = v.username
-      const id = v.uid
-
-      this.UserData.name[name] = id;
-      this.UserData.id[id] = name;
-    })
-  }
-
-  UserData: Record<string, Record<string, string>> = {};
 }
 
 export interface InternalType {
@@ -166,7 +137,4 @@ export interface InternalType {
   stockGet(callBack: eventType.StockGet): void;
   moveRoomStart(): void;
   payment(uid: string, money: number, message?: string): void;
-  initUserData(): void;
-  getUserByName(name: string): Promise<Universal.User | undefined>;
-  getUserById(id: string): Promise<Universal.User | undefined>;
 }

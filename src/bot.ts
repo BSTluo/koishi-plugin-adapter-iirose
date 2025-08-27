@@ -21,7 +21,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     data: Record<string, any>;
   }[] = [];
 
-  static inject = ['filemanager'];
+  static inject = ['filemanager']
 
   static usage = `# 配置说明
 
@@ -38,12 +38,10 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     super(ctx, config, 'iirose-bot');
     ctx.plugin(WsClient, this);
 
-    if (this.config.smStart && this.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-    {
+    if (this.config.smStart && this.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
       this.selfId = ctx.config.smUid;
       this.userId = ctx.config.smUid;
-    } else
-    {
+    } else {
       this.selfId = ctx.config.uid;
       this.userId = ctx.config.uid;
     }
@@ -56,8 +54,7 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
   }
 
   async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]> {
-    if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private')))
-    {
+    if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private'))) {
       return [];
     }
     const finalChannelId = guildId ? `${channelId}:${guildId}` : channelId;
@@ -75,12 +72,10 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 
     await new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options).send(content);
 
-    try
-    {
+    try {
       const messageId = await messageIdPromise;
       return [messageId];
-    } catch (error)
-    {
+    } catch (error) {
       return [];
     }
   }
@@ -94,11 +89,9 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 
   async getSelf(): Promise<Universal.User> {
     let user: Universal.User = await this.getUser(this.ctx.config.uid);
-    if (user.id == 'error')
-    {
+    if (user.id == 'error') {
 
-      if (this.config.smStart && this.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-      {
+      if (this.config.smStart && this.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
         user = {
           id: this.ctx.config.smUid,
           name: this.ctx.config.smUsername,
@@ -124,12 +117,10 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
 
 
     let userData: { username: string; avatar: string; uid?: string; room?: string; color?: string; data?: Record<string, any>; } | undefined = undefined;
-    for (let v of this.addData)
-    {
+    for (let v of this.addData) {
 
       if (v.uid == userId) { userData = v; break; }
     }
-
 
     if (userData == undefined) { return user; }
 
@@ -154,11 +145,9 @@ export class IIROSE_Bot<C extends Context = Context, T extends IIROSE_Bot.Config
     let time: string;
 
     // 永久禁言
-    if ((duration / 1000) > 99999)
-    {
+    if ((duration / 1000) > 99999) {
       time = '&';
-    } else
-    {
+    } else {
       time = String(duration / 1000);
     }
 
