@@ -1,0 +1,77 @@
+[
+    {
+        "text": "开始使用",
+        "items": [
+            {
+                "text": "项目介绍",
+                "link": "/"
+            },
+            {
+                "text": "如何开始",
+                "link": "/markdown/firstime/koishi"
+            }
+        ]
+    },
+    {
+        "text": "更多说明",
+        "items": [
+            {
+                "text": "配置指南",
+                "link": "/markdown/start/config"
+            },
+            {
+                "text": "常见问题",
+                "link": "/markdown/start/FAQ"
+            },
+            {
+                "text": "获取帮助",
+                "link": "/markdown/start/issues"
+            },
+            {
+                "text": "错误码表",
+                "link": "/markdown/start/errorcodes"
+            }
+        ]
+    },
+    {
+        "text": "开发文档",
+        "items": [
+            {
+                "text": "API 文档",
+                "link": "/markdown/dev/apis"
+            },
+            {
+                "text": "事件文档",
+                "link": "/markdown/dev/events"
+            },
+            {
+                "text": "开发指南",
+                "link": "/markdown/dev/development"
+            },
+            {
+                "text": "文档开发",
+                "link": "/markdown/dev/development-docs"
+            }
+        ]
+    },
+    {
+        "text": "链接",
+        "items": [
+            {
+                "text": "GitHub 仓库",
+                "link": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/tree/main",
+                "target": "_blank"
+            },
+            {
+                "text": "NPM 包",
+                "link": "https://www.npmjs.com/package/koishi-plugin-adapter-iirose",
+                "target": "_blank"
+            },
+            {
+                "text": "Koishi 官网",
+                "link": "https://koishi.chat/zh-CN/guide/",
+                "target": "_blank"
+            }
+        ]
+    }
+]

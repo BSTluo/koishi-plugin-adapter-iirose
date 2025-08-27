@@ -1,0 +1,45 @@
+{
+    "title": "IIROSE Adapter",
+    "description": "Koishi IIROSE 适配器插件文档",
+    "ignoreDeadLinks": true,
+    "base": "/koishi-plugin-adapter-iirose/",
+    "head": [
+        [
+            "link",
+            {
+                "rel": "icon",
+                "href": "https://iirose.com/favicon.ico"
+            }
+        ],
+        [
+            "meta",
+            {
+                "name": "theme-color",
+                "content": "#00A1D6"
+            }
+        ]
+    ],
+    "themeConfig": {
+        "socialLinks": {
+            "github": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/tree/main"
+        },
+        "lastUpdated": {
+            "text": "上次更新"
+        },
+        "editLink": {
+            "pattern": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/edit/docs/docs/:path",
+            "text": "在 GitHub 上编辑此页"
+        },
+        "logo": "https://iirose.com/favicon.ico",
+        "nav": [
+            {
+                "text": "指南",
+                "link": "/markdown/firstime/quick-start"
+            },
+            {
+                "text": "API",
+                "link": "/markdown/dev/apis"
+            }
+        ]
+    }
+}
