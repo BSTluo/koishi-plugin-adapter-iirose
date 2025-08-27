@@ -1,4 +1,5 @@
-export default (uid: string, message: string, color: string) => {
+export default (uid: string, message: string, color: string) =>
+{
   return JSON.stringify({
     g: uid,
     m: message,

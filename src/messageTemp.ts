@@ -1,4 +1,5 @@
-export interface MessageInfo {
+export interface MessageInfo
+{
   messageId: string;
   isDirect: boolean;
   content: string;
@@ -11,7 +12,8 @@ export interface MessageInfo {
   };
 }
 
-export interface messageObjList {
+export interface messageObjList
+{
   [key: string]: MessageInfo;
 }
 

@@ -1,12 +1,14 @@
 import { decode } from 'html-entities';
 
-export interface replyMessage {
+export interface replyMessage
+{
   message: string;
   username: string;
   time: number;
 }
 
-interface data {
+interface data
+{
   type?: string;
   timestamp: number;
   avatar: string;
@@ -19,7 +21,8 @@ interface data {
   replyMessage?: replyMessage[] | null;
 }
 
-export class PublicMessage {
+export class PublicMessage
+{
   public timestamp: number;
   public avatar: string;
   public username: string;
@@ -30,7 +33,8 @@ export class PublicMessage {
   public messageId: number;
   public replyMessage: replyMessage[] | null;
 
-  constructor(data: data) {
+  constructor(data: data)
+  {
     this.timestamp = data.timestamp;
     this.avatar = data.avatar;
     this.username = data.username;
@@ -43,12 +47,16 @@ export class PublicMessage {
   }
 }
 
-const replyMsg = (msg: string): replyMessage[] | null => {
-  if (msg.includes(' (_hr) ')) {
+const replyMsg = (msg: string): replyMessage[] | null =>
+{
+  if (msg.includes(' (_hr) '))
+  {
     const replies: replyMessage[] = [];
 
-    msg.split(' (hr_) ').forEach(e => {
-      if (e.includes(' (_hr) ')) {
+    msg.split(' (hr_) ').forEach(e =>
+    {
+      if (e.includes(' (_hr) '))
+      {
         const tmp = e.split(' (_hr) ');
         const user = tmp[1].split('_');
 
@@ -58,10 +66,12 @@ const replyMsg = (msg: string): replyMessage[] | null => {
           time: Number(user[1]),
         });
 
-        replies.sort((a, b) => {
+        replies.sort((a, b) =>
+        {
           return (a.time - b.time);
         });
-      } else {
+      } else
+      {
         // @ts-ignore
         replies.unshift(e);
       }
@@ -73,15 +83,19 @@ const replyMsg = (msg: string): replyMessage[] | null => {
   return null;
 };
 
-export const publicMessage = (input: string) => {
+export const publicMessage = (input: string) =>
+{
   if (input.substring(0, 1) !== '"') return null;
 
   const message: string = input.substring(1);
 
-  if (message.indexOf('<') === -1) {
+  if (message.indexOf('<') === -1)
+  {
     const tmp = message.split('>');
-    if (tmp.length === 11) {
-      if (/^\d+$/.test(tmp[0])) {
+    if (tmp.length === 11)
+    {
+      if (/^\d+$/.test(tmp[0]))
+      {
         const reply = replyMsg(tmp[3]);
         const message = reply ? String(reply.shift()) : tmp[3];
 

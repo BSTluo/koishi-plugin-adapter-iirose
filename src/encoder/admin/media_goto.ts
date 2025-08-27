@@ -1,3 +1,4 @@
-export default (time: string) => {
+export default (time: string) =>
+{
   return `!16["${time}"]`;
 };

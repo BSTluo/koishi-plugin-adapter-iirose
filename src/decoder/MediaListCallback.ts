@@ -1,6 +1,7 @@
 import { decode } from 'html-entities';
 
-export interface MediaListCallback {
+export interface MediaListCallback
+{
   id: string;
   length: number;
   title: string;
@@ -11,9 +12,12 @@ export interface MediaListCallback {
   cover: string;
 }
 
-export const mediaListCallback = (message: string) => {
-  if (message.substr(0, 1) === '~') {
-    const result: MediaListCallback[] = message.substr(1).split('<').map((e, i) => {
+export const mediaListCallback = (message: string) =>
+{
+  if (message.substr(0, 1) === '~')
+  {
+    const result: MediaListCallback[] = message.substr(1).split('<').map((e, i) =>
+    {
       const tmp = e.split('>');
       return {
         id: `${i}_${tmp[0]}`,

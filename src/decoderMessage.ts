@@ -7,17 +7,21 @@ import { GetUserListCallback } from './decoder/GetUserListCallback';
 import { Session, h } from 'koishi';
 import { platform } from 'os';
 
-export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
+export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
+{
   // 定义会话列表
   // console.log('decoderMessage', obj);
-  for (const key in obj) {
-    switch (key) {
+  for (const key in obj)
+  {
+    switch (key)
+    {
       case 'userlist': {
         if (!obj.userlist) return;
         const data: GetUserListCallback[] = obj.userlist;
 
         let uid = bot.ctx.config.uid;
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
           uid = bot.ctx.config.smUid;
         }
 
@@ -88,7 +92,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         let uid = bot.ctx.config.uid;
         let guildId = bot.ctx.config.roomId;
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
           uid = bot.ctx.config.smUid;
           guildId = bot.ctx.config.smRoom;
         }
@@ -116,7 +121,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         let uid = bot.ctx.config.uid;
 
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
           uid = bot.ctx.config.smUid;
         }
 
@@ -206,7 +212,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
         let uid = bot.ctx.config.uid;
         let guildId = bot.ctx.config.roomId;
 
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
           uid = bot.ctx.config.smUid;
           guildId = bot.ctx.config.sm;
         }
@@ -311,7 +318,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         let uid = bot.ctx.config.uid;
 
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
           uid = bot.ctx.config.smUid;
         }
 
@@ -328,7 +336,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
 
         let uid = bot.ctx.config.uid;
         let guildId = bot.ctx.config.roomId;
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822') {
+        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
+        {
           uid = bot.ctx.config.smUid;
           guildId = bot.ctx.config.smRoom;
         }
@@ -657,7 +666,8 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) => {
   }
 };
 
-function clearMsg(msg: string) {
+function clearMsg(msg: string)
+{
   /*
   result规则：
   [
@@ -674,17 +684,22 @@ function clearMsg(msg: string) {
   ];
 
   let msg1 = msg;
-  for (const reg of result) {
+  for (const reg of result)
+  {
     const Reg = reg[0];
     const matchArr = msg1.match(Reg);
 
-    if (matchArr) {
+    if (matchArr)
+    {
       let findIndex = -1;
       const stringTemp: string[] = [];
 
-      matchArr.forEach(v => {
-        if (reg.length > 3) {
-          for (let i = 3; i < reg.length; i++) {
+      matchArr.forEach(v =>
+      {
+        if (reg.length > 3)
+        {
+          for (let i = 3; i < reg.length; i++)
+          {
             msg1 = msg1.replace(reg[i], '');
             v = v.replace(reg[i], '');
           }
@@ -695,7 +710,8 @@ function clearMsg(msg: string) {
         stringTemp.push(v.trim());
       });
 
-      stringTemp.forEach((v, index) => {
+      stringTemp.forEach((v, index) =>
+      {
         msg1 = msg1.replace(`\^\$${index}\$\^`, reg[1] + v + reg[2]);
       });
     }

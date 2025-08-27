@@ -1,6 +1,7 @@
 import { musicOrigin } from "../../event";
 
-export default (type: 'music' | 'video', title: string, signer: string, cover: string, link: string, url: string, duration: number, lyrics: string | null = null, origin?: musicOrigin['origin']) => {
+export default (type: 'music' | 'video', title: string, signer: string, cover: string, link: string, url: string, duration: number, lyrics: string | null = null, origin?: musicOrigin['origin']) =>
+{
   const typeMap = {
     music: "=0",
     video: "=1",
@@ -25,9 +26,11 @@ export default (type: 'music' | 'video', title: string, signer: string, cover: s
   };
 
   let t: string;
-  if (origin && origin !== 'null' && origin !== 'undefined') {
+  if (origin && origin !== 'null' && origin !== 'undefined')
+  {
     t = origin;
-  } else {
+  } else
+  {
     t = type;
   }
 

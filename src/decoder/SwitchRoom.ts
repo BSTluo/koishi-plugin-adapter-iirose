@@ -1,4 +1,5 @@
-export interface SwitchRoom {
+export interface SwitchRoom
+{
   timestamp: number;
   avatar: string;
   username: string;
@@ -9,11 +10,15 @@ export interface SwitchRoom {
   targetRoom: string;
 }
 
-export const switchRoom = (message: string) => {
+export const switchRoom = (message: string) =>
+{
   const tmp = message.split('>');
-  if (tmp.length === 12) {
-    if (/\d+/.test(tmp[0])) {
-      if (tmp[3].substr(0, 2) === "'2") {
+  if (tmp.length === 12)
+  {
+    if (/\d+/.test(tmp[0]))
+    {
+      if (tmp[3].substr(0, 2) === "'2")
+      {
         const msg = {
           timestamp: Number(tmp[0]),
           avatar: tmp[1],

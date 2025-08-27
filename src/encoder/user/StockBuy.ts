@@ -1,3 +1,4 @@
-export default (quantity: number) => {
+export default (quantity: number) =>
+{
   return `>$${quantity}`;
 };

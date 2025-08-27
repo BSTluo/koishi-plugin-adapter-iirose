@@ -1,4 +1,5 @@
-export interface Music {
+export interface Music
+{
   url: string;
   link: string;
   duration: number;
@@ -8,11 +9,14 @@ export interface Music {
   pic: string;
 }
 
-export const music = (message: string) => {
-  if (message.substr(0, 2) === '&1') {
+export const music = (message: string) =>
+{
+  if (message.substr(0, 2) === '&1')
+  {
     const tmp = message.substr(2).split('>');
 
-    if (tmp.length >= 9 && tmp[8] === '') {
+    if (tmp.length >= 9 && tmp[8] === '')
+    {
       const msg = {
         url: `http${tmp[0].split(' ')[0]}`,
         link: `http${tmp[0].split(' ')[1]}`,

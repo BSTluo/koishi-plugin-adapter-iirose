@@ -1,4 +1,5 @@
-export interface UserProfileCallback {
+export interface UserProfileCallback
+{
   email: string;
   location: string;
   website: string;
@@ -34,8 +35,10 @@ export interface UserProfileCallback {
   };
 }
 
-export const userProfileCallback = (message: string) => {
-  if (message.substr(0, 2) === '+1') {
+export const userProfileCallback = (message: string) =>
+{
+  if (message.substr(0, 2) === '+1')
+  {
     const tmp = message.substr(2).split('>');
     const msg: UserProfileCallback = {
       email: tmp[0],
@@ -53,7 +56,8 @@ export const userProfileCallback = (message: string) => {
       regTime: new Date(Number(tmp[24]) * 1e3),
       online: tmp[25],
       credit: tmp[32],
-      life: tmp[31].split('<').map(e => {
+      life: tmp[31].split('<').map(e =>
+      {
         const data = {
           image: `http${e.split(' ')[0]}`,
           time: new Date(Number(e.split(' ')[1]) * 1e3),

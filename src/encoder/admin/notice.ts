@@ -1,3 +1,4 @@
-export default (msg: string) => {
+export default (msg: string) =>
+{
   return `!!["${msg}"]`;
 };

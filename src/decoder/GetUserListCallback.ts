@@ -1,4 +1,5 @@
-export interface GetUserListCallback {
+export interface GetUserListCallback
+{
   avatar: string;
   username: string;
   color: string;
@@ -6,12 +7,16 @@ export interface GetUserListCallback {
   uid: string;
 }
 
-export const getUserListCallback = (message: string) => {
-  if (message.substr(0, 2) === 'u2') {
+export const getUserListCallback = (message: string) =>
+{
+  if (message.substr(0, 2) === 'u2')
+  {
     const list: GetUserListCallback[] = [];
-    message.substr(2).split('<').forEach(e => {
+    message.substr(2).split('<').forEach(e =>
+    {
       const tmp = e.split('>');
-      if (tmp.length >= 8) {
+      if (tmp.length >= 8)
+      {
         list.push({
           avatar: tmp[0],
           username: tmp[2],

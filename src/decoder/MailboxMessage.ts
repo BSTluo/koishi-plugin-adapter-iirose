@@ -1,12 +1,14 @@
 import { decode } from 'html-entities';
 
-export interface RoomNotice {
+export interface RoomNotice
+{
   notice: string;
   background: string;
   timestamp: number;
 }
 
-export interface Follower {
+export interface Follower
+{
   username: string;
   avatar: string;
   gender: string;
@@ -15,7 +17,8 @@ export interface Follower {
   color: string;
 }
 
-export interface Like {
+export interface Like
+{
   username: string;
   avatar: string;
   gender: string;
@@ -25,7 +28,8 @@ export interface Like {
   message: string;
 }
 
-export interface Payment {
+export interface Payment
+{
   username: string;
   avatar: string;
   gender: string;
@@ -36,13 +40,17 @@ export interface Payment {
   money: number;
 }
 
-export const mailboxMessage = (message: string) => {
-  if (/^@/.test(message)) {
+export const mailboxMessage = (message: string) =>
+{
+  if (/^@/.test(message))
+  {
     let parser = false;
 
-    message.slice(2).split('<').forEach(e => {
+    message.slice(2).split('<').forEach(e =>
+    {
       const tmp = e.split('>');
-      if (tmp.length === 3) {
+      if (tmp.length === 3)
+      {
         parser = true;
         // roomNotice
 
@@ -52,8 +60,10 @@ export const mailboxMessage = (message: string) => {
           timestamp: Number(tmp[2]),
         };
       }
-      if (tmp.length === 7) {
-        if (/^'\^/.test(tmp[3])) {
+      if (tmp.length === 7)
+      {
+        if (/^'\^/.test(tmp[3]))
+        {
           parser = true;
           const data = {
             username: decode(tmp[0]),
@@ -65,7 +75,8 @@ export const mailboxMessage = (message: string) => {
           };
           // follower
           return data;
-        } else if (/^'\*/.test(tmp[3])) {
+        } else if (/^'\*/.test(tmp[3]))
+        {
           parser = true;
           const data = {
             username: decode(tmp[0]),
@@ -78,7 +89,8 @@ export const mailboxMessage = (message: string) => {
           };
           // like
           return data;
-        } else if (/^'\$/.test(tmp[3])) {
+        } else if (/^'\$/.test(tmp[3]))
+        {
           parser = true;
           const data = {
             username: decode(tmp[0]),

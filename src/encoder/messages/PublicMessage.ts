@@ -1,5 +1,7 @@
-export default (message: any, color: string) => {
-  if (message === 'cut') {
+export default (message: any, color: string) =>
+{
+  if (message === 'cut')
+  {
     return `{0${JSON.stringify({
       m: message,
       mc: color,

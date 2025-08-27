@@ -1,4 +1,5 @@
-export interface UserList {
+export interface UserList
+{
   avatar: string;
   username: string;
   color: string;
@@ -6,12 +7,16 @@ export interface UserList {
   uid: string;
 }
 
-export const userList = (message: string) => {
-  if (message.substr(0, 3) === '%*"') {
+export const userList = (message: string) =>
+{
+  if (message.substr(0, 3) === '%*"')
+  {
     const list: UserList[] = [];
-    message.substr(3).split('<').forEach((e, i) => {
+    message.substr(3).split('<').forEach((e, i) =>
+    {
       const tmp = e.split('>');
-      if (tmp.length >= 8) {
+      if (tmp.length >= 8)
+      {
         list.push({
           avatar: tmp[0],
           username: tmp[2],

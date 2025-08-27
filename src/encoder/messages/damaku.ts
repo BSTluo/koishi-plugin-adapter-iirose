@@ -1,4 +1,5 @@
-export default (message: string, color: string) => {
+export default (message: string, color: string) =>
+{
   const data = {
     t: message,
     c: color,

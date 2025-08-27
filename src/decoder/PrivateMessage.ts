@@ -2,7 +2,8 @@ import { decode } from 'html-entities';
 // import * as api from '../api'
 // import config from '../../config'
 
-interface data {
+interface data
+{
   timestamp: Number;
   uid: string;
   username: string;
@@ -12,7 +13,8 @@ interface data {
   messageId: Number;
 }
 
-export class PrivateMessage {
+export class PrivateMessage
+{
   public timestamp: Number;
   public uid: string;
   public username: string;
@@ -21,7 +23,8 @@ export class PrivateMessage {
   public color: string;
   public messageId: Number;
 
-  constructor(data: data) {
+  constructor(data: data)
+  {
     this.timestamp = data.timestamp;
     this.uid = data.uid;
     this.username = data.username;
@@ -32,15 +35,20 @@ export class PrivateMessage {
   }
 }
 
-export const privateMessage = (message: string) => {
-  if (message.substr(0, 2) === '""') {
+export const privateMessage = (message: string) =>
+{
+  if (message.substr(0, 2) === '""')
+  {
     const item = message.substr(2).split('<');
 
-    for (const msg of item) {
+    for (const msg of item)
+    {
       const tmp = msg.split('>');
 
-      if (tmp.length === 11) {
-        if (/^\d+$/.test(tmp[0])) {
+      if (tmp.length === 11)
+      {
+        if (/^\d+$/.test(tmp[0]))
+        {
           const msg = new PrivateMessage({
             timestamp: Number(tmp[0]),
             uid: tmp[1],

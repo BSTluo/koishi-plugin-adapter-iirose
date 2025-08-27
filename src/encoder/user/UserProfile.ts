@@ -1,3 +1,4 @@
-export default (username: string) => {
+export default (username: string) =>
+{
   return `+-${username}`;
 };
