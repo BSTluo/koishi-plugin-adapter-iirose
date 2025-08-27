@@ -1,0 +1,67 @@
+name: ✨ Feature Request
+description: 建议一个新功能或改进
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你提出功能建议！请简洁地描述你的想法。
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 🚀 功能描述
+      description: 清楚简洁地描述你想要的功能
+      placeholder: 描述你希望添加的功能...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: 🎯 使用场景
+      description: 描述这个功能的典型使用场景
+      placeholder: |
+        例如：
+        - 当用户想要...时，可以...
+        - 在...情况下，能够...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 📊 优先级
+      description: 你认为这个功能的优先级如何？
+      options:
+        - 🔥 高优先级 (核心功能缺失)
+        - 🟡 中优先级 (重要改进)
+        - 🟢 低优先级 (锦上添花)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 💬 额外信息
+      description: 其他相关信息、参考资料或模拟图
+      placeholder: |
+        - 参考资料链接
+        - 其他说明
+        - 可以拖拽图片到这里
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ 检查清单
+      description: 请在提交前检查以下项目
+      options:
+        - label: 我已经搜索了现有的 issues，确认这不是重复的功能请求
+          required: true
+        - label: 我已经阅读了项目文档
+          required: true
+        - label: 这个功能符合项目的目标和范围
+          required: true
