@@ -1,0 +1,78 @@
+name: 🐛 Bug Report
+description: 报告一个 bug 来帮助我们改进
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你报告 bug！请简洁地描述问题。
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 🐛 问题描述
+      description: 清楚简洁地描述遇到的问题
+      placeholder: 描述你遇到的问题...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: 🔄 复现步骤
+      description: 如何复现这个问题？
+      placeholder: |
+        1. 进入 '...'
+        2. 点击 '....'
+        3. 看到错误
+    validations:
+      required: true
+
+  - type: textarea
+    id: system-info
+    attributes:
+      label: 🖥️ 系统信息
+      description: 请在 Koishi 控制台左侧点击信息栏，复制系统信息并粘贴到这里
+      placeholder: |
+        System:
+        OS: Windows 10 10.0.19045
+        CPU: (16) x64 12th Gen Intel(R) Core(TM) i5-12500H
+        Binaries:
+        Node: 22.17.0
+        Yarn: 4.5.3
+        Koishi:
+        Core: 4.18.9
+        Console: 5.30.9
+      render: yaml
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: 插件版本
+      description: koishi-plugin-adapter-iirose 版本
+      placeholder: "例如: 0.4.17"
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots-logs
+    attributes:
+      label: 📸 截图和日志
+      description: 请提供相关截图、错误日志等（记得移除敏感信息如 UID、Cookie）
+      placeholder: |
+        拖拽截图到这里，或粘贴错误日志...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ 检查清单
+      options:
+        - label: 我已经搜索了现有的 issues，确认这不是重复问题
+          required: true
+        - label: 我已经移除了敏感信息
+          required: true
