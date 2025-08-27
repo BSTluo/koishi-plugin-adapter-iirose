@@ -7,8 +7,12 @@
                 "link": "/"
             },
             {
-                "text": "如何开始",
+                "text": "前置安装",
                 "link": "/markdown/firstime/koishi"
+            },
+            {
+                "text": "快速开始",
+                "link": "/markdown/firstime/start"
             }
         ]
     },
