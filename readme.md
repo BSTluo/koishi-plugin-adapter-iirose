@@ -1,35 +1,20 @@
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/initialencounter/mykoishi">
-    <a href="https://koishi.chat/" target="_blank">
-    <img width="160" src="https://koishi.chat/logo.png" alt="logo">
-  </a>
-  </a>
+# koishi-plugin-adapter-iirose 文档
 
-<h3 align="center">koishi-plugin-adapter-iirose</h3>
+这是 koishi-plugin-adapter-iirose 插件的文档站点。
 
-  <p align="center">
-    使koishi机器人平台支持<a href="https://www.iirose.com">IIROSE-蔷薇花园</a>聊天平台
-  </p>
-</div>
+## 本地开发
 
-[![npm](https://img.shields.io/npm/v/koishi-plugin-adapter-iirose?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-adapter-iirose)
+```bash
+git clone https://github.com/Roberta001/koishi-plugin-adapter-iirose.git
+cd koishi-plugin-adapter-iirose
+git checkout docs
+yarn install
+yarn dev
+yarn build
+```
 
-IIROSE-蔷薇花园适配器
+## 文档结构
 
-适合在koishi平台的[蔷薇花园](https://www.iirose.com)宝宝体质的新适配器))
-
-- [x] 基础文字问答
-- [x] 图片回复和图片元素的识别
-- [x] 控制台花园聊天室界面
-- [ ] 使用文档编写
-- [ ] 更多插件适配
-- [x] 回复信息的识别
-- [ ] 音频识别和回复
-- [ ] 词库插件施工
-- [x] 欢迎词插件施工
-- [x] 跟随插件施工
-- [ ] 更多内容！请务必发issue告诉我！
-
-### 正在开发中！
+- `/docs` - 文档源文件
+- `/docs/.vitepress` - VitePress 配置
+- `/docs/markdown` - 各个文档页面
