@@ -30,7 +30,7 @@ export interface whiteList
 export interface damaku
 {
   message: string;
-  color: string | '66ccff';
+  color: string;
 }
 
 export interface move

@@ -265,7 +265,7 @@ export namespace IIROSE_Bot
       roomPassword: Schema.string().default('').description('BOT的初始房间密码(可空)'),
       oldRoomId: Schema.string().default('').description('一般不需要填写，仅内部使用'),
       Signature: Schema.string().default('').description('BOT签名'),
-      color: Schema.string().default('66ccff').description('BOT气泡颜色')
+      color: Schema.string().role('color').default('rgba(102, 204, 255, 1)').description('BOT气泡颜色')
     }).description('BOT配置'),
     Schema.object({
       timeout: Schema.number().min(100).max(5000).default(500).description('bot多久才连接超时(毫秒)'),

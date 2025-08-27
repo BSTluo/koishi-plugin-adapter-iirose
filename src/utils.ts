@@ -17,6 +17,34 @@ import { Logger } from 'koishi';
 
 const logger = new Logger('IIROSE-BOT');
 
+/**
+ * 颜色转换函数：将rgba格式转换为十六进制格式
+ * @param rgba - rgba格式的颜色字符串或十六进制格式的颜色字符串
+ * @returns 六位十六进制格式的颜色字符串（不包含#）
+ */
+export function rgbaToHex(rgba: string): string {
+  // 如果已经是十六进制格式，直接返回
+  if (/^[0-9a-fA-F]{6}$/.test(rgba)) {
+    return rgba;
+  }
+
+  const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  if (!match) {
+    return '66ccff'; // 默认颜色
+  }
+
+  const r = parseInt(match[1]);
+  const g = parseInt(match[2]);
+  const b = parseInt(match[3]);
+  // 忽略alpha通道，只使用RGB
+
+  const rHex = r.toString(16).padStart(2, '0');
+  const gHex = g.toString(16).padStart(2, '0');
+  const bHex = b.toString(16).padStart(2, '0');
+
+  return `${rHex}${gHex}${bHex}`;
+}
+
 export const startEventsServer = (bot: IIROSE_Bot) =>
 {
   let event: (() => boolean)[] = [];

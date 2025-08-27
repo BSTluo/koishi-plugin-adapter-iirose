@@ -31,8 +31,10 @@
   },
   "contributors": [
     "BSTluo <1946831552@qq.com>",
-    "jingming295 <jingming295@gmail.com>"
+    "jingming295 <jingming295@gmail.com>",
+    "shangxueink <1919892171@qq.com>"
   ],
+  "homepage": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/tree/main",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BSTluo/koishi-plugin-adapter-iirose.git"

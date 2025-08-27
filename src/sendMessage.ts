@@ -13,6 +13,7 @@ import { IIROSE_WSsend } from './ws';
 import { musicOrigin } from './event';
 import { messageObjList } from './messageTemp';
 import { } from 'koishi-plugin-filemanager';
+import { rgbaToHex } from './utils';
 
 async function getMediaMetadata(url: string)
 {
@@ -418,10 +419,10 @@ export class IIROSE_BotMessageEncoder<C extends Context = Context> extends Messa
 
     if (this.channelId.startsWith('public:'))
     {
-      this.outDataOringinObj = PublicMessage(this.outDataOringin, this.bot.config.color);
+      this.outDataOringinObj = PublicMessage(this.outDataOringin, rgbaToHex(this.bot.config.color));
     } else if (this.channelId.startsWith('private:'))
     {
-      this.outDataOringinObj = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, this.bot.config.color);
+      this.outDataOringinObj = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, rgbaToHex(this.bot.config.color));
     }
   }
 }
