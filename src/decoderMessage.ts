@@ -7,7 +7,7 @@ import { GetUserListCallback } from './decoder/GetUserListCallback';
 import { Session, h } from 'koishi';
 import { platform } from 'os';
 
-export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
+export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 {
   // 定义会话列表
   // console.log('decoderMessage', obj);
@@ -71,7 +71,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           },
         };
 
-        obj.publicMessage.message = clearMsg(obj.publicMessage.message);
+        obj.publicMessage.message = await clearMsg(obj.publicMessage.message, bot);
 
         const data = obj.publicMessage;
 
@@ -292,7 +292,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
           },
         };
 
-        obj.privateMessage.message = clearMsg(obj.privateMessage.message);
+        obj.privateMessage.message = await clearMsg(obj.privateMessage.message, bot);
         const data = obj.privateMessage;
 
         const session = bot.session({
@@ -666,7 +666,7 @@ export const decoderMessage = (obj: MessageType, bot: IIROSE_Bot) =>
   }
 };
 
-function clearMsg(msg: string)
+async function clearMsg(msg: string, bot: IIROSE_Bot)
 {
   /*
   result规则：
@@ -677,7 +677,7 @@ function clearMsg(msg: string)
     若干个文字过滤项..
   ]
   */
-  const result = [
+  const result: [RegExp, string, string, RegExp, RegExp][] = [
     [/\s*\[\*([\s\S]+)\*\]\s*/g, '<at name="', '"></at>', /\s\[\*/g, /\*\]\s/g],
     [/\s*\[@([\s\S]+)@\]\s*/g, '<at id="', '"></at>', /\s\[\@/g, /\@\]\s/g],
     [/https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif)(#e)*/g, '<img src="', '"></img>', /\[/g, /]/g],
@@ -710,10 +710,28 @@ function clearMsg(msg: string)
         stringTemp.push(v.trim());
       });
 
-      stringTemp.forEach((v, index) =>
+       for (let index = 0; index < stringTemp.length; index++)
       {
-        msg1 = msg1.replace(`\^\$${index}\$\^`, reg[1] + v + reg[2]);
-      });
+        let v = stringTemp[index];
+        let msg = '';
+        if (reg[1].startsWith('<at name="'))
+        {
+          // 处理atname
+          const user = await bot.internal.getUserByName(v);
+
+          msg = `<at id="${user.id}" name="${v}"></at>`;
+        } else if (reg[1].startsWith('<at id="'))
+        {
+          // 处理 atId
+          const user = await bot.internal.getUserById(v)
+          msg = `<at id="${v}" name="${user.name}"></at>`;
+        } else if (reg[1].startsWith('<img src="'))
+        {
+          // 处理 img
+          msg = reg[1] + v + reg[2];
+        }
+        msg1 = msg1.replace(`\^\$${index}\$\^`, msg);
+      }
     }
   }
 
