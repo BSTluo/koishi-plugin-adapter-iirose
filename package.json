@@ -40,10 +40,10 @@
   },
   "peerDependencies": {
     "koishi": "^4.18.8",
-    "koishi-plugin-filemanager": "^0.0.3"
+    "koishi-plugin-filemanager": "^0.0.4"
   },
   "devDependencies": {
     "@types/pako": "^2.0.3",
-    "koishi-plugin-filemanager": "^0.0.3"
+    "koishi-plugin-filemanager": "^0.0.4"
   }
 }
