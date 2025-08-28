@@ -1,0 +1,302 @@
+import { Context, Bot, Fragment, Universal } from 'koishi';
+
+import { MessageInfo, messageObjList as MessageObjListType } from './messageTemp';
+import { IIROSE_BotMessageEncoder } from './sendMessage';
+import { Internal, InternalType } from './internal';
+import { comparePassword } from '../utils/password';
+import { SendOptions } from '@satorijs/protocol';
+import { IIROSE_WSsend, WsClient } from '../utils/ws';
+import kick from '../encoder/admin/kick';
+import mute from '../encoder/admin/mute';
+import { Config } from '../config';
+import { loggerError } from '..';
+
+export class IIROSE_Bot extends Bot<Context>
+{
+  platform: string = 'iirose';
+  socket: WebSocket | undefined = undefined;
+  public messageIdResolvers: ((messageId: string) => void)[] = [];
+  public addData: {
+    uid: string;
+    username: string;
+    avatar: string;
+    room: string;
+    color: string;
+    data: Record<string, any>;
+  }[] = [];
+
+  static inject = ['filemanager'];
+
+  public wsClient: WsClient;
+  public readonly config: Config;
+  private isStarting: boolean = false;
+  private isStarted: boolean = false;
+  private disposed: boolean = false;
+  private userInfoTimeout: NodeJS.Timeout | null = null;
+  private messageObjList: MessageObjListType = {};
+
+  constructor(public ctx: Context, config: Config)
+  {
+    super(ctx, {}, 'iirose-bot');
+
+    this.platform = 'iirose';
+    this.config = config;
+
+    // 重置状态
+    this.isStarting = false;
+    this.isStarted = false;
+    this.disposed = false;
+    this.userInfoTimeout = null;
+
+    this.wsClient = new WsClient(ctx, this);
+
+    if (this.config.smStart && comparePassword(this.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
+    {
+      this.selfId = this.config.smUid;
+      this.userId = this.config.smUid;
+    } else
+    {
+      this.selfId = this.config.uid;
+      this.userId = this.config.uid;
+    }
+  }
+
+  setDisposing(disposing: boolean)
+  {
+    this.disposed = disposing;
+    // 将停用状态传递给 WebSocket 客户端
+    if (this.wsClient && this.wsClient.setDisposing)
+    {
+      this.wsClient.setDisposing(disposing);
+    }
+  }
+
+  async start()
+  {
+    // 检查是否正在停用
+    if (this.disposed)
+    {
+      return;
+    }
+
+    // 防止重复启动
+    if (this.isStarting || this.isStarted)
+    {
+      return;
+    }
+
+    this.isStarting = true;
+
+    try
+    {
+      // 启动 WebSocket 连接
+      await this.wsClient.start();
+
+      this.isStarted = true;
+
+      // 获取自身信息
+      this.userInfoTimeout = setTimeout(async () =>
+      {
+        // 检查是否正在停用
+        if (this.disposed)
+        {
+          return;
+        }
+
+        try
+        {
+          const user = await this.getSelf();
+          this.user = user;
+          // 再次检查是否正在停用，避免在停用过程中上线
+          if (!this.disposed)
+          {
+            this.online();
+          }
+        } catch (error)
+        {
+          if (!this.disposed)
+          {
+            loggerError('获取用户信息失败:', error);
+          }
+        }
+      }, 10000);
+    } finally
+    {
+      this.isStarting = false;
+    }
+  }
+
+  async stop()
+  {
+    // 如果已经停止，直接返回
+    if (this.disposed)
+    {
+      return;
+    }
+
+    // 立即设置停用状态，防止任何新的异步操作
+    this.setDisposing(true);
+
+    // 重置状态
+    this.isStarting = false;
+    this.isStarted = false;
+
+    // 立即清理定时器
+    if (this.userInfoTimeout)
+    {
+      clearTimeout(this.userInfoTimeout);
+      this.userInfoTimeout = null;
+    }
+
+    // 立即下线，防止状态不一致
+    this.offline();
+
+    // 停止 WebSocket 连接
+    if (this.wsClient)
+    {
+      // 使用 Promise.race 限制等待时间
+      await Promise.race([
+        this.wsClient.stop(),
+        new Promise(resolve => setTimeout(resolve, 500)) // 最多等待500ms
+      ]);
+    }
+  }
+
+  async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
+  {
+    if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private')))
+    {
+      return [];
+    }
+    const finalChannelId = guildId ? `${channelId}:${guildId}` : channelId;
+
+    const messageIdPromise = new Promise<string>((resolve, reject) =>
+    {
+      const timeout = setTimeout(() =>
+      {
+        reject(new Error('等待消息ID超时'));
+      }, 3000);
+
+      this.messageIdResolvers.push((messageId: string) =>
+      {
+        clearTimeout(timeout);
+        resolve(messageId);
+      });
+    });
+
+    await new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options).send(content);
+
+    try
+    {
+      const messageId = await messageIdPromise;
+      return [messageId];
+    } catch (error)
+    {
+      return [];
+    }
+  }
+
+  async sendPrivateMessage(userId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
+  {
+    return this.sendMessage(`private:${userId}`, content);
+  }
+
+  async getSelf(): Promise<Universal.User>
+  {
+    let user: Universal.User = await this.getUser(this.config.uid);
+    if (user.id == 'error')
+    {
+      if (this.config.smStart && comparePassword(this.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
+      {
+        user = {
+          id: this.config.smUid,
+          name: this.config.smUsername,
+          avatar: 'http://p26-tt.byteimg.com/origin/pgc-image/cabc74beb5794b97b1b300a2b8817e05'
+        };
+      } else
+      {
+        user = {
+          id: this.config.uid,
+          name: this.config.usename,
+          avatar: 'http://p26-tt.byteimg.com/origin/pgc-image/cabc74beb5794b97b1b300a2b8817e05'
+        };
+      }
+    }
+    return user;
+  }
+
+  async getUser(userId: string, guildId?: string): Promise<Universal.User>
+  {
+    let user: Universal.User = {
+      id: 'error',
+      name: '用户数据库初始化ing',
+      avatar: ''
+    };
+
+    let userData: { username: string; avatar: string; uid?: string; room?: string; color?: string; data?: Record<string, any>; } | undefined = undefined;
+    for (let v of this.addData)
+    {
+      if (v.uid == userId)
+      {
+        userData = v;
+        break;
+      }
+    }
+
+    if (userData == undefined)
+    {
+      return user;
+    }
+
+    user = {
+      id: userId,
+      name: userData.username,
+      avatar: userData.avatar
+    };
+
+    return user;
+  }
+
+  async getMessage(channelId: string, messageId: string)
+  {
+    return this.messageObjList[messageId];
+  }
+
+  setMessage(messageId: string, messageInfo: MessageInfo)
+  {
+    this.messageObjList[messageId] = messageInfo;
+  }
+
+  async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void>
+  {
+    IIROSE_WSsend(this, kick(userName));
+  }
+
+  async muteGuildMember(guildId: string, userName: string, duration: number, reason?: string): Promise<void>
+  {
+    let time: string;
+
+    // 永久禁言
+    if ((duration / 1000) > 99999)
+    {
+      time = '&';
+    } else
+    {
+      time = String(duration / 1000);
+    }
+
+    if (reason == undefined)
+    {
+      reason = '';
+    }
+
+    IIROSE_WSsend(this, mute('all', userName, time, reason));
+  }
+
+  async deleteMessage(channelId: string, messageId: string): Promise<void>
+  {
+    return;
+  }
+
+  internal: InternalType = new Internal(this);
+}
