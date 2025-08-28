@@ -645,11 +645,20 @@ export class WsClient
       fulllogInfo('[DEBUG] wsClient.start() 启动完成');
     } catch (error)
     {
-      loggerError('WebSocket启动失败:', error);
-      fulllogInfo('[DEBUG] wsClient.start() 启动失败，重置状态');
+      // 如果插件正在停用，不记录错误
+      if (!this.disposed) {
+        loggerError('WebSocket启动失败:', error);
+        fulllogInfo('[DEBUG] wsClient.start() 启动失败，重置状态');
+      } else {
+        fulllogInfo('[DEBUG] wsClient.start() 插件正在停用，忽略启动失败');
+      }
       // 确保清理状态
       this.isStarted = false;
-      throw error; // 重新抛出错误，让上层处理
+      
+      // 只有在非停用状态下才重新抛出错误
+      if (!this.disposed) {
+        throw error; // 重新抛出错误，让上层处理
+      }
     } finally
     {
       fulllogInfo('[DEBUG] wsClient.start() 重置启动标志');

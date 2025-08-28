@@ -139,8 +139,13 @@ export class IIROSE_Bot extends Bot<Context>
       fulllogInfo('[DEBUG] bot.start() 完成启动流程');
     } catch (error)
     {
-      loggerError('机器人启动失败:', error);
-      fulllogInfo('[DEBUG] bot.start() 启动失败，重置状态');
+      // 如果插件正在停用，不记录错误
+      if (!this.disposed) {
+        loggerError('机器人启动失败:', error);
+        fulllogInfo('[DEBUG] bot.start() 启动失败，重置状态');
+      } else {
+        fulllogInfo('[DEBUG] bot.start() 插件正在停用，忽略启动失败');
+      }
       this.isStarted = false;
     } finally
     {
