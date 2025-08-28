@@ -15,6 +15,7 @@ export interface Config
   timeoutPlus: number;
   hangUpMode: boolean;
   debugMode: boolean;
+  fullDebugMode: boolean;
   maxRetries: number;
 
   // 可选
@@ -77,5 +78,6 @@ export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
     oldRoomId: Schema.string().default('').description('仅内部使用'),
     debugMode: Schema.boolean().default(false).description('是否 开启调试模式<br>提issue时，请务必开启此项，附上复现问题的日志'),
+    fullDebugMode: Schema.boolean().default(false).description('是否 开启详细调试模式<br>慎重开启'),
   }).description('开发者选项'),
 ]);

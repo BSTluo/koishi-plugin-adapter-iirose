@@ -58,11 +58,13 @@ export let loggerInfo: (message: any, ...args: any[]) => void;
 export let loggerDebug: (message: any, ...args: any[]) => void;
 export let loggerWarn: (message: any, ...args: any[]) => void;
 export let logInfo: (message: any, ...args: any[]) => void;
+export let fulllogInfo: (message: any, ...args: any[]) => void;
 
 const logger = new Logger(`DEV:${name}`);
 
 export function apply(ctx: Context, config: Config)
 {
+
   ctx.on('ready', () =>
   {
     let isDisposing = false;
@@ -73,7 +75,14 @@ export function apply(ctx: Context, config: Config)
     {
       if (config.debugMode)
       {
-        logger.info(message, ...args);
+        logger.info(`[${config.uid}]`, message, ...args);
+      }
+    };
+    fulllogInfo = (message: any, ...args: any[]) =>
+    {
+      if (config.fullDebugMode)
+      {
+        logger.info(`[${config.uid}]`, message, ...args);
       }
     };
     loggerInfo = (message: any, ...args: any[]) =>
@@ -98,7 +107,7 @@ export function apply(ctx: Context, config: Config)
       if (isDisposing) return;
 
       isDisposing = true;
-      logInfo('[IIROSE] 插件正在停用，设置停用标志');
+      fulllogInfo('[IIROSE] 插件正在停用，设置停用标志');
 
       if (bot)
       {
@@ -125,11 +134,11 @@ export function apply(ctx: Context, config: Config)
     {
       if (isDisposing)
       {
-        logInfo('[IIROSE] 插件正在停用，跳过适配器启动');
+        fulllogInfo('[IIROSE] 插件正在停用，跳过适配器启动');
         return;
       }
 
-      logInfo('[IIROSE] 插件准备就绪，开始启动适配器');
+      fulllogInfo('[IIROSE] 插件准备就绪，开始启动适配器');
 
       // 清理旧实例
       if (bot)
@@ -154,31 +163,14 @@ export function apply(ctx: Context, config: Config)
 
       if (isDisposing)
       {
-        logInfo('[IIROSE] 插件正在停用，取消适配器创建');
+        fulllogInfo('[IIROSE] 插件正在停用，取消适配器创建');
         return;
       }
 
       // 创建机器人
-      logInfo(`[IIROSE] 正在创建机器人实例：${config.uid}`);
       bot = new IIROSE_Bot(ctx, config);
 
-      // 启动
-      try
-      {
-        logInfo('[IIROSE] 正在启动机器人');
-        await bot.start();
-
-        if (!isDisposing)
-        {
-          logInfo('[IIROSE] 适配器启动成功');
-        }
-      } catch (error)
-      {
-        if (!isDisposing)
-        {
-          loggerError('[IIROSE] 适配器启动失败:', error);
-        }
-      }
+      fulllogInfo('[IIROSE] 机器人实例创建完成，Koishi 将自动启动');
     });
   });
 }

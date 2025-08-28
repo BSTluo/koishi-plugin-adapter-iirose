@@ -1,8 +1,9 @@
-import { Context, Universal } from 'koishi';
+import { Context, sleep, Universal } from 'koishi';
+import WebSocket from 'ws';
 
 import { startEventsServer, stopEventsServer } from './utils';
 import { getMd5Password, comparePassword } from './password';
-import { loggerError, loggerInfo, loggerWarn, logInfo } from '..';
+import { fulllogInfo, loggerError, loggerInfo, loggerWarn, logInfo } from '..';
 import { decoderMessage } from '../decoder/decoderMessage';
 import { decoder } from '../decoder';
 import { IIROSE_Bot } from '../bot/bot';
@@ -77,6 +78,8 @@ export class WsClient
 
   async prepare()
   {
+    fulllogInfo('[DEBUG] prepare() 开始执行');
+
     const iiroseList = ['m1', 'm2', 'm8', 'm9', 'm'];
     let faseter = 'www';
     let maximumSpeed = 100000;
@@ -85,26 +88,42 @@ export class WsClient
     let retryCount = 0;
     const maxRetries = this.bot.config.maxRetries;
 
+    fulllogInfo(`[DEBUG] prepare() 最大重试次数: ${maxRetries}`);
+
     do
     {
       // 检查是否正在停用
       if (this.disposed)
       {
-        logInfo('websocket准备：插件正在停用，取消连接');
+        fulllogInfo('[DEBUG] prepare() 插件正在停用，取消连接');
         return;
       }
 
+      fulllogInfo(`[DEBUG] prepare() 开始第 ${retryCount + 1} 次尝试连接`);
       allErrors = true;
+
       for (let webIndex of iiroseList)
       {
         // 在每次检查前都验证停用状态
         if (this.disposed)
         {
-          logInfo('websocket准备：插件正在停用，取消连接');
+          fulllogInfo('[DEBUG] prepare() 插件正在停用，取消连接');
           return;
         }
 
-        const speed: number | 'error' = await this.getLatency(`wss://${webIndex}.iirose.com:8778`);
+        fulllogInfo(`[DEBUG] prepare() 测试服务器: ${webIndex}.iirose.com:8778`);
+        fulllogInfo(`[DEBUG] prepare() 测试服务器: ${webIndex}.iirose.com:8778`);
+        let speed: number | 'error' = 'error';
+        try
+        {
+          speed = await this.getLatency(`wss://${webIndex}.iirose.com:8778`);
+          fulllogInfo(`[DEBUG] prepare() 服务器 ${webIndex} 延迟结果: ${speed}`);
+        } catch (error)
+        {
+          fulllogInfo(`[DEBUG] prepare() 服务器 ${webIndex} 测试失败:`, error);
+          speed = 'error';
+        }
+
         if (speed != 'error')
         {
           allErrors = false;
@@ -119,11 +138,13 @@ export class WsClient
       if (allErrors)
       {
         retryCount++;
+        fulllogInfo(`[DEBUG] prepare() 所有服务器连接失败，重试次数: ${retryCount}/${maxRetries}`);
+
         if (retryCount >= maxRetries)
         {
           loggerError('达到最大重试次数，停止连接...');
-          this.ctx.scope.dispose();
-          return;
+          fulllogInfo('[DEBUG] prepare() 达到最大重试次数，抛出错误');
+          throw new Error('所有服务器都无法连接，达到最大重试次数');
         }
 
         loggerWarn('所有服务器都无法连接，将在5秒后重试...');
@@ -167,6 +188,8 @@ export class WsClient
       }
     } while (allErrors && !this.disposed && retryCount < maxRetries);
 
+    fulllogInfo(`[DEBUG] prepare() 连接测试完成，选择服务器: ${faseter}, 延迟: ${maximumSpeed}ms`);
+
     let socket;
     try
     {
@@ -175,8 +198,10 @@ export class WsClient
         faseter = 'www';
       }
 
-      socket = await this.bot.ctx.http.ws(`wss://${faseter}.iirose.com:8778`);
+      fulllogInfo(`[DEBUG] prepare() 开始创建 WebSocket 连接: wss://${faseter}.iirose.com:8778`);
+      socket = new WebSocket(`wss://${faseter}.iirose.com:8778`);
       loggerInfo(`websocket 客户端地址： wss://${faseter}.iirose.com:8778`);
+      fulllogInfo(`[DEBUG] prepare() WebSocket 连接创建成功`);
 
       this.bot.ctx.on('dispose', () =>
       {
@@ -190,13 +215,15 @@ export class WsClient
     {
       if (this.disposed)
       {
-        logInfo('websocket准备：插件正在停用，取消连接');
+        fulllogInfo('[DEBUG] prepare() 插件正在停用，取消连接');
         return;
       }
       loggerError('websocket连接创建失败:', error);
+      fulllogInfo('[DEBUG] prepare() WebSocket 连接创建失败，返回空');
       return;
     }
 
+    fulllogInfo('[DEBUG] prepare() 设置 bot.socket');
     this.bot.socket = socket;
     // socket = this.socket
     // this.socket.binaryType = 'arraybuffer'
@@ -227,8 +254,11 @@ export class WsClient
     //   fp: `@${md5(``)}`
     // };
 
+    fulllogInfo('[DEBUG] prepare() 开始配置登录信息');
+
     if (this.bot.config.smStart && comparePassword(this.bot.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
     {
+      fulllogInfo('[DEBUG] prepare() 使用蔷薇游客模式');
       this.loginObj = {
         r: this.bot.config.smRoom,
         n: this.bot.config.smUsername,
@@ -249,10 +279,22 @@ export class WsClient
       loggerInfo('已启用蔷薇游客模式');
     } else
     {
+      fulllogInfo('[DEBUG] prepare() 使用普通登录模式');
+      fulllogInfo(`[DEBUG] prepare() 检查密码: ${this.bot.config.password ? '有密码' : '无密码'}`);
+
+      const hashedPassword = getMd5Password(this.bot.config.password);
+      if (!hashedPassword)
+      {
+        loggerError('登录失败：密码不能为空');
+        fulllogInfo('[DEBUG] prepare() 密码为空，抛出错误');
+        throw new Error('密码不能为空');
+      }
+
+      fulllogInfo('[DEBUG] prepare() 密码处理成功，创建登录对象');
       this.loginObj = {
         r: room || this.bot.config.roomId,
         n: username || this.bot.config.usename,
-        p: getMd5Password(this.bot.config.password),
+        p: hashedPassword,
         st: 'n',
         mo: this.bot.config.Signature,
         mb: '',
@@ -264,16 +306,21 @@ export class WsClient
     }
     (this.loginObj.lr) ? '' : delete this.loginObj.lr;
 
+    fulllogInfo('[DEBUG] prepare() 设置 WebSocket 事件监听器');
     socket.addEventListener('open', () =>
     {
-
+      fulllogInfo('[DEBUG] WebSocket 连接已打开');
       loggerInfo('websocket 客户端连接中...');
       const loginPack = '*' + JSON.stringify(this.loginObj);
 
+      fulllogInfo('[DEBUG] 发送登录包');
       IIROSE_WSsend(this.bot, loginPack);
+
+      fulllogInfo('[DEBUG] 启动事件服务器');
       this.event = startEventsServer(this.bot);
       // 不要立即设置为在线，等待登录验证成功后再设置
 
+      fulllogInfo('[DEBUG] 设置保活定时器');
       this.live = setInterval(() =>
       {
         if (this.bot.status == Universal.Status.ONLINE)
@@ -283,6 +330,7 @@ export class WsClient
       }, 30 * 1000); // 半分钟发一次包保活
     });
 
+    fulllogInfo('[DEBUG] prepare() 完成，返回 socket');
     return socket;
   }
 
@@ -291,6 +339,7 @@ export class WsClient
    */
   accept()
   {
+    fulllogInfo('[DEBUG] accept() 开始执行');
     this.firstLogin = false;
     this.loginSuccess = false;
     this.isReconnecting = false;
@@ -298,8 +347,11 @@ export class WsClient
     if (!this.bot.socket)
     {
       loggerError('WebSocket connection is not established.');
+      fulllogInfo('[DEBUG] accept() WebSocket 连接未建立，返回');
       return;
     }
+
+    fulllogInfo('[DEBUG] accept() 设置消息监听器');
 
 
     this.bot.socket.addEventListener('message', async (event) =>
@@ -355,39 +407,60 @@ export class WsClient
 
         if (message.startsWith(`%*"0`))
         {
-          const error = new Error(`名字被占用，用户名：${this.loginObj.n}`);
-          loggerError(error.message);
-          throw error;
+          loggerError(`登录失败：名字被占用，用户名：${this.loginObj.n}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
         } else if (message.startsWith(`%*"1`))
         {
-          const error = new Error("用户名不存在");
-          loggerError(error.message);
-          throw error;
+          loggerError("登录失败：用户名不存在");
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
         } else if (message.startsWith(`%*"2`))
         {
-          const error = new Error(`密码错误，用户名：${this.loginObj.n}`);
-          loggerError(error.message);
-          throw error;
+          loggerError(`登录失败：密码错误，用户名：${this.loginObj.n}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
         } else if (message.startsWith(`%*"4`))
         {
-          const error = new Error(`今日可尝试登录次数达到上限，用户名：${this.loginObj.n}`);
-          loggerError(error.message);
-          throw error;
+          loggerError(`登录失败：今日可尝试登录次数达到上限，用户名：${this.loginObj.n}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
         } else if (message.startsWith(`%*"5`))
         {
-          const error = new Error(`房间密码错误，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
-          loggerError(error.message);
-          throw error;
+          loggerError(`登录失败：房间密码错误，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
         } else if (message.startsWith(`%*"x`))
         {
-          const error = new Error(`用户被封禁，用户名：${this.loginObj.n}`);
-          loggerError(error.message);
-          throw error;
+          loggerError(`登录失败：用户被封禁，用户名：${this.loginObj.n}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
         } else if (message.startsWith(`%*"n0`))
         {
-          const error = new Error(`房间无法进入，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
-          loggerError(error.message);
-          throw error;
+          loggerError(`登录失败：房间无法进入，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
         } else if (message.startsWith(`%*"`))
         {
           loggerInfo(`登陆成功：欢迎回来，${this.loginObj.n}！`);
@@ -484,12 +557,18 @@ export class WsClient
           }
 
           loggerWarn("bot保活：时限内没能接收到消息，断开链接");
+          // 设置重连标志，避免close事件重复重连
+          this.isReconnecting = true;
           await this.stop();
 
           // 再次检查是否正在停用
           if (!this.disposed)
           {
+            // 重置状态以允许重新启动
+            this.isStarting = false;
+            this.isStarted = false;
             await this.start();
+            this.isReconnecting = false;
           }
         }, this.bot.config.timeoutPlus);// (默认)5分钟没有消息就断开连接
       }
@@ -501,22 +580,29 @@ export class WsClient
    */
   async start()
   {
+    fulllogInfo('[DEBUG] wsClient.start() 方法被调用');
+    fulllogInfo(`[DEBUG] wsClient.start() 当前状态 - disposed: ${this.disposed}, isStarting: ${this.isStarting}, isStarted: ${this.isStarted}`);
+
     // 检查是否正在停用
     if (this.disposed)
     {
+      fulllogInfo('[DEBUG] wsClient.start() 检测到已停用，直接返回');
       return;
     }
 
     // 防止重复启动
     if (this.isStarting || this.isStarted)
     {
+      fulllogInfo('[DEBUG] wsClient.start() 检测到重复启动，直接返回');
       return;
     }
+
 
     this.isStarting = true;
 
     try
     {
+      fulllogInfo('[DEBUG] wsClient.start() 开始清理旧连接');
       // 清理旧的连接和定时器，但不重置状态
       if (this.live)
       {
@@ -544,29 +630,56 @@ export class WsClient
         this.bot.socket = undefined;
       }
 
+      fulllogInfo('[DEBUG] wsClient.start() 准备调用 prepare()');
       this.bot.socket = await this.prepare();
+
       if (!this.bot.socket)
       {
-        return;
+        fulllogInfo('[DEBUG] wsClient.start() prepare() 返回空，抛出错误');
+        throw new Error('WebSocket连接创建失败');
       }
 
+      fulllogInfo('[DEBUG] wsClient.start() prepare() 成功，调用 accept()');
       this.accept();
       this.isStarted = true;
+      fulllogInfo('[DEBUG] wsClient.start() 启动完成');
+    } catch (error)
+    {
+      loggerError('WebSocket启动失败:', error);
+      fulllogInfo('[DEBUG] wsClient.start() 启动失败，重置状态');
+      // 确保清理状态
+      this.isStarted = false;
+      throw error; // 重新抛出错误，让上层处理
     } finally
     {
+      fulllogInfo('[DEBUG] wsClient.start() 重置启动标志');
       this.isStarting = false;
     }
 
-    this.bot.socket.addEventListener('close', async ({ code, reason }) =>
+    this.bot.socket.addEventListener('error', (error) =>
+    {
+      loggerError('WebSocket 连接错误:', error);
+      if (!this.disposed)
+      {
+        // 错误时也需要清理状态，准备重连
+        this.isStarting = false;
+        this.isStarted = false;
+      }
+    });
+
+    this.bot.socket.addEventListener('close', async (event) =>
     {
       logInfo('websocket测试：接受到停止信号');
+      const code = event.code;
+      const reason = event.reason;
 
       if (
         this.bot.status == Universal.Status.RECONNECT ||
         this.bot.status == Universal.Status.DISCONNECT ||
         this.bot.status == Universal.Status.OFFLINE ||
         code == 1000 ||
-        this.disposed
+        this.disposed ||
+        this.isReconnecting  // 如果是超时保活重连，不执行此处的重连逻辑
       )
       {
 
@@ -672,9 +785,9 @@ export class WsClient
     if (this.bot.socket)
     {
       // 移除所有事件监听器
-      this.bot.socket.removeEventListener('close', () => { });
-      this.bot.socket.removeEventListener('message', () => { });
       this.bot.socket.removeEventListener('open', () => { });
+      this.bot.socket.removeEventListener('message', () => { });
+      this.bot.socket.removeEventListener('close', () => { });
       this.bot.socket.removeEventListener('error', () => { });
 
       // 强制关闭连接
@@ -691,13 +804,17 @@ export class WsClient
    * @param url 
    * @returns 
    */
+  private getLatency(url: string): Promise<number | 'error'>;
   private getLatency(url: string): Promise<number | 'error'>
   {
     return new Promise(async (resolve, reject) =>
     {
+      fulllogInfo(`[DEBUG] getLatency() 开始测试: ${url}`);
+
       // 检查是否正在停用
       if (this.disposed)
       {
+        fulllogInfo(`[DEBUG] getLatency() 已停用，返回错误`);
         resolve('error');
         return;
       }
@@ -705,10 +822,25 @@ export class WsClient
       try
       {
         const startTime = Date.now();
-        const ws = await this.bot.ctx.http.ws(url);
+        fulllogInfo(`[DEBUG] getLatency() 创建 WebSocket 连接`);
+
+        let ws;
+        try
+        {
+          fulllogInfo(`[DEBUG] getLatency() 使用 ws 库创建连接`);
+          ws = new WebSocket(url);
+          fulllogInfo(`[DEBUG] getLatency() ws 库创建成功，状态: ${ws.readyState}`);
+        } catch (wsError)
+        {
+          fulllogInfo(`[DEBUG] getLatency() ws 库创建失败:`, wsError);
+          resolve('error');
+          return;
+        }
         const timeout: number = Math.min(this.bot.config.timeout, 3000); // 最多3秒超时
+        fulllogInfo(`[DEBUG] getLatency() 设置超时时间: ${timeout}ms`);
         const timeoutId = setTimeout(() =>
         {
+          fulllogInfo(`[DEBUG] getLatency() 超时触发，关闭连接`);
           if (ws.readyState === WebSocket.OPEN)
           {
             ws.close();
@@ -733,22 +865,34 @@ export class WsClient
 
         ws.addEventListener('open', () =>
         {
+          fulllogInfo(`[DEBUG] getLatency() WebSocket 连接打开`);
           const endTime = Date.now();
           const latency = endTime - startTime;
+          fulllogInfo(`[DEBUG] getLatency() 延迟测试完成: ${latency}ms`);
           clearTimeout(timeoutId);
           clearInterval(disposingCheckId);
-          resolve(latency);
           ws.close();
+          resolve(latency);
         });
 
         ws.addEventListener('error', (error) =>
         {
+          fulllogInfo(`[DEBUG] getLatency() WebSocket 连接错误:`, error);
           clearTimeout(timeoutId);
           clearInterval(disposingCheckId);
+          ws.close();
           resolve('error');
+        });
+
+        ws.addEventListener('close', () =>
+        {
+          fulllogInfo(`[DEBUG] getLatency() WebSocket 连接已关闭`);
+          clearTimeout(timeoutId);
+          clearInterval(disposingCheckId);
         });
       } catch (error)
       {
+        fulllogInfo(`[DEBUG] getLatency() 捕获异常:`, error);
         resolve('error');
       }
     });

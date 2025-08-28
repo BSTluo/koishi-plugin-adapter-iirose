@@ -11,10 +11,11 @@ export function isMd5Format(password: string): boolean
 /**
  * 获取密码的MD5值，如果已经是MD5格式则直接返回
  */
-export function getMd5Password(password: string): string
+export function getMd5Password(password: string): string | null
 {
-  if (!password) {
-    throw new Error('密码不能为空');
+  if (!password)
+  {
+    return null;
   }
   return isMd5Format(password) ? password : md5(password);
 }
@@ -25,5 +26,5 @@ export function getMd5Password(password: string): string
 export function comparePassword(password: string, targetMd5: string): boolean
 {
   const passwordMd5 = getMd5Password(password);
-  return passwordMd5 === targetMd5;
+  return passwordMd5 !== null && passwordMd5 === targetMd5;
 }
