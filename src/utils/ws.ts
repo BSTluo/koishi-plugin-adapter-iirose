@@ -646,17 +646,20 @@ export class WsClient
     } catch (error)
     {
       // 如果插件正在停用，不记录错误
-      if (!this.disposed) {
+      if (!this.disposed)
+      {
         loggerError('WebSocket启动失败:', error);
         fulllogInfo('[DEBUG] wsClient.start() 启动失败，重置状态');
-      } else {
+      } else
+      {
         fulllogInfo('[DEBUG] wsClient.start() 插件正在停用，忽略启动失败');
       }
       // 确保清理状态
       this.isStarted = false;
-      
+
       // 只有在非停用状态下才重新抛出错误
-      if (!this.disposed) {
+      if (!this.disposed)
+      {
         throw error; // 重新抛出错误，让上层处理
       }
     } finally

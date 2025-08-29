@@ -35,7 +35,7 @@ export const usage = `
 本插件所需依赖：
 
 - http、logger、database
-- [filemanager （需要额外安装）](/market?keyword=filemanager+email:1946831552@qq.com)
+- [filemanager （需要额外安装）](/market?keyword=filemanager)
 
 ---
 

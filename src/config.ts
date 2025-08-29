@@ -46,6 +46,7 @@ export const Config: Schema<Config> = Schema.intersect([
     Signature: Schema.string().default('').description('BOT签名'),
     color: Schema.string().role('color').default('rgba(102, 204, 255, 1)').description('BOT气泡颜色（RGBA）<br>透明度通道无效。')
   }).description('基础设置'),
+
   Schema.object({
     timeout: Schema.number().min(100).max(5000).default(500).description('连接超时限制 (单位：毫秒)'),
     timeoutPlusEnable: Schema.boolean().default(false).description('bot保活：是否开启').experimental(),
