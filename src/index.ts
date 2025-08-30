@@ -21,7 +21,6 @@ export const usage = `
 
 <p>➣ <a href="https://bstluo.github.io/koishi-plugin-adapter-iirose/" target="_blank">完整教程请点击我 查看文档</a></p>
 
-
 1. BOT账号是指 用户名不带[**]的部分。
 2. BOT唯一标识是 唯一标识不带[@@]的纯小写英文+数字部分。
 3. BOT密码，将密码贴入配置项即可。
@@ -47,7 +46,6 @@ export const usage = `
 export * from './bot/bot';
 export * from './utils/ws';
 export * from './bot/event';
-
 
 declare module '@satorijs/core' {
   interface Events extends IIROSE.Events { }
@@ -107,7 +105,6 @@ export function apply(ctx: Context, config: Config)
       if (isDisposing) return;
 
       isDisposing = true;
-      fulllogInfo('[IIROSE] 插件正在停用，设置停用标志');
 
       if (bot)
       {
@@ -134,11 +131,8 @@ export function apply(ctx: Context, config: Config)
     {
       if (isDisposing)
       {
-        fulllogInfo('[IIROSE] 插件正在停用，跳过适配器启动');
         return;
       }
-
-      fulllogInfo('[IIROSE] 插件准备就绪，开始启动适配器');
 
       // 清理旧实例
       if (bot)
@@ -163,14 +157,12 @@ export function apply(ctx: Context, config: Config)
 
       if (isDisposing)
       {
-        fulllogInfo('[IIROSE] 插件正在停用，取消适配器创建');
         return;
       }
 
       // 创建机器人
       bot = new IIROSE_Bot(ctx, config);
 
-      fulllogInfo('[IIROSE] 机器人实例创建完成，Koishi 将自动启动');
     });
   });
 }

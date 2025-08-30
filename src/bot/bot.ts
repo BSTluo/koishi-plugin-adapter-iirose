@@ -37,9 +37,7 @@ export class IIROSE_Bot extends Bot<Context>
 
   constructor(public ctx: Context, config: Config)
   {
-    fulllogInfo('[DEBUG] IIROSE_Bot 构造函数开始');
     super(ctx, {}, 'iirose-bot');
-    fulllogInfo('[DEBUG] IIROSE_Bot 调用 super() 完成');
 
     this.platform = 'iirose';
     this.config = config;
@@ -50,9 +48,7 @@ export class IIROSE_Bot extends Bot<Context>
     this.disposed = false;
     this.userInfoTimeout = null;
 
-    fulllogInfo('[DEBUG] IIROSE_Bot 创建 WsClient');
     this.wsClient = new WsClient(ctx, this);
-    fulllogInfo('[DEBUG] IIROSE_Bot 构造函数完成');
 
     if (this.config.smStart && comparePassword(this.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
     {
@@ -77,36 +73,29 @@ export class IIROSE_Bot extends Bot<Context>
 
   async start()
   {
-    fulllogInfo('[DEBUG] bot.start() 方法被调用');
-    fulllogInfo(`[DEBUG] bot.start() 当前状态 - disposed: ${this.disposed}, isStarting: ${this.isStarting}, isStarted: ${this.isStarted}`);
 
     // 检查是否正在停用
     if (this.disposed)
     {
-      fulllogInfo('[DEBUG] bot.start() 检测到已停用，直接返回');
       return;
     }
 
     // 防止重复启动
     if (this.isStarting || this.isStarted)
     {
-      fulllogInfo('[DEBUG] bot.start() 检测到重复启动，直接返回');
-      fulllogInfo('[DEBUG] 调用栈:', new Error().stack);
       return;
     }
 
-    fulllogInfo('[DEBUG] bot.start() 开始执行启动流程');
-
-    fulllogInfo('[DEBUG] bot.start() 设置启动状态');
     this.isStarting = true;
 
     try
     {
-      fulllogInfo('[DEBUG] bot.start() 准备启动 WebSocket 连接');
+      // 设置为连接中状态
+      this.status = Universal.Status.CONNECT;
+
       // 启动 WebSocket 连接
       await this.wsClient.start();
 
-      fulllogInfo('[DEBUG] bot.start() WebSocket 连接启动成功');
       this.isStarted = true;
 
       // 获取自身信息
@@ -136,22 +125,18 @@ export class IIROSE_Bot extends Bot<Context>
         }
       }, 10000);
 
-      fulllogInfo('[DEBUG] bot.start() 完成启动流程');
     } catch (error)
     {
       // 如果插件正在停用，不记录错误
       if (!this.disposed)
       {
         loggerError('机器人启动失败:', error);
-        fulllogInfo('[DEBUG] bot.start() 启动失败，重置状态');
       } else
       {
-        fulllogInfo('[DEBUG] bot.start() 插件正在停用，忽略启动失败');
       }
       this.isStarted = false;
     } finally
     {
-      fulllogInfo('[DEBUG] bot.start() 重置启动标志');
       this.isStarting = false;
     }
   }
@@ -194,6 +179,8 @@ export class IIROSE_Bot extends Bot<Context>
 
   async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
   {
+    fulllogInfo(`[发送消息] 完整内容:`, JSON.stringify(content, null, 2));
+
     if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private')))
     {
       return [];

@@ -20,7 +20,6 @@ import * as eventType from './event';
 import { IIROSE_Bot } from "./bot";
 import { loggerDebug } from "..";
 
-
 export class Internal
 {
   bot: IIROSE_Bot;

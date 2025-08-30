@@ -102,9 +102,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         session.guildId = guildId;
         session.content = data.message;
         session.channelId = `public:${guildId}`;
-
-
-
         session.selfId = uid;
         session.isDirect = false;
 

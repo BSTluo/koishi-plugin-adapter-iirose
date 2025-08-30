@@ -22,7 +22,6 @@ export class WsClient
   private disposed: boolean = false;
 
   live: NodeJS.Timeout | null = null;
-  private setTimeoutId: NodeJS.Timeout | null = null;
   private reconnectTimer: NodeJS.Timeout | null = null;
 
   loginObj: {
@@ -61,9 +60,20 @@ export class WsClient
     this.isStarted = false;
     this.disposed = false;
     this.live = null;
-    this.setTimeoutId = null;
     this.reconnectTimer = null;
     this.event = [];
+
+    // 确保在插件dispose时清理定时器
+    ctx.on('dispose', () =>
+    {
+      if (this.live)
+      {
+        clearInterval(this.live);
+        this.live = null;
+        logInfo("插件dispose时清理心跳定时器", `实例: ${this.bot.selfId}`);
+      }
+      this.disposed = true;
+    });
   }
 
   setDisposing(disposing: boolean)
@@ -78,7 +88,6 @@ export class WsClient
 
   async prepare()
   {
-    fulllogInfo('[DEBUG] prepare() 开始执行');
 
     const iiroseList = ['m1', 'm2', 'm8', 'm9', 'm'];
     let faseter = 'www';
@@ -88,18 +97,14 @@ export class WsClient
     let retryCount = 0;
     const maxRetries = this.bot.config.maxRetries;
 
-    fulllogInfo(`[DEBUG] prepare() 最大重试次数: ${maxRetries}`);
-
     do
     {
       // 检查是否正在停用
       if (this.disposed)
       {
-        fulllogInfo('[DEBUG] prepare() 插件正在停用，取消连接');
         return;
       }
 
-      fulllogInfo(`[DEBUG] prepare() 开始第 ${retryCount + 1} 次尝试连接`);
       allErrors = true;
 
       for (let webIndex of iiroseList)
@@ -107,20 +112,15 @@ export class WsClient
         // 在每次检查前都验证停用状态
         if (this.disposed)
         {
-          fulllogInfo('[DEBUG] prepare() 插件正在停用，取消连接');
           return;
         }
 
-        fulllogInfo(`[DEBUG] prepare() 测试服务器: ${webIndex}.iirose.com:8778`);
-        fulllogInfo(`[DEBUG] prepare() 测试服务器: ${webIndex}.iirose.com:8778`);
         let speed: number | 'error' = 'error';
         try
         {
           speed = await this.getLatency(`wss://${webIndex}.iirose.com:8778`);
-          fulllogInfo(`[DEBUG] prepare() 服务器 ${webIndex} 延迟结果: ${speed}`);
         } catch (error)
         {
-          fulllogInfo(`[DEBUG] prepare() 服务器 ${webIndex} 测试失败:`, error);
           speed = 'error';
         }
 
@@ -138,12 +138,10 @@ export class WsClient
       if (allErrors)
       {
         retryCount++;
-        fulllogInfo(`[DEBUG] prepare() 所有服务器连接失败，重试次数: ${retryCount}/${maxRetries}`);
 
         if (retryCount >= maxRetries)
         {
           loggerError('达到最大重试次数，停止连接...');
-          fulllogInfo('[DEBUG] prepare() 达到最大重试次数，抛出错误');
           throw new Error('所有服务器都无法连接，达到最大重试次数');
         }
 
@@ -188,8 +186,6 @@ export class WsClient
       }
     } while (allErrors && !this.disposed && retryCount < maxRetries);
 
-    fulllogInfo(`[DEBUG] prepare() 连接测试完成，选择服务器: ${faseter}, 延迟: ${maximumSpeed}ms`);
-
     let socket;
     try
     {
@@ -198,10 +194,8 @@ export class WsClient
         faseter = 'www';
       }
 
-      fulllogInfo(`[DEBUG] prepare() 开始创建 WebSocket 连接: wss://${faseter}.iirose.com:8778`);
       socket = new WebSocket(`wss://${faseter}.iirose.com:8778`);
       loggerInfo(`websocket 客户端地址： wss://${faseter}.iirose.com:8778`);
-      fulllogInfo(`[DEBUG] prepare() WebSocket 连接创建成功`);
 
       this.bot.ctx.on('dispose', () =>
       {
@@ -215,15 +209,12 @@ export class WsClient
     {
       if (this.disposed)
       {
-        fulllogInfo('[DEBUG] prepare() 插件正在停用，取消连接');
         return;
       }
       loggerError('websocket连接创建失败:', error);
-      fulllogInfo('[DEBUG] prepare() WebSocket 连接创建失败，返回空');
       return;
     }
 
-    fulllogInfo('[DEBUG] prepare() 设置 bot.socket');
     this.bot.socket = socket;
     // socket = this.socket
     // this.socket.binaryType = 'arraybuffer'
@@ -254,11 +245,8 @@ export class WsClient
     //   fp: `@${md5(``)}`
     // };
 
-    fulllogInfo('[DEBUG] prepare() 开始配置登录信息');
-
     if (this.bot.config.smStart && comparePassword(this.bot.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
     {
-      fulllogInfo('[DEBUG] prepare() 使用蔷薇游客模式');
       this.loginObj = {
         r: this.bot.config.smRoom,
         n: this.bot.config.smUsername,
@@ -279,18 +267,14 @@ export class WsClient
       loggerInfo('已启用蔷薇游客模式');
     } else
     {
-      fulllogInfo('[DEBUG] prepare() 使用普通登录模式');
-      fulllogInfo(`[DEBUG] prepare() 检查密码: ${this.bot.config.password ? '有密码' : '无密码'}`);
 
       const hashedPassword = getMd5Password(this.bot.config.password);
       if (!hashedPassword)
       {
         loggerError('登录失败：密码不能为空');
-        fulllogInfo('[DEBUG] prepare() 密码为空，抛出错误');
         throw new Error('密码不能为空');
       }
 
-      fulllogInfo('[DEBUG] prepare() 密码处理成功，创建登录对象');
       this.loginObj = {
         r: room || this.bot.config.roomId,
         n: username || this.bot.config.usename,
@@ -306,31 +290,17 @@ export class WsClient
     }
     (this.loginObj.lr) ? '' : delete this.loginObj.lr;
 
-    fulllogInfo('[DEBUG] prepare() 设置 WebSocket 事件监听器');
     socket.addEventListener('open', () =>
     {
-      fulllogInfo('[DEBUG] WebSocket 连接已打开');
       loggerInfo('websocket 客户端连接中...');
       const loginPack = '*' + JSON.stringify(this.loginObj);
 
-      fulllogInfo('[DEBUG] 发送登录包');
       IIROSE_WSsend(this.bot, loginPack);
 
-      fulllogInfo('[DEBUG] 启动事件服务器');
       this.event = startEventsServer(this.bot);
       // 不要立即设置为在线，等待登录验证成功后再设置
-
-      fulllogInfo('[DEBUG] 设置保活定时器');
-      this.live = setInterval(() =>
-      {
-        if (this.bot.status == Universal.Status.ONLINE)
-        {
-          IIROSE_WSsend(this.bot, '');
-        }
-      }, 30 * 1000); // 半分钟发一次包保活
     });
 
-    fulllogInfo('[DEBUG] prepare() 完成，返回 socket');
     return socket;
   }
 
@@ -339,7 +309,6 @@ export class WsClient
    */
   accept()
   {
-    fulllogInfo('[DEBUG] accept() 开始执行');
     this.firstLogin = false;
     this.loginSuccess = false;
     this.isReconnecting = false;
@@ -347,21 +316,11 @@ export class WsClient
     if (!this.bot.socket)
     {
       loggerError('WebSocket connection is not established.');
-      fulllogInfo('[DEBUG] accept() WebSocket 连接未建立，返回');
       return;
     }
 
-    fulllogInfo('[DEBUG] accept() 设置消息监听器');
-
-
     this.bot.socket.addEventListener('message', async (event) =>
     {
-      // 清除旧的延迟
-      if (this.bot.config.timeoutPlus && this.setTimeoutId)
-      {
-        clearTimeout(this.setTimeoutId);
-        this.setTimeoutId = null;
-      }
       const array = new Uint8Array(event.data);
 
       let message: string;
@@ -501,6 +460,9 @@ export class WsClient
         {
           this.loginSuccess = true;
           this.bot.online();
+
+          // 登录成功后启动心跳保活
+          this.startHeartbeat();
         }
         userData.forEach(async (e) =>
         {
@@ -545,33 +507,6 @@ export class WsClient
       {
         decoderMessage(funcObj, this.bot);
       }
-
-      if (this.bot.config.timeoutPlus)
-      {
-        this.setTimeoutId = setTimeout(async () =>
-        {
-          // 检查是否正在停用
-          if (this.disposed)
-          {
-            return;
-          }
-
-          loggerWarn("bot保活：时限内没能接收到消息，断开链接");
-          // 设置重连标志，避免close事件重复重连
-          this.isReconnecting = true;
-          await this.stop();
-
-          // 再次检查是否正在停用
-          if (!this.disposed)
-          {
-            // 重置状态以允许重新启动
-            this.isStarting = false;
-            this.isStarted = false;
-            await this.start();
-            this.isReconnecting = false;
-          }
-        }, this.bot.config.timeoutPlus);// (默认)5分钟没有消息就断开连接
-      }
     });
   }
 
@@ -580,40 +515,28 @@ export class WsClient
    */
   async start()
   {
-    fulllogInfo('[DEBUG] wsClient.start() 方法被调用');
-    fulllogInfo(`[DEBUG] wsClient.start() 当前状态 - disposed: ${this.disposed}, isStarting: ${this.isStarting}, isStarted: ${this.isStarted}`);
 
     // 检查是否正在停用
     if (this.disposed)
     {
-      fulllogInfo('[DEBUG] wsClient.start() 检测到已停用，直接返回');
       return;
     }
 
     // 防止重复启动
     if (this.isStarting || this.isStarted)
     {
-      fulllogInfo('[DEBUG] wsClient.start() 检测到重复启动，直接返回');
       return;
     }
-
 
     this.isStarting = true;
 
     try
     {
-      fulllogInfo('[DEBUG] wsClient.start() 开始清理旧连接');
       // 清理旧的连接和定时器，但不重置状态
       if (this.live)
       {
         clearInterval(this.live);
         this.live = null;
-      }
-
-      if (this.setTimeoutId)
-      {
-        clearTimeout(this.setTimeoutId);
-        this.setTimeoutId = null;
       }
 
       if (this.event.length > 0)
@@ -630,29 +553,23 @@ export class WsClient
         this.bot.socket = undefined;
       }
 
-      fulllogInfo('[DEBUG] wsClient.start() 准备调用 prepare()');
       this.bot.socket = await this.prepare();
 
       if (!this.bot.socket)
       {
-        fulllogInfo('[DEBUG] wsClient.start() prepare() 返回空，抛出错误');
         throw new Error('WebSocket连接创建失败');
       }
 
-      fulllogInfo('[DEBUG] wsClient.start() prepare() 成功，调用 accept()');
       this.accept();
       this.isStarted = true;
-      fulllogInfo('[DEBUG] wsClient.start() 启动完成');
     } catch (error)
     {
       // 如果插件正在停用，不记录错误
       if (!this.disposed)
       {
         loggerError('WebSocket启动失败:', error);
-        fulllogInfo('[DEBUG] wsClient.start() 启动失败，重置状态');
       } else
       {
-        fulllogInfo('[DEBUG] wsClient.start() 插件正在停用，忽略启动失败');
       }
       // 确保清理状态
       this.isStarted = false;
@@ -664,7 +581,6 @@ export class WsClient
       }
     } finally
     {
-      fulllogInfo('[DEBUG] wsClient.start() 重置启动标志');
       this.isStarting = false;
     }
 
@@ -681,62 +597,42 @@ export class WsClient
 
     this.bot.socket.addEventListener('close', async (event) =>
     {
-      logInfo('websocket测试：接受到停止信号');
       const code = event.code;
-      const reason = event.reason;
-
+      // 检查是否应该重连
       if (
         this.bot.status == Universal.Status.RECONNECT ||
         this.bot.status == Universal.Status.DISCONNECT ||
         this.bot.status == Universal.Status.OFFLINE ||
         code == 1000 ||
-        this.disposed ||
-        this.isReconnecting  // 如果是超时保活重连，不执行此处的重连逻辑
+        this.disposed
       )
       {
-
-        logInfo("websocket停止：因为某种原因不被动进行重启");
-        logInfo("websocket停止：↑如果是因为bot保活，那上面那个就是预期行为");
-
-        if (this.disposed)
-        {
-          logInfo("websocket停止：插件正在停用，不进行重连");
-        }
+        logInfo("websocket停止：正常关闭，不重连");
         return;
       }
 
-      // 立即检查是否正在停用，避免不必要的重连
+      // 检查是否正在停用
       if (this.disposed)
       {
         loggerInfo("websocket重连：插件正在停用，取消重连");
         return;
       }
 
-      loggerWarn(`websocket closed with ${code}`);
+      loggerWarn(`websocket异常关闭，代码: ${code}，将在5秒后重连`);
 
-      // 重连逻辑
+      // 重连
       if (!this.disposed)
       {
-        // 重置状态以允许重连
         this.isStarting = false;
         this.isStarted = false;
 
-        // 延迟5秒后重连，但要持续检查停用状态
         this.reconnectTimer = setTimeout(async () =>
         {
-          if (this.disposed)
-          {
-            return;
-          }
+          if (this.disposed) return;
 
           try
           {
-            this.bot.socket = await this.prepare();
-            if (this.bot.socket && !this.disposed)
-            {
-              this.accept();
-              this.isStarted = true;
-            }
+            await this.start();
           } catch (error)
           {
             if (!this.disposed)
@@ -749,6 +645,90 @@ export class WsClient
     });
   }
 
+  /**
+   * 启动心跳保活
+   */
+  private startHeartbeat()
+  {
+    // 清理旧的心跳定时器（如果存在）
+    if (this.live)
+    {
+      clearInterval(this.live);
+      this.live = null;
+      logInfo("清理旧的心跳定时器", `实例: ${this.bot.selfId}`);
+    }
+
+    // 设置基础心跳包保活
+    if (this.bot.config.keepAliveEnable)
+    {
+      logInfo("启动心跳保活", `实例: ${this.bot.selfId}, 间隔: 30秒`);
+      this.live = setInterval(() =>
+      {
+        if (this.bot.status == Universal.Status.ONLINE && !this.disposed)
+        {
+          try
+          {
+            // 检查WebSocket连接状态
+            if (!this.bot.socket || this.bot.socket.readyState !== WebSocket.OPEN)
+            {
+              loggerWarn("心跳保活检测到连接异常", `实例: ${this.bot.selfId}, readyState: ${this.bot.socket?.readyState}`);
+              // 触发重连
+              this.handleConnectionLoss();
+              return;
+            }
+
+            fulllogInfo("发送空包（心跳保活）", `实例: ${this.bot.selfId}`);
+            IIROSE_WSsend(this.bot, '');
+          } catch (error)
+          {
+            loggerError("心跳保活发送失败", `实例: ${this.bot.selfId}, 错误: ${error}`);
+            // 触发重连
+            this.handleConnectionLoss();
+          }
+        }
+      }, 30 * 1000); // 半分钟发一次包保活
+    }
+  }
+
+  /**
+   * 处理连接丢失
+   */
+  private handleConnectionLoss()
+  {
+    if (this.disposed || this.isReconnecting)
+    {
+      return; // 避免重复处理
+    }
+
+    loggerWarn("检测到连接丢失，准备重连", `实例: ${this.bot.selfId}`);
+    this.isReconnecting = true;
+
+    // 清理当前连接
+    if (this.bot.socket)
+    {
+      this.bot.socket.close();
+    }
+
+    // 延迟重连，避免频繁重连
+    setTimeout(async () =>
+    {
+      if (!this.disposed)
+      {
+        try
+        {
+          await this.stop();
+          await sleep(1000);
+          await this.start();
+        } catch (error)
+        {
+          loggerError("重连失败", `实例: ${this.bot.selfId}, 错误: ${error}`);
+        } finally
+        {
+          this.isReconnecting = false;
+        }
+      }
+    }, 5000);
+  }
 
   /**
    * 关闭ws通信
@@ -773,12 +753,7 @@ export class WsClient
     {
       clearInterval(this.live);
       this.live = null;
-    }
-
-    if (this.setTimeoutId)
-    {
-      clearTimeout(this.setTimeoutId);
-      this.setTimeoutId = null;
+      logInfo("停止时清理心跳定时器", `实例: ${this.bot.selfId}`);
     }
 
     if (this.reconnectTimer)
@@ -821,12 +796,10 @@ export class WsClient
   {
     return new Promise(async (resolve, reject) =>
     {
-      fulllogInfo(`[DEBUG] getLatency() 开始测试: ${url}`);
 
       // 检查是否正在停用
       if (this.disposed)
       {
-        fulllogInfo(`[DEBUG] getLatency() 已停用，返回错误`);
         resolve('error');
         return;
       }
@@ -834,25 +807,19 @@ export class WsClient
       try
       {
         const startTime = Date.now();
-        fulllogInfo(`[DEBUG] getLatency() 创建 WebSocket 连接`);
 
         let ws;
         try
         {
-          fulllogInfo(`[DEBUG] getLatency() 使用 ws 库创建连接`);
           ws = new WebSocket(url);
-          fulllogInfo(`[DEBUG] getLatency() ws 库创建成功，状态: ${ws.readyState}`);
         } catch (wsError)
         {
-          fulllogInfo(`[DEBUG] getLatency() ws 库创建失败:`, wsError);
           resolve('error');
           return;
         }
         const timeout: number = Math.min(this.bot.config.timeout, 3000); // 最多3秒超时
-        fulllogInfo(`[DEBUG] getLatency() 设置超时时间: ${timeout}ms`);
         const timeoutId = setTimeout(() =>
         {
-          fulllogInfo(`[DEBUG] getLatency() 超时触发，关闭连接`);
           if (ws.readyState === WebSocket.OPEN)
           {
             ws.close();
@@ -877,10 +844,8 @@ export class WsClient
 
         ws.addEventListener('open', () =>
         {
-          fulllogInfo(`[DEBUG] getLatency() WebSocket 连接打开`);
           const endTime = Date.now();
           const latency = endTime - startTime;
-          fulllogInfo(`[DEBUG] getLatency() 延迟测试完成: ${latency}ms`);
           clearTimeout(timeoutId);
           clearInterval(disposingCheckId);
           ws.close();
@@ -889,7 +854,6 @@ export class WsClient
 
         ws.addEventListener('error', (error) =>
         {
-          fulllogInfo(`[DEBUG] getLatency() WebSocket 连接错误:`, error);
           clearTimeout(timeoutId);
           clearInterval(disposingCheckId);
           ws.close();
@@ -898,21 +862,17 @@ export class WsClient
 
         ws.addEventListener('close', () =>
         {
-          fulllogInfo(`[DEBUG] getLatency() WebSocket 连接已关闭`);
           clearTimeout(timeoutId);
           clearInterval(disposingCheckId);
         });
       } catch (error)
       {
-        fulllogInfo(`[DEBUG] getLatency() 捕获异常:`, error);
         resolve('error');
       }
     });
   }
 
 }
-
-
 export function IIROSE_WSsend(bot: IIROSE_Bot, data: string)
 {
   if (!bot.socket)

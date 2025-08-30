@@ -11,8 +11,7 @@ export interface Config
   Signature: string;
   color: string;
   timeout: number;
-  timeoutPlusEnable: boolean;
-  timeoutPlus: number;
+  keepAliveEnable: boolean;
   hangUpMode: boolean;
   debugMode: boolean;
   fullDebugMode: boolean;
@@ -44,16 +43,18 @@ export const Config: Schema<Config> = Schema.intersect([
     roomId: Schema.string().required().description('BOT的初始房间地址<br>`不带[__]的部分`').pattern(/([a-z0-9]{13})/),
     roomPassword: Schema.string().default('').description('BOT的初始房间密码(可空)'),
     Signature: Schema.string().default('').description('BOT签名'),
-    color: Schema.string().role('color').default('rgba(102, 204, 255, 1)').description('BOT气泡颜色（RGBA）<br>透明度通道无效。')
   }).description('基础设置'),
 
   Schema.object({
-    timeout: Schema.number().min(100).max(5000).default(500).description('连接超时限制 (单位：毫秒)'),
-    timeoutPlusEnable: Schema.boolean().default(false).description('bot保活：是否开启').experimental(),
-    timeoutPlus: Schema.number().min(200000).default(500000).description('bot保活：多久后服务器仍未响应就强制重连 (单位：毫秒)').experimental(),
+    color: Schema.string().role('color').default('rgba(102, 204, 255, 1)').description('BOT气泡颜色（RGBA）<br>透明度通道无效。'),
     hangUpMode: Schema.boolean().default(false).description('是否开启 挂机模式（iirose平台展示的账号状态）'),
-    maxRetries: Schema.number().min(1).max(100).default(10).description('连接失败时的最大重试次数<br>达到后 将自动关闭插件。'),
   }).description('进阶设置'),
+
+  Schema.object({
+    timeout: Schema.number().min(100).max(5000).default(500).description('连接超时限制 (单位：毫秒)'),
+    keepAliveEnable: Schema.boolean().default(true).description('bot保活：是否开启基础心跳包'),
+    maxRetries: Schema.number().min(1).max(100).default(10).description('连接失败时的最大重试次数<br>达到后 将自动关闭插件。'),
+  }).description('连接设置'),
   Schema.union([
     Schema.object({
       password: Schema.const('ec3a4ac482b483ac02d26e440aa0a948d309c822').required(),

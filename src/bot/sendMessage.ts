@@ -14,6 +14,7 @@ import { IIROSE_Bot } from './bot';
 import FormData from 'form-data';
 
 import fs from 'node:fs';
+import { logInfo } from '..';
 
 async function getMediaMetadata(url: string, ctx: Context)
 {
@@ -228,6 +229,34 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         break;
       }
 
+      case 'i18n': {
+        try
+        {
+          const path = attrs?.path;
+          if (path && this.bot.ctx.i18n)
+          {
+            const locales = this.bot.ctx.i18n.fallback([]);
+            try
+            {
+              const text = this.bot.ctx.i18n.text(locales, [path], attrs || {});
+              if (text && typeof text === 'string')
+              {
+                this.outDataOringin += text;
+                break;
+              }
+            } catch (e)
+            {
+              // i18n解析失败，使用fallback
+            }
+          }
+          this.outDataOringin += `[${path || 'i18n'}]`;
+        } catch (error)
+        {
+          this.outDataOringin += `[${attrs?.path || 'i18n'}]`;
+        }
+        break;
+      }
+
       case 'at': {
         if (attrs.hasOwnProperty('id'))
         {
@@ -250,10 +279,12 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         }
         break;
       }
+
       case 'a': {
         this.outDataOringin += attrs.href;
         break;
       }
+
       case 'markdown': {
         this.outDataOringin += `\`\`\`\n${attrs.content}`;
         break;
@@ -318,8 +349,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           // formData.append(key, value); 加了这个会导致上传失败，意义不明
           // });
 
-
-
           // 发送formData到后端
 
           // 发送formData到后端
@@ -345,8 +374,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
           const url = await this.bot.ctx.filemanager.img.upload(file, `${this.bot.ctx.filemanager.makeTempName()}.png`);
           this.outDataOringin += `[${url}#e]`;
-
-
         } catch (error)
         {
           this.outDataOringin += '[图片显示异常]';
@@ -357,6 +384,13 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
       }
 
       case 'p': {
+        // p元素处理完子元素后需要添加换行符
+        break;
+      }
+
+      case 'br': {
+        // br元素直接添加换行符
+        this.outDataOringin += '\n';
         break;
       }
 
@@ -394,15 +428,22 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
     }
     if (children.length > 0)
     {
-      if (this.outDataOringin.length > 0) { this.outDataOringin += '\n'; }
-
       for (const h of children)
       {
         await this.visit(h);
       }
     }
 
-    if (this.outDataOringin.length <= 0) { return; }
+    // p元素 处理完子元素后需要添加换行符
+    if (type === 'p' && this.outDataOringin.length > 0)
+    {
+      this.outDataOringin += '\n';
+    }
+
+    if (this.outDataOringin.length <= 0)
+    {
+      return;
+    }
 
     if (this.channelId.startsWith('public:'))
     {
