@@ -3,7 +3,7 @@
 :::warning 系统要求
 本教程以 Windows 系统为例演示完整流程
 
-**最低系统要求：** Windows Server 2012 或更高版本
+**最低系统要求：** Windows Server 2014 或更高版本
 :::
 
 ## 机器人认证须知
