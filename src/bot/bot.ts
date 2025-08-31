@@ -179,7 +179,7 @@ export class IIROSE_Bot extends Bot<Context>
 
   async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
   {
-    fulllogInfo(`[发送消息] 完整内容:`, JSON.stringify(content, null, 2));
+    fulllogInfo(`[发送消息] 完整内容:`, content);
 
     if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private')))
     {

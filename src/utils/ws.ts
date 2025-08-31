@@ -62,18 +62,6 @@ export class WsClient
     this.live = null;
     this.reconnectTimer = null;
     this.event = [];
-
-    // 确保在插件dispose时清理定时器
-    ctx.on('dispose', () =>
-    {
-      if (this.live)
-      {
-        clearInterval(this.live);
-        this.live = null;
-        logInfo("插件dispose时清理心跳定时器", `实例: ${this.bot.selfId}`);
-      }
-      this.disposed = true;
-    });
   }
 
   setDisposing(disposing: boolean)
@@ -299,6 +287,19 @@ export class WsClient
 
       this.event = startEventsServer(this.bot);
       // 不要立即设置为在线，等待登录验证成功后再设置
+
+      // 清理旧的心跳定时器（如果存在）
+      if (this.live)
+      {
+        clearInterval(this.live);
+        this.live = null;
+      }
+
+      // 设置基础心跳包保活
+      if (this.bot.config.keepAliveEnable)
+      {
+        this.startHeartbeat();
+      }
     });
 
     return socket;
@@ -460,9 +461,6 @@ export class WsClient
         {
           this.loginSuccess = true;
           this.bot.online();
-
-          // 登录成功后启动心跳保活
-          this.startHeartbeat();
         }
         userData.forEach(async (e) =>
         {
@@ -515,7 +513,6 @@ export class WsClient
    */
   async start()
   {
-
     // 检查是否正在停用
     if (this.disposed)
     {
@@ -532,26 +529,14 @@ export class WsClient
 
     try
     {
-      // 清理旧的连接和定时器，但不重置状态
-      if (this.live)
+      // 如果不是重连状态，设置为连接中
+      if (this.bot.status !== Universal.Status.RECONNECT)
       {
-        clearInterval(this.live);
-        this.live = null;
+        this.bot.status = Universal.Status.CONNECT;
       }
 
-      if (this.event.length > 0)
-      {
-        stopEventsServer(this.event);
-        this.event = [];
-      }
-
-      if (this.bot.socket)
-      {
-        this.bot.socket.removeEventListener('close', () => { });
-        this.bot.socket.removeEventListener('message', () => { });
-        this.bot.socket.close();
-        this.bot.socket = undefined;
-      }
+      // 清理旧的连接和定时器
+      this.cleanup();
 
       this.bot.socket = await this.prepare();
 
@@ -561,6 +546,7 @@ export class WsClient
       }
 
       this.accept();
+      this.setupEventListeners();
       this.isStarted = true;
     } catch (error)
     {
@@ -568,8 +554,6 @@ export class WsClient
       if (!this.disposed)
       {
         loggerError('WebSocket启动失败:', error);
-      } else
-      {
       }
       // 确保清理状态
       this.isStarted = false;
@@ -583,146 +567,179 @@ export class WsClient
     {
       this.isStarting = false;
     }
+  }
+
+  /**
+   * 清理连接和定时器
+   */
+  private cleanup()
+  {
+    if (this.live)
+    {
+      clearInterval(this.live);
+      this.live = null;
+    }
+
+    if (this.reconnectTimer)
+    {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
+    if (this.event.length > 0)
+    {
+      stopEventsServer(this.event);
+      this.event = [];
+    }
+
+    if (this.bot.socket)
+    {
+      // 移除所有事件监听器
+      this.bot.socket.removeEventListener('open', () => { });
+      this.bot.socket.removeEventListener('message', () => { });
+      this.bot.socket.removeEventListener('close', () => { });
+      this.bot.socket.removeEventListener('error', () => { });
+
+      if (this.bot.socket.readyState === WebSocket.OPEN || this.bot.socket.readyState === WebSocket.CONNECTING)
+      {
+        this.bot.socket.close();
+      }
+      this.bot.socket = undefined;
+    }
+  }
+
+  /**
+   * 设置WebSocket事件监听器
+   */
+  private setupEventListeners()
+  {
+    if (!this.bot.socket) return;
 
     this.bot.socket.addEventListener('error', (error) =>
     {
       loggerError('WebSocket 连接错误:', error);
       if (!this.disposed)
       {
-        // 错误时也需要清理状态，准备重连
-        this.isStarting = false;
-        this.isStarted = false;
+        this.handleConnectionLoss();
       }
     });
 
     this.bot.socket.addEventListener('close', async (event) =>
     {
       const code = event.code;
+
       // 检查是否应该重连
       if (
         this.bot.status == Universal.Status.RECONNECT ||
         this.bot.status == Universal.Status.DISCONNECT ||
         this.bot.status == Universal.Status.OFFLINE ||
         code == 1000 ||
-        this.disposed
+        this.disposed ||
+        this.isReconnecting
       )
       {
         logInfo("websocket停止：正常关闭，不重连");
         return;
       }
 
-      // 检查是否正在停用
-      if (this.disposed)
-      {
-        loggerInfo("websocket重连：插件正在停用，取消重连");
-        return;
-      }
-
       loggerWarn(`websocket异常关闭，代码: ${code}，将在5秒后重连`);
-
-      // 重连
-      if (!this.disposed)
-      {
-        this.isStarting = false;
-        this.isStarted = false;
-
-        this.reconnectTimer = setTimeout(async () =>
-        {
-          if (this.disposed) return;
-
-          try
-          {
-            await this.start();
-          } catch (error)
-          {
-            if (!this.disposed)
-            {
-              loggerError("websocket重连失败:", error);
-            }
-          }
-        }, 5000);
-      }
+      this.handleConnectionLoss();
     });
   }
 
   /**
-   * 启动心跳保活
+   * 启动心跳保活机制
    */
   private startHeartbeat()
   {
-    // 清理旧的心跳定时器（如果存在）
     if (this.live)
     {
       clearInterval(this.live);
-      this.live = null;
-      logInfo("清理旧的心跳定时器", `实例: ${this.bot.selfId}`);
     }
 
-    // 设置基础心跳包保活
-    if (this.bot.config.keepAliveEnable)
+    this.live = setInterval(() =>
     {
-      logInfo("启动心跳保活", `实例: ${this.bot.selfId}, 间隔: 30秒`);
-      this.live = setInterval(() =>
+      if (this.disposed)
       {
-        if (this.bot.status == Universal.Status.ONLINE && !this.disposed)
-        {
-          try
-          {
-            // 检查WebSocket连接状态
-            if (!this.bot.socket || this.bot.socket.readyState !== WebSocket.OPEN)
-            {
-              loggerWarn("心跳保活检测到连接异常", `实例: ${this.bot.selfId}, readyState: ${this.bot.socket?.readyState}`);
-              // 触发重连
-              this.handleConnectionLoss();
-              return;
-            }
+        return;
+      }
 
-            fulllogInfo("发送空包（心跳保活）", `实例: ${this.bot.selfId}`);
-            IIROSE_WSsend(this.bot, '');
-          } catch (error)
+      if (this.bot.socket)
+      {
+        if (this.bot.socket.readyState === WebSocket.OPEN)
+        {
+          if (this.bot.status == Universal.Status.ONLINE)
           {
-            loggerError("心跳保活发送失败", `实例: ${this.bot.selfId}, 错误: ${error}`);
-            // 触发重连
-            this.handleConnectionLoss();
+            logInfo(`发送空包（心跳保活） 实例: ${this.bot.user?.id || 'unknown'}`);
+            IIROSE_WSsend(this.bot, '');
           }
+        } else if (this.bot.socket.readyState === WebSocket.CLOSED || this.bot.socket.readyState === WebSocket.CLOSING)
+        {
+          loggerWarn(`心跳保活检测到连接异常 实例: ${this.bot.user?.id || 'unknown'}, readyState: ${this.bot.socket.readyState}`);
+          this.handleConnectionLoss();
         }
-      }, 30 * 1000); // 半分钟发一次包保活
-    }
+      } else
+      {
+        loggerWarn(`心跳保活检测到socket为空 实例: ${this.bot.user?.id || 'unknown'}`);
+        this.handleConnectionLoss();
+      }
+    }, 30 * 1000); // 30秒心跳间隔
   }
 
   /**
-   * 处理连接丢失
+   * 处理连接丢失，执行重连逻辑
    */
   private handleConnectionLoss()
   {
-    if (this.disposed || this.isReconnecting)
+    if (this.isReconnecting || this.disposed)
     {
-      return; // 避免重复处理
+      return; // 避免重复重连
     }
 
-    loggerWarn("检测到连接丢失，准备重连", `实例: ${this.bot.selfId}`);
+    loggerWarn(`检测到连接丢失，准备重连 实例: ${this.bot.user?.id || 'unknown'}`);
+
     this.isReconnecting = true;
+    this.isStarting = false;
+    this.isStarted = false;
+
+    // 设置机器人状态为重连中
+    this.bot.status = Universal.Status.RECONNECT;
 
     // 清理当前连接
-    if (this.bot.socket)
-    {
-      this.bot.socket.close();
-    }
+    this.cleanup();
 
-    // 延迟重连，避免频繁重连
-    setTimeout(async () =>
+    // 设置重连定时器
+    this.reconnectTimer = setTimeout(async () =>
     {
-      if (!this.disposed)
+      if (this.disposed)
       {
-        try
+        this.isReconnecting = false;
+        return;
+      }
+
+      try
+      {
+        loggerInfo(`开始重连 实例: ${this.bot.user?.id || 'unknown'}`);
+        // 设置为连接中状态
+        this.bot.status = Universal.Status.CONNECT;
+
+        await this.start();
+        this.isReconnecting = false;
+      } catch (error)
+      {
+        if (!this.disposed)
         {
-          await this.stop();
-          await sleep(1000);
-          await this.start();
-        } catch (error)
-        {
-          loggerError("重连失败", `实例: ${this.bot.selfId}, 错误: ${error}`);
-        } finally
+          loggerError(`重连失败 实例: ${this.bot.user?.id || 'unknown'}:`, error);
+          // 如果重连失败，等待更长时间后再次尝试
+          this.isReconnecting = false;
+          setTimeout(() =>
+          {
+            if (!this.disposed)
+            {
+              this.handleConnectionLoss();
+            }
+          }, 10000); // 10秒后再次尝试
+        } else
         {
           this.isReconnecting = false;
         }
@@ -753,7 +770,6 @@ export class WsClient
     {
       clearInterval(this.live);
       this.live = null;
-      logInfo("停止时清理心跳定时器", `实例: ${this.bot.selfId}`);
     }
 
     if (this.reconnectTimer)
