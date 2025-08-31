@@ -18,7 +18,6 @@ import { Stock } from '../decoder/Stock';
 import { IIROSE_WSsend } from '../utils/ws';
 import * as eventType from './event';
 import { IIROSE_Bot } from "./bot";
-import { loggerDebug } from "..";
 
 export class Internal
 {
@@ -50,15 +49,15 @@ export class Internal
     {
       if (this.bot.config.roomId === roomId)
       {
-        return loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
+        return this.bot.loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
       }
       this.bot.config.roomId = this.bot.config.roomId;
-      return loggerDebug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
+      return this.bot.loggerDebug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
     }
 
     if (this.bot.config.roomId === roomId)
     {
-      return loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
+      return this.bot.loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
     }
     this.bot.config.oldRoomId = this.bot.config.roomId;
     this.bot.config.roomId = roomId;

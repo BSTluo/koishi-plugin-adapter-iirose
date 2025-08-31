@@ -3,7 +3,6 @@ import WebSocket from 'ws';
 
 import { startEventsServer, stopEventsServer } from './utils';
 import { getMd5Password, comparePassword } from './password';
-import { fulllogInfo, loggerError, loggerInfo, loggerWarn, logInfo } from '..';
 import { decoderMessage } from '../decoder/decoderMessage';
 import { decoder } from '../decoder';
 import { IIROSE_Bot } from '../bot/bot';
@@ -129,11 +128,11 @@ export class WsClient
 
         if (retryCount >= maxRetries)
         {
-          loggerError('达到最大重试次数，停止连接...');
+          this.bot.loggerError('达到最大重试次数，停止连接...');
           throw new Error('所有服务器都无法连接，达到最大重试次数');
         }
 
-        loggerWarn('所有服务器都无法连接，将在5秒后重试...');
+        this.bot.loggerWarn('所有服务器都无法连接，将在5秒后重试...');
 
         // 使用可中断的延迟机制
         let cancelled = false;
@@ -145,7 +144,7 @@ export class WsClient
             if (this.disposed)
             {
               clearInterval(checkInterval);
-              logInfo('websocket准备：插件正在停用，取消连接');
+              this.bot.logInfo('websocket准备：插件正在停用，取消连接');
               cancelled = true;
               resolve();
               return;
@@ -169,7 +168,7 @@ export class WsClient
       // 再次检查
       if (this.disposed)
       {
-        logInfo('websocket准备：插件正在停用，取消连接');
+        this.bot.logInfo('websocket准备：插件正在停用，取消连接');
         return;
       }
     } while (allErrors && !this.disposed && retryCount < maxRetries);
@@ -183,7 +182,7 @@ export class WsClient
       }
 
       socket = new WebSocket(`wss://${faseter}.iirose.com:8778`);
-      loggerInfo(`websocket 客户端地址： wss://${faseter}.iirose.com:8778`);
+      this.bot.loggerInfo(`websocket 客户端地址： wss://${faseter}.iirose.com:8778`);
 
       this.bot.ctx.on('dispose', () =>
       {
@@ -199,7 +198,7 @@ export class WsClient
       {
         return;
       }
-      loggerError('websocket连接创建失败:', error);
+      this.bot.loggerError('websocket连接创建失败:', error);
       return;
     }
 
@@ -252,14 +251,14 @@ export class WsClient
         fp: `@${md5(this.bot.config.smUsername)}`
       };
 
-      loggerInfo('已启用蔷薇游客模式');
+      this.bot.loggerInfo('已启用蔷薇游客模式');
     } else
     {
 
       const hashedPassword = getMd5Password(this.bot.config.password);
       if (!hashedPassword)
       {
-        loggerError('登录失败：密码不能为空');
+        this.bot.loggerError('登录失败：密码不能为空');
         throw new Error('密码不能为空');
       }
 
@@ -280,14 +279,12 @@ export class WsClient
 
     socket.addEventListener('open', () =>
     {
-      loggerInfo('websocket 客户端连接中...');
+      this.bot.loggerInfo('websocket 客户端连接中...');
       const loginPack = '*' + JSON.stringify(this.loginObj);
 
       IIROSE_WSsend(this.bot, loginPack);
 
       this.event = startEventsServer(this.bot);
-      // 不要立即设置为在线，等待登录验证成功后再设置
-
       // 清理旧的心跳定时器（如果存在）
       if (this.live)
       {
@@ -316,7 +313,7 @@ export class WsClient
     // 花园登陆报文
     if (!this.bot.socket)
     {
-      loggerError('WebSocket connection is not established.');
+      this.bot.loggerError('WebSocket connection is not established.');
       return;
     }
 
@@ -367,7 +364,7 @@ export class WsClient
 
         if (message.startsWith(`%*"0`))
         {
-          loggerError(`登录失败：名字被占用，用户名：${this.loginObj.n}`);
+          this.bot.loggerError(`登录失败：名字被占用，用户名：${this.loginObj.n}`);
           this.bot.status = Universal.Status.OFFLINE;
           await this.bot.stop();
           await sleep(1000);
@@ -375,7 +372,7 @@ export class WsClient
           return;
         } else if (message.startsWith(`%*"1`))
         {
-          loggerError("登录失败：用户名不存在");
+          this.bot.loggerError("登录失败：用户名不存在");
           this.bot.status = Universal.Status.OFFLINE;
           await this.bot.stop();
           await sleep(1000);
@@ -383,7 +380,7 @@ export class WsClient
           return;
         } else if (message.startsWith(`%*"2`))
         {
-          loggerError(`登录失败：密码错误，用户名：${this.loginObj.n}`);
+          this.bot.loggerError(`登录失败：密码错误，用户名：${this.loginObj.n}`);
           this.bot.status = Universal.Status.OFFLINE;
           await this.bot.stop();
           await sleep(1000);
@@ -391,7 +388,7 @@ export class WsClient
           return;
         } else if (message.startsWith(`%*"4`))
         {
-          loggerError(`登录失败：今日可尝试登录次数达到上限，用户名：${this.loginObj.n}`);
+          this.bot.loggerError(`登录失败：今日可尝试登录次数达到上限，用户名：${this.loginObj.n}`);
           this.bot.status = Universal.Status.OFFLINE;
           await this.bot.stop();
           await sleep(1000);
@@ -399,7 +396,7 @@ export class WsClient
           return;
         } else if (message.startsWith(`%*"5`))
         {
-          loggerError(`登录失败：房间密码错误，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
+          this.bot.loggerError(`登录失败：房间密码错误，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
           this.bot.status = Universal.Status.OFFLINE;
           await this.bot.stop();
           await sleep(1000);
@@ -407,7 +404,7 @@ export class WsClient
           return;
         } else if (message.startsWith(`%*"x`))
         {
-          loggerError(`登录失败：用户被封禁，用户名：${this.loginObj.n}`);
+          this.bot.loggerError(`登录失败：用户被封禁，用户名：${this.loginObj.n}`);
           this.bot.status = Universal.Status.OFFLINE;
           await this.bot.stop();
           await sleep(1000);
@@ -415,7 +412,7 @@ export class WsClient
           return;
         } else if (message.startsWith(`%*"n0`))
         {
-          loggerError(`登录失败：房间无法进入，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
+          this.bot.loggerError(`登录失败：房间无法进入，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
           this.bot.status = Universal.Status.OFFLINE;
           await this.bot.stop();
           await sleep(1000);
@@ -423,7 +420,8 @@ export class WsClient
           return;
         } else if (message.startsWith(`%*"`))
         {
-          loggerInfo(`登陆成功：欢迎回来，${this.loginObj.n}！`);
+          this.bot.logInfo(this.loginObj);
+          this.bot.loggerInfo(`[${this.bot.config.uid}] 登陆成功：欢迎回来，${this.loginObj.n}！`);
         }
       }
 
@@ -456,7 +454,6 @@ export class WsClient
           return;
         }
 
-        // 收到用户列表表示登录成功，现在可以设置为在线状态
         if (!this.loginSuccess)
         {
           this.loginSuccess = true;
@@ -553,7 +550,7 @@ export class WsClient
       // 如果插件正在停用，不记录错误
       if (!this.disposed)
       {
-        loggerError('WebSocket启动失败:', error);
+        this.bot.loggerError('WebSocket启动失败:', error);
       }
       // 确保清理状态
       this.isStarted = false;
@@ -617,7 +614,7 @@ export class WsClient
 
     this.bot.socket.addEventListener('error', (error) =>
     {
-      loggerError('WebSocket 连接错误:', error);
+      this.bot.loggerError('WebSocket 连接错误:', error);
       if (!this.disposed)
       {
         this.handleConnectionLoss();
@@ -638,11 +635,11 @@ export class WsClient
         this.isReconnecting
       )
       {
-        logInfo("websocket停止：正常关闭，不重连");
+        this.bot.logInfo("websocket停止：正常关闭，不重连");
         return;
       }
 
-      loggerWarn(`websocket异常关闭，代码: ${code}，将在5秒后重连`);
+      this.bot.loggerWarn(`websocket异常关闭，代码: ${code}，将在5秒后重连`);
       this.handleConnectionLoss();
     });
   }
@@ -670,17 +667,17 @@ export class WsClient
         {
           if (this.bot.status == Universal.Status.ONLINE)
           {
-            logInfo(`发送空包（心跳保活） 实例: ${this.bot.user?.id || 'unknown'}`);
+            this.bot.fulllogInfo(`发送空包（心跳保活） 实例: ${this.bot.user?.id || 'unknown'}`);
             IIROSE_WSsend(this.bot, '');
           }
         } else if (this.bot.socket.readyState === WebSocket.CLOSED || this.bot.socket.readyState === WebSocket.CLOSING)
         {
-          loggerWarn(`心跳保活检测到连接异常 实例: ${this.bot.user?.id || 'unknown'}, readyState: ${this.bot.socket.readyState}`);
+          this.bot.loggerWarn(`心跳保活检测到连接异常 实例: ${this.bot.user?.id || 'unknown'}, readyState: ${this.bot.socket.readyState}`);
           this.handleConnectionLoss();
         }
       } else
       {
-        loggerWarn(`心跳保活检测到socket为空 实例: ${this.bot.user?.id || 'unknown'}`);
+        this.bot.loggerWarn(`心跳保活检测到socket为空 实例: ${this.bot.user?.id || 'unknown'}`);
         this.handleConnectionLoss();
       }
     }, 30 * 1000); // 30秒心跳间隔
@@ -696,7 +693,7 @@ export class WsClient
       return; // 避免重复重连
     }
 
-    loggerWarn(`检测到连接丢失，准备重连 实例: ${this.bot.user?.id || 'unknown'}`);
+    this.bot.loggerWarn(`检测到连接丢失，准备重连 实例: ${this.bot.user?.id || 'unknown'}`);
 
     this.isReconnecting = true;
     this.isStarting = false;
@@ -719,7 +716,7 @@ export class WsClient
 
       try
       {
-        loggerInfo(`开始重连 实例: ${this.bot.user?.id || 'unknown'}`);
+        this.bot.loggerInfo(`开始重连 实例: ${this.bot.user?.id || 'unknown'}`);
         // 设置为连接中状态
         this.bot.status = Universal.Status.CONNECT;
 
@@ -729,7 +726,7 @@ export class WsClient
       {
         if (!this.disposed)
         {
-          loggerError(`重连失败 实例: ${this.bot.user?.id || 'unknown'}:`, error);
+          this.bot.loggerError(`重连失败 实例: ${this.bot.user?.id || 'unknown'}:`, error);
           // 如果重连失败，等待更长时间后再次尝试
           this.isReconnecting = false;
           setTimeout(() =>
@@ -894,12 +891,12 @@ export function IIROSE_WSsend(bot: IIROSE_Bot, data: string)
   if (!bot.socket)
   { //  布豪！
     //  牙白！
-    loggerError("布豪！ !bot.socket !!! 请联系开发者");
+    this.bot.loggerError("布豪！ !bot.socket !!! 请联系开发者");
     return;
   }
   if (bot.socket.readyState == 0)
   {
-    loggerError("布豪！ bot.socket.readyState == 0 !!! 请联系开发者");
+    this.bot.loggerError("布豪！ bot.socket.readyState == 0 !!! 请联系开发者");
     return;
   }
   const buffer = Buffer.from(data);

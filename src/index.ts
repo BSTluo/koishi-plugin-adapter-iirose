@@ -51,15 +51,6 @@ declare module '@satorijs/core' {
   interface Events extends IIROSE.Events { }
 }
 
-export let loggerError: (message: any, ...args: any[]) => void;
-export let loggerInfo: (message: any, ...args: any[]) => void;
-export let loggerDebug: (message: any, ...args: any[]) => void;
-export let loggerWarn: (message: any, ...args: any[]) => void;
-export let logInfo: (message: any, ...args: any[]) => void;
-export let fulllogInfo: (message: any, ...args: any[]) => void;
-
-const logger = new Logger(`DEV:${name}`);
-
 export function apply(ctx: Context, config: Config)
 {
 
@@ -67,38 +58,6 @@ export function apply(ctx: Context, config: Config)
   {
     let isDisposing = false;
     let bot: IIROSE_Bot | null = null;
-
-    // 全局函数
-    logInfo = (message: any, ...args: any[]) =>
-    {
-      if (config.debugMode)
-      {
-        logger.info(`[${config.uid}]`, message, ...args);
-      }
-    };
-    fulllogInfo = (message: any, ...args: any[]) =>
-    {
-      if (config.fullDebugMode)
-      {
-        logger.info(`[${config.uid}]`, message, ...args);
-      }
-    };
-    loggerInfo = (message: any, ...args: any[]) =>
-    {
-      ctx.logger.info(message, ...args);
-    };
-    loggerDebug = (message: any, ...args: any[]) =>
-    {
-      ctx.logger.debug(message, ...args);
-    };
-    loggerWarn = (message: any, ...args: any[]) =>
-    {
-      ctx.logger.warn(message, ...args);
-    };
-    loggerError = (message: any, ...args: any[]) =>
-    {
-      ctx.logger.error(message, ...args);
-    };
 
     ctx.on('dispose', async () =>
     {
@@ -116,10 +75,10 @@ export function apply(ctx: Context, config: Config)
             bot.stop(),
             new Promise(resolve => setTimeout(resolve, 1000))
           ]);
-          loggerInfo('[IIROSE] 适配器已停止运行。');
+          bot.loggerInfo('[IIROSE] 适配器已停止运行。');
         } catch (error)
         {
-          loggerError('[IIROSE] 适配器停止失败:', error);
+          bot.loggerError('[IIROSE] 适配器停止失败:', error);
         } finally
         {
           bot = null;
@@ -151,7 +110,13 @@ export function apply(ctx: Context, config: Config)
           ]);
         } catch (error)
         {
-          loggerError('[IIROSE] 清理旧适配器失败:', error);
+          if (bot)
+          {
+            bot.loggerError('[IIROSE] 清理旧适配器失败:', error);
+          } else
+          {
+            ctx.logger.error('[IIROSE] 清理旧适配器失败:', error);
+          }
         }
       }
 

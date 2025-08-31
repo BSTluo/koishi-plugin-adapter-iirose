@@ -9,7 +9,6 @@ import StockSell from '../encoder/user/StockSell';
 import kickFunction from '../encoder/admin/kick';
 import StockGet from '../encoder/user/StockGet';
 import StockBuy from '../encoder/user/StockBuy';
-import { loggerDebug, loggerError } from '..';
 import { IIROSE_WSsend } from './ws';
 import * as EventType from '../bot/event';
 import { IIROSE_Bot } from '../bot/bot';
@@ -55,14 +54,14 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
     {
       if (bot.config.roomId === roomId)
       {
-        return loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
+        return bot.loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
       }
       bot.config.roomId = bot.config.roomId;
-      return loggerDebug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
+      return bot.loggerDebug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
     }
     if (bot.config.roomId === roomId)
     {
-      return loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
+      return bot.loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
     }
     bot.config.oldRoomId = bot.config.roomId;
     bot.config.roomId = roomId;

@@ -14,7 +14,6 @@ import { IIROSE_Bot } from './bot';
 import FormData from 'form-data';
 
 import fs from 'node:fs';
-import { logInfo } from '..';
 
 async function getMediaMetadata(url: string, ctx: Context)
 {

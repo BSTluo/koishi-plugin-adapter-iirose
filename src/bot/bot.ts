@@ -1,4 +1,4 @@
-import { Context, Bot, Fragment, Universal } from 'koishi';
+import { Context, Bot, Fragment, Universal, Logger } from 'koishi';
 
 import { MessageInfo, messageObjList as MessageObjListType } from './messageTemp';
 import { IIROSE_BotMessageEncoder } from './sendMessage';
@@ -9,7 +9,6 @@ import { IIROSE_WSsend, WsClient } from '../utils/ws';
 import kick from '../encoder/admin/kick';
 import mute from '../encoder/admin/mute';
 import { Config } from '../config';
-import { fulllogInfo, loggerError, logInfo } from '..';
 
 export class IIROSE_Bot extends Bot<Context>
 {
@@ -34,6 +33,7 @@ export class IIROSE_Bot extends Bot<Context>
   private disposed: boolean = false;
   private userInfoTimeout: NodeJS.Timeout | null = null;
   private messageObjList: MessageObjListType = {};
+  public logger: Logger;
 
   constructor(public ctx: Context, config: Config)
   {
@@ -41,6 +41,7 @@ export class IIROSE_Bot extends Bot<Context>
 
     this.platform = 'iirose';
     this.config = config;
+    this.logger = new Logger(`DEV:adapter-iirose`);
 
     // 重置状态
     this.isStarting = false;
@@ -58,6 +59,42 @@ export class IIROSE_Bot extends Bot<Context>
     {
       this.selfId = this.config.uid;
       this.userId = this.config.uid;
+    }
+  }
+
+  public loggerError(message: any, ...args: any[]): void
+  {
+    this.ctx.logger.error(message, ...args);
+  }
+
+  public loggerInfo(message: any, ...args: any[]): void
+  {
+    this.ctx.logger.info(message, ...args);
+  }
+
+  public loggerDebug(message: any, ...args: any[]): void
+  {
+    this.ctx.logger.debug(message, ...args);
+  }
+
+  public loggerWarn(message: any, ...args: any[]): void
+  {
+    this.ctx.logger.warn(message, ...args);
+  }
+
+  public logInfo(message: any, ...args: any[]): void
+  {
+    if (this.config.debugMode)
+    {
+      this.logger.info(`[${this.config.uid}]`, message, ...args);
+    }
+  }
+
+  public fulllogInfo(message: any, ...args: any[]): void
+  {
+    if (this.config.fullDebugMode)
+    {
+      this.logger.info(`[${this.config.uid}]`, message, ...args);
     }
   }
 
@@ -120,7 +157,7 @@ export class IIROSE_Bot extends Bot<Context>
         {
           if (!this.disposed)
           {
-            loggerError('获取用户信息失败:', error);
+            this.loggerError('获取用户信息失败:', error);
           }
         }
       }, 10000);
@@ -130,7 +167,7 @@ export class IIROSE_Bot extends Bot<Context>
       // 如果插件正在停用，不记录错误
       if (!this.disposed)
       {
-        loggerError('机器人启动失败:', error);
+        this.loggerError('机器人启动失败:', error);
       } else
       {
       }
@@ -179,7 +216,7 @@ export class IIROSE_Bot extends Bot<Context>
 
   async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
   {
-    fulllogInfo(`[发送消息] 完整内容:`, content);
+    this.fulllogInfo(`[发送消息] 完整内容:`, content);
 
     if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private')))
     {
