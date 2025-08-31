@@ -338,7 +338,7 @@ export class WsClient
 
       if (message.includes(">") && message.includes(currentUsername))
       {
-        const messageIdMatch = message.match(/(\\d{12,})$/);
+        const messageIdMatch = message.match(/(\d{12,})$/);
         if (messageIdMatch)
         {
           const messageId = messageIdMatch[1];
