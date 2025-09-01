@@ -624,6 +624,40 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
+      case 'messageDeleted': {
+        const data = obj.messageDeleted;
+        if (!data) return;
+        
+        bot.logInfo('messageDeleted', data);
+        
+        let uid = bot.ctx.config.uid;
+        if (bot.ctx.config.smStart && comparePassword(bot.ctx.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822')) {
+          uid = bot.ctx.config.smUid;
+        }
+        
+        // 发送 message-deleted 事件
+        const session = bot.session({
+          type: 'message-deleted',
+          user: {
+            id: data.userId,
+            name: data.userId
+          },
+          message: {
+            messageId: data.messageId,
+            content: '',
+            elements: []
+          },
+          timestamp: data.timestamp,
+          platform: 'iirose'
+        });
+        
+        session.channelId = data.channelId;
+        session.selfId = uid;
+        
+        bot.dispatch(session);
+        break;
+      }
+
       case 'mailboxMessage': {
         const data = obj.mailboxMessage;
 

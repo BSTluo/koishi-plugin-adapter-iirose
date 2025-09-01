@@ -18,6 +18,7 @@ import { damaku, Damaku } from './Damaku';
 import { leaveRoom } from './LeaveRoom';
 import { stock, Stock } from './Stock';
 import { music, Music } from './Music';
+import { MessageDeleted, MessageDeletedData } from './MessageDeleted';
 import { IIROSE_Bot } from '../bot/bot';
 
 export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
@@ -43,6 +44,7 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
   len.musicMessage = musicMessage(msg);
   len.stock = stock(msg, bot);
   len.beforeMoveRoomStart = beforeMoveRoomStart(msg);
+  len.messageDeleted = MessageDeleted(bot, msg);
 
   const newObj = {};
   for (const key in len)
@@ -95,4 +97,5 @@ export interface MessageType
   musicMessage?: MusicMessage;
   stock?: Stock;
   beforeMoveRoomStart?: BeforeMoveRoomStart;
+  messageDeleted?: MessageDeletedData;
 }
