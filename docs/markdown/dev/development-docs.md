@@ -13,6 +13,7 @@
 
 ### 快速开始
 
+
 1. **克隆文档仓库**
 
 ```bash
@@ -25,6 +26,7 @@ git clone https://github.com/BSTluo/koishi-plugin-adapter-iirose.git
 cd koishi-plugin-adapter-iirose
 git checkout docs
 ```
+> 以上步骤 也可以使用压缩包下载 https://github.com/BSTluo/koishi-plugin-adapter-iirose/archive/refs/heads/docs.zip
 
 3. **安装依赖**
 

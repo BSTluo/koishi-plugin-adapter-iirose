@@ -66,12 +66,13 @@ ctx.on('message', (session) => {
 ```typescript
 ctx.on('message-deleted', (session) => {
   console.log('消息被撤回:', session.messageId)
+  console.log('撤回者ID:', session.user.id)
+  console.log('频道ID:', session.channelId)
+  console.log('撤回时间:', session.timestamp)
 })
 ```
 
-**事件数据:** Koishi Session 对象
-
-**注意:** IIROSE 平台暂不支持消息撤回功能。
+**事件数据:** Koishi Session 对象，包含被撤回的消息信息
 
 ## IIROSE 特殊事件
 
