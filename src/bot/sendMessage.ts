@@ -5,7 +5,6 @@ import { } from 'koishi-plugin-filemanager';
 
 import PrivateMessage from '../encoder/messages/PrivateMessage';
 import PublicMessage from '../encoder/messages/PublicMessage';
-import { messageObjList } from './messageTemp';
 import { rgbaToHex } from '../utils/utils';
 import Like from '../encoder/system/Like';
 import { musicOrigin } from './event';
@@ -24,9 +23,7 @@ async function getMediaMetadata(url: string, ctx: Context)
   const mm = await import('music-metadata');
   const { Readable } = await import('stream');
 
-  // 将 Web ReadableStream 转换为 Node.js Readable 流
   const nodeStream = Readable.fromWeb(response as ReadableStream);
-  // 解析媒体文件流的元数据
   const metadata = await mm.parseStream(nodeStream, null, { duration: true });
 
   const { common, format } = metadata;
@@ -48,16 +45,41 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 {
   private outDataOringin: string = '';
   private outDataOringinObj: string = '';
+  private currentMessageId: string = '';
 
   async flush(): Promise<void>
   {
     if (this.bot.config.hangUpMode) { return; }
-    IIROSE_WSsend(this.bot, this.outDataOringinObj);
+    if (this.outDataOringin.length <= 0)
+    {
+      this.outDataOringin = ' '; // 默认内容
+    }
+
+    // 在实际发送消息时生成消息ID和消息对象
+    if (this.channelId.startsWith('public:'))
+    {
+      const result = PublicMessage(this.outDataOringin, rgbaToHex(this.bot.config.color));
+      this.currentMessageId = result.messageId;
+      this.outDataOringinObj = result.data;
+    } else if (this.channelId.startsWith('private:'))
+    {
+      const result = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, rgbaToHex(this.bot.config.color));
+      this.currentMessageId = result.messageId;
+      this.outDataOringinObj = result.data;
+    }
+
+    await IIROSE_WSsend(this.bot, this.outDataOringinObj);
   }
 
   async sendData(message: string): Promise<void>
   {
-    IIROSE_WSsend(this.bot, message);
+    await IIROSE_WSsend(this.bot, message);
+  }
+
+  // 获取消息ID
+  getMessageId(): string
+  {
+    return this.currentMessageId;
   }
 
   /**
@@ -208,12 +230,19 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         let id = attrs.id;
         if (!id)
         {
-          id = Object.keys(messageObjList).pop();
+          const messageKeys = this.bot.getMessageKeys();
+          id = messageKeys[messageKeys.length - 1];
         }
 
         const messData = await this.bot.getMessage('', id);
 
-        this.outDataOringin = `${messData.content} (_hr) ${messData.author.username}_${Math.round(new Date().getTime() / 1e3)} (hr_) ` + this.outDataOringin;
+        if (messData)
+        {
+          this.outDataOringin = `${messData.content} (_hr) ${messData.author.username}_${Math.round(new Date().getTime() / 1e3)} (hr_) ` + this.outDataOringin;
+        } else
+        {
+          this.bot.loggerWarn(`[Quote处理] 未找到消息ID: ${id}`);
+        }
         break;
       }
 
@@ -268,7 +297,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           {
             this.outDataOringin += ` [@${attrs.id}@] `;
           }
-
         } else if (attrs.hasOwnProperty('name'))
         {
           this.outDataOringin += ` [*${attrs.name}*] `;
@@ -395,7 +423,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
       case 'like': {
         // 点赞事件
-        IIROSE_WSsend(this.bot, Like(attrs.uid, attrs.message));
+        await IIROSE_WSsend(this.bot, Like(attrs.uid, attrs.message));
         break;
       }
 
@@ -437,19 +465,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
     if (type === 'p' && this.outDataOringin.length > 0)
     {
       this.outDataOringin += '\n';
-    }
-
-    if (this.outDataOringin.length <= 0)
-    {
-      return;
-    }
-
-    if (this.channelId.startsWith('public:'))
-    {
-      this.outDataOringinObj = PublicMessage(this.outDataOringin, rgbaToHex(this.bot.config.color));
-    } else if (this.channelId.startsWith('private:'))
-    {
-      this.outDataOringinObj = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, rgbaToHex(this.bot.config.color));
     }
   }
 }

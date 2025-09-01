@@ -1,16 +1,17 @@
 {
   "name": "koishi-plugin-adapter-iirose",
   "description": "[IIROSE-蔷薇花园](https://iirose.com/)适配器",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
-    "lib",
+    ".vscode",
     "src",
-    ".vscode"
+    "lib"
   ],
   "license": "MIT",
   "contributors": [
+    "ajchen <ajchen01@qq.com>",
     "BSTluo <1946831552@qq.com>",
     "shangxueink <1919892171@qq.com>",
     "jingming295 <jingming295@gmail.com>"
@@ -24,6 +25,7 @@
     "url": "git+https://github.com/BSTluo/koishi-plugin-adapter-iirose.git"
   },
   "keywords": [
+    "koishi",
     "bot",
     "iirose",
     "satori",

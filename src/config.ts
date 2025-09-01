@@ -16,6 +16,7 @@ export interface Config
   debugMode: boolean;
   fullDebugMode: boolean;
   maxRetries: number;
+  deleteMessageDelay: number;
 
   // 可选
   smStart?: boolean;
@@ -46,14 +47,14 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('基础设置'),
 
   Schema.object({
-    color: Schema.string().role('color').default('rgba(102, 204, 255, 1)').description('BOT气泡颜色（RGBA）<br>透明度通道无效。'),
+    color: Schema.string().role('color').default('rgba(102, 204, 255, 1)').description('BOT气泡颜色（RGB）<br>透明度通道不生效。'),
     hangUpMode: Schema.boolean().default(false).description('是否开启 挂机模式（iirose平台展示的账号状态）'),
   }).description('进阶设置'),
 
   Schema.object({
-    timeout: Schema.number().min(100).max(5000).default(500).description('连接超时限制 (单位：毫秒)'),
-    keepAliveEnable: Schema.boolean().default(true).description('bot保活：是否开启基础心跳包'),
-    maxRetries: Schema.number().min(1).max(100).default(10).description('连接失败时的最大重试次数。'),
+    timeout: Schema.number().min(100).max(5000).default(500).description('连接超时的判定时限 (单位：毫秒)'),
+    keepAliveEnable: Schema.boolean().default(true).description('是否开启心跳包'),
+    maxRetries: Schema.number().min(1).max(100).default(10).description('连接失败时的最大重试次数。达到后不再重试。'),
   }).description('连接设置'),
   Schema.union([
     Schema.object({
@@ -78,6 +79,7 @@ export const Config: Schema<Config> = Schema.intersect([
   ]),
 
   Schema.object({
+    deleteMessageDelay: Schema.number().min(0).max(10000).default(1500).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000'),
     oldRoomId: Schema.string().default('').description('仅内部使用'),
     debugMode: Schema.boolean().default(false).description('是否 开启调试模式<br>提issue时，请务必开启此项，附上复现问题的日志'),
     fullDebugMode: Schema.boolean().default(false).description('是否 开启详细调试模式<br>慎重开启'),

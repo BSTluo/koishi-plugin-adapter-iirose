@@ -140,7 +140,8 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
   event.push(bot.ctx.on('iirose/makeMusic', (musicOrigin: EventType.musicOrigin) =>
   {
     const { type, name, signer, cover, link, url, duration, bitRate, color, lyrics, origin } = musicOrigin;
-    IIROSE_WSsend(bot, mediaCard(type, name, signer, cover, color, duration, bitRate, origin));
+    const mediaCardResult = mediaCard(type, name, signer, cover, color, duration, bitRate, origin);
+    IIROSE_WSsend(bot, mediaCardResult.data);
     IIROSE_WSsend(bot, mediaData(type, name, signer, cover, link, url, duration, lyrics, origin));
   }));
 

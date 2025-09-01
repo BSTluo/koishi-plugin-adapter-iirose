@@ -216,35 +216,23 @@ export class IIROSE_Bot extends Bot<Context>
 
   async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
   {
-    this.fulllogInfo(`[发送消息] 完整内容:`, content);
-
     if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private')))
     {
       return [];
     }
     const finalChannelId = guildId ? `${channelId}:${guildId}` : channelId;
 
-    const messageIdPromise = new Promise<string>((resolve, reject) =>
+    // 创建消息编码器并发送消息
+    const encoder = new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options);
+    await encoder.send(content);
+
+    // 直接获取生成的消息ID
+    const messageId = encoder.getMessageId();
+
+    if (messageId)
     {
-      const timeout = setTimeout(() =>
-      {
-        reject(new Error('等待消息ID超时'));
-      }, 3000);
-
-      this.messageIdResolvers.push((messageId: string) =>
-      {
-        clearTimeout(timeout);
-        resolve(messageId);
-      });
-    });
-
-    await new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options).send(content);
-
-    try
-    {
-      const messageId = await messageIdPromise;
       return [messageId];
-    } catch (error)
+    } else
     {
       return [];
     }
@@ -321,9 +309,14 @@ export class IIROSE_Bot extends Bot<Context>
     this.messageObjList[messageId] = messageInfo;
   }
 
+  getMessageKeys(): string[]
+  {
+    return Object.keys(this.messageObjList);
+  }
+
   async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void>
   {
-    IIROSE_WSsend(this, kick(userName));
+    await IIROSE_WSsend(this, kick(userName));
   }
 
   async muteGuildMember(guildId: string, userName: string, duration: number, reason?: string): Promise<void>
@@ -344,7 +337,7 @@ export class IIROSE_Bot extends Bot<Context>
       reason = '';
     }
 
-    IIROSE_WSsend(this, mute('all', userName, time, reason));
+    await IIROSE_WSsend(this, mute('all', userName, time, reason));
   }
 
   async deleteMessage(channelId: string, messageId: string): Promise<void>;
@@ -353,6 +346,8 @@ export class IIROSE_Bot extends Bot<Context>
   {
     try
     {
+      await new Promise(resolve => setTimeout(resolve, this.config.deleteMessageDelay));
+
       // 如果是数组，逐个撤回
       if (Array.isArray(messageId))
       {
@@ -376,12 +371,22 @@ export class IIROSE_Bot extends Bot<Context>
   {
     try
     {
-      const deleteCommand = `v0#${messageId}`;
-      this.logInfo(`撤回消息`, messageId);
+      // 根据频道类型确定撤回命令格式
+      let deleteCommand: string;
+      if (channelId.startsWith('private:'))
+      {
+        const userId = channelId.split(":")[1];
+        deleteCommand = `v0*${userId}#${messageId}`;
+      } else
+      {
+        deleteCommand = `v0#${messageId}`;
+      }
+
+      this.logInfo(`[撤回消息开始] 频道: ${channelId}, 消息ID: ${messageId}`);
 
       if (this.socket && this.socket.readyState === WebSocket.OPEN)
       {
-        this.socket.send(deleteCommand);
+        await IIROSE_WSsend(this, deleteCommand);
         return true;
       } else
       {
