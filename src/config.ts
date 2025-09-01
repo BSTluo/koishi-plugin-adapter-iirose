@@ -53,7 +53,7 @@ export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
     timeout: Schema.number().min(100).max(5000).default(500).description('连接超时限制 (单位：毫秒)'),
     keepAliveEnable: Schema.boolean().default(true).description('bot保活：是否开启基础心跳包'),
-    maxRetries: Schema.number().min(1).max(100).default(10).description('连接失败时的最大重试次数<br>达到后 将自动关闭插件。'),
+    maxRetries: Schema.number().min(1).max(100).default(10).description('连接失败时的最大重试次数。'),
   }).description('连接设置'),
   Schema.union([
     Schema.object({
