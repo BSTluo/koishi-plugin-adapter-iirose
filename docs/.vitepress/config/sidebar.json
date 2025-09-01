@@ -13,6 +13,10 @@
             {
                 "text": "快速开始",
                 "link": "/markdown/firstime/start"
+            },
+            {
+                "text": "图床支持",
+                "link": "/markdown/start/filemanager"
             }
         ]
     },
