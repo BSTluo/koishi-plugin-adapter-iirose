@@ -9,9 +9,10 @@ import StockSell from '../encoder/user/StockSell';
 import kickFunction from '../encoder/admin/kick';
 import StockGet from '../encoder/user/StockGet';
 import StockBuy from '../encoder/user/StockBuy';
-import { IIROSE_WSsend } from './ws';
 import * as EventType from '../bot/event';
 import { IIROSE_Bot } from '../bot/bot';
+import { IIROSE_WSsend } from './ws';
+
 /**
  * 颜色转换函数：将rgba格式转换为十六进制格式
  * @param rgba - rgba格式的颜色字符串或十六进制格式的颜色字符串

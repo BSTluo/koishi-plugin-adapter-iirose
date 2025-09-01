@@ -349,36 +349,47 @@ export class IIROSE_Bot extends Bot<Context>
 
   async deleteMessage(channelId: string, messageId: string): Promise<void>;
   async deleteMessage(channelId: string, messageId: string[]): Promise<void>;
-  async deleteMessage(channelId: string, messageId: string | string[]): Promise<void> {
-    try {
+  async deleteMessage(channelId: string, messageId: string | string[]): Promise<void>
+  {
+    try
+    {
       // 如果是数组，逐个撤回
-      if (Array.isArray(messageId)) {
-        for (const id of messageId) {
+      if (Array.isArray(messageId))
+      {
+        for (const id of messageId)
+        {
           await this.deleteSingleMessage(channelId, id);
         }
-      } else {
+      } else
+      {
         // 单个消息撤回
         await this.deleteSingleMessage(channelId, messageId);
       }
-    } catch (error) {
+    } catch (error)
+    {
       this.loggerError('删除消息失败:', error);
     }
   }
 
   // 撤回单个消息
-  private async deleteSingleMessage(channelId: string, messageId: string): Promise<boolean> {
-    try {
+  private async deleteSingleMessage(channelId: string, messageId: string): Promise<boolean>
+  {
+    try
+    {
       const deleteCommand = `v0#${messageId}`;
-      this.logInfo(`撤回消息`, messageId)
-      
-      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.logInfo(`撤回消息`, messageId);
+
+      if (this.socket && this.socket.readyState === WebSocket.OPEN)
+      {
         this.socket.send(deleteCommand);
         return true;
-      } else {
+      } else
+      {
         this.loggerWarn('WebSocket连接未就绪，无法撤回消息');
         return false;
       }
-    } catch (error) {
+    } catch (error)
+    {
       this.loggerError(`撤回消息失败 (channelId: ${channelId}, messageId: ${messageId}):`, error);
       return false;
     }
