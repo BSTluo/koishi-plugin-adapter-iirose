@@ -260,13 +260,13 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         if (attrs.hasOwnProperty('id'))
         {
           const user = await this.bot.internal.getUserById(attrs.id);
-          const name = user.name;
-          if (name)
+          const name = user?.name;
+          if (name && name !== ("用户数据库初始化ing"))
           {
-            this.outDataOringin += ` [*${attrs.name}*] `;
+            this.outDataOringin += ` [*${name}*] `;
           } else
           {
-            this.outDataOringin += ` [*${attrs.id}*] `;
+            this.outDataOringin += ` [@${attrs.id}@] `;
           }
 
         } else if (attrs.hasOwnProperty('name'))
