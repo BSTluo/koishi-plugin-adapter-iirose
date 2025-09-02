@@ -14,34 +14,7 @@ export const reusable = true;
 export const filter = false;
 export { Config };
 
-export const usage = `
----
-
-## 配置项说明
-
-<p>➣ <a href="https://bstluo.github.io/koishi-plugin-adapter-iirose/" target="_blank">完整教程请点击我 查看文档</a></p>
-
-1. BOT账号是指 用户名不带[**]的部分。
-2. BOT唯一标识是 唯一标识不带[@@]的纯小写英文+数字部分。
-3. BOT密码，将密码贴入配置项即可。
-4. 房间id是 房间地址不带[__]的部分。
-5. 请确保机器人用户名、密码正确！（如手动变更，请修改配置）。
-6. 请注意，需要使用 filemanager 插件上传图片。不配置 filemanager 插件将无法发送富媒体消息。
-7. 任何反馈、需求、求助，可以加入社区群 1059933235 。
-
----
-
-本插件所需依赖：
-
-- http、logger、database
-- [filemanager （需要额外安装）](/market?keyword=filemanager)
-
----
-
-<p>➣ <a href="https://bstluo.github.io/koishi-plugin-adapter-iirose/" target="_blank">点击此处 查看文档</a></p>
-
----
-`;
+export const usage = readFileSync(join(__dirname, './../data/usage.html'), 'utf-8').split('\n').map(line => line.trimStart()).join('\n');
 
 export * from './bot/bot';
 export * from './utils/ws';
