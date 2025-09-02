@@ -5,7 +5,7 @@
 ## 本地开发
 
 ```bash
-git clone https://github.com/Roberta001/koishi-plugin-adapter-iirose.git
+git clone https://github.com/BSTluo/koishi-plugin-adapter-iirose.git
 cd koishi-plugin-adapter-iirose
 git checkout docs
 yarn install
