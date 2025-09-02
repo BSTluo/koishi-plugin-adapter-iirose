@@ -13,6 +13,11 @@
 
 ![](./../../public/assets/start/filemanager-download.png)
 
+:::info
+不同的附属插件提供的功能相同（提供图床实现或文件床实现），但链接的后端不同 <br>
+安装任意插件即可，**推荐安装多个插件，filemanager插件本体会自动选择最快的后端**
+:::
+
 :::warning
 若你发现你并未安装filemanager插件，请前往[**开始使用→前置安装**](../firstime/koishi.md)页面，进行插件安装
 :::
