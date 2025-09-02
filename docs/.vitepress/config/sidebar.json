@@ -66,6 +66,11 @@
         "text": "链接",
         "items": [
             {
+                "text": "Reifuu 论坛",
+                "link": "https://forum.reifuu.icu/latest",
+                "target": "_blank"
+            },
+            {
                 "text": "GitHub 仓库",
                 "link": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/tree/main",
                 "target": "_blank"
