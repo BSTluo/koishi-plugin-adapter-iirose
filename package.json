@@ -6,8 +6,9 @@
   "typings": "lib/index.d.ts",
   "files": [
     ".vscode",
-    "src",
-    "lib"
+    "data",
+    "lib",
+    "src"
   ],
   "license": "MIT",
   "contributors": [

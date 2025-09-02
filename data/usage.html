@@ -1,0 +1,252 @@
+<!--
+字体来自 https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSansCJKjp-Black.woff2
+-->
+<style>
+    @font-face {
+        font-family: 'SweiNutSansCJKtc-Regular';
+        src: url('https://cdn.jsdelivr.net/gh/max32002/swei-nut-sans@2.128/WebFont/CJK%20JP/SweiNutSansCJKjp-Black.woff2') format('woff');
+        font-display: swap;
+        font-weight: 400;
+        font-style: normal;
+        unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF;
+    }
+
+    @supports (font-display: swap) {
+        .iirose-container {
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    }
+
+    /* 英文加粗 */
+    .iirose-container *:lang(en),
+    .iirose-container .english-text {
+        font-weight: bold;
+    }
+
+    /* 作用域隔离 */
+    .iirose-container {
+        font-family: 'SweiNutSansCJKtc-Regular', sans-serif;
+        line-height: 1.4;
+        padding: 16px;
+        max-width: 800px;
+        margin: 0;
+        background: rgba(128, 128, 128, 0.15);
+        border-radius: 4px;
+        backdrop-filter: blur(10px);
+    }
+
+    .iirose-header {
+        text-align: left;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: rgba(128, 128, 128, 0.12);
+        border-radius: 4px;
+        border: 1px solid rgba(128, 128, 128, 0.18);
+    }
+
+    .iirose-title {
+        font-size: 1.8em;
+        font-weight: 300;
+        margin: 0 0 6px 0;
+        letter-spacing: 0.5px;
+    }
+
+    .iirose-subtitle {
+        font-size: 1em;
+        margin: 0 0 14px 0;
+        opacity: 0.8;
+        font-weight: 300;
+    }
+
+    .iirose-link {
+        display: inline-block;
+        padding: 8px 18px;
+        background: rgba(128, 128, 128, 0.18);
+        border: 1px solid rgba(128, 128, 128, 0.25);
+        border-radius: 4px;
+        text-decoration: none;
+        color: inherit;
+        font-weight: 400;
+        font-size: 0.9em;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+
+    .iirose-link:hover {
+        background: rgba(128, 128, 128, 0.25);
+        border-color: rgba(128, 128, 128, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .iirose-card {
+        background: rgba(128, 128, 128, 0.12);
+        border: 1px solid rgba(128, 128, 128, 0.15);
+        border-radius: 4px;
+        padding: 14px;
+        margin-bottom: 12px;
+        backdrop-filter: blur(8px);
+    }
+
+    .iirose-warning {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        background: rgba(255, 193, 7, 0.1);
+        border: 1px solid rgba(255, 193, 7, 0.2);
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    .iirose-warning-icon {
+        font-size: 1.1em;
+        filter: drop-shadow(0 0 3px rgba(255, 193, 7, 0.3));
+    }
+
+    .iirose-section-title {
+        font-size: 1.2em;
+        font-weight: 400;
+        margin: 0 0 12px 0;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    }
+
+    .iirose-dep-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 6px;
+    }
+
+    .iirose-dep-item {
+        padding: 6px 12px;
+        background: rgba(128, 128, 128, 0.15);
+        border: 1px solid rgba(128, 128, 128, 0.18);
+        border-radius: 4px;
+        text-align: left;
+        font-size: 0.85em;
+        font-weight: 400;
+        transition: all 0.2s ease;
+    }
+
+    .iirose-dep-item:hover {
+        background: rgba(128, 128, 128, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .iirose-dep-item a {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .iirose-community {
+        text-align: left;
+        margin-top: 20px;
+        padding: 16px;
+        background: rgba(128, 128, 128, 0.12);
+        border: 1px solid rgba(128, 128, 128, 0.18);
+        border-radius: 4px;
+    }
+
+    .iirose-community-title {
+        font-size: 1.2em;
+        font-weight: 400;
+        margin: 0 0 12px 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .iirose-qq-group {
+        font-size: 1em;
+        padding: 8px 16px;
+        background: rgba(128, 128, 128, 0.15);
+        border: 1px solid rgba(128, 128, 128, 0.22);
+        border-radius: 4px;
+        display: inline-block;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+
+    @media (max-width: 640px) {
+        .iirose-container {
+            padding: 12px;
+            margin: 4px;
+        }
+
+        .iirose-header {
+            padding: 12px;
+        }
+
+        .iirose-title {
+            font-size: 1.5em;
+        }
+
+        .iirose-dep-list {
+            grid-template-columns: 1fr;
+        }
+
+        .iirose-community {
+            padding: 12px;
+        }
+
+        .iirose-card {
+            padding: 10px;
+        }
+    }
+
+    .iirose-container * {
+        box-shadow: none !important;
+    }
+
+    .iirose-container * {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+</style>
+
+<div class="iirose-container">
+    <div class="iirose-header">
+        <h2 class="iirose-title"><span class="english-text">IIROSE</span> 适配器</h2>
+        <p class="iirose-subtitle">连接 <span class="english-text">Koishi</span> 与蔷薇花园</p>
+        <a href="https://bstluo.github.io/koishi-plugin-adapter-iirose/" target="_blank" class="iirose-link">
+            查看完整配置教程
+        </a>
+    </div>
+
+    <div class="iirose-card">
+        <div class="iirose-warning">
+            <span class="iirose-warning-icon">⚠️</span>
+            <span>需要安装 <span class="english-text">filemanager</span> 插件才能发送图片等富媒体消息</span>
+        </div>
+    </div>
+
+    <div class="iirose-card">
+        <div class="iirose-dependencies">
+            <h3 class="iirose-section-title">插件依赖</h3>
+            <ul class="iirose-dep-list">
+                <li class="iirose-dep-item english-text">http</li>
+                <li class="iirose-dep-item english-text">logger</li>
+                <li class="iirose-dep-item english-text">database</li>
+                <li class="iirose-dep-item">
+                    <a href="/market?keyword=filemanager" style="text-decoration: none; color: inherit;"
+                        class="english-text">filemanager</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="iirose-community">
+        <h3 class="iirose-community-title">
+            💬 反馈与交流
+        </h3>
+        <div class="iirose-qq-group">
+            <span class="english-text">QQ</span>群: 1059933235
+        </div>
+    </div>
+</div>
