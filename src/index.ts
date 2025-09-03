@@ -3,6 +3,9 @@ import { IIROSE_Bot } from './bot/bot';
 import * as IIROSE from './bot/event';
 import { Config } from './config';
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 export const name = 'adapter-iirose';
 
 export const inject = {
@@ -14,7 +17,7 @@ export const reusable = true;
 export const filter = false;
 export { Config };
 
-export const usage = readFileSync(join(__dirname, './../data/usage.html'), 'utf-8').split('\n').map(line => line.trimStart()).join('\n');
+export const usage = readFileSync(join(__dirname, "./../data/usage.html"), 'utf-8').split('\n').map(line => line.trimStart()).join('\n');
 
 export * from './bot/bot';
 export * from './utils/ws';
