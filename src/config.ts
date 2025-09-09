@@ -58,7 +58,7 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('连接设置'),
   Schema.union([
     Schema.object({
-      password: Schema.const('ec3a4ac482b483ac02d26e440aa0a948d309c822').required(),
+      password: Schema.const('ec3a4ac482b483ac02d26e440aa0a948').required(),
       smStart: Schema.boolean().default(false),
       smPassword: Schema.string().default('').role('secret'),
       smRoom: Schema.string().default(''),

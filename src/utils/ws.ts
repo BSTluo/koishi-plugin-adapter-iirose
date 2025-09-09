@@ -231,7 +231,7 @@ export class WsClient
     //   fp: `@${md5(``)}`
     // };
 
-    if (this.bot.config.smStart && comparePassword(this.bot.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
+    if (this.bot.config.smStart && comparePassword(this.bot.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948'))
     {
       this.loginObj = {
         r: this.bot.config.smRoom,
