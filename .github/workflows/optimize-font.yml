@@ -6,8 +6,7 @@ on:
       - main
     paths:
       - 'data/usage.html'
-  workflow_dispatch:  # 允许手动触发
-  
+
 jobs:
   optimize-font:
     runs-on: ubuntu-latest
@@ -140,9 +139,9 @@ jobs:
 
           def main():
               # 定义路径
-              html_path = "main-repo/data/usage.html"
-              input_font_path = "main-repo/temp/ZhuZiAWan-2.ttc"
-              output_font_path = "docs-repo/docs/public/fonts/ZhuZiAWan-2.ttc"
+              html_path = "data/usage.html"
+              input_font_path = "temp/ZhuZiAWan-2.ttc"
+              output_font_path = "../docs-repo/docs/public/fonts/ZhuZiAWan-2.ttc"
               
               # 检查输入文件是否存在
               if not os.path.exists(html_path):
