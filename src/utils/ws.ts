@@ -424,8 +424,11 @@ export class WsClient
           return;
         } else if (message.startsWith(`%*"`))
         {
+          // 登录成功
           this.bot.logInfo(this.loginObj);
           this.bot.loggerInfo(`[${this.bot.config.uid}] 登陆成功：欢迎回来，${this.loginObj.n}！`);
+          // 设置为在线
+          this.bot.online();
         }
       }
 
@@ -458,11 +461,6 @@ export class WsClient
           return;
         }
 
-        if (!this.loginSuccess)
-        {
-          this.loginSuccess = true;
-          this.bot.online();
-        }
         userData.forEach(async (e) =>
         {
           if (!e.uid)

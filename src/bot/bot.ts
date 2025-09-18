@@ -135,33 +135,6 @@ export class IIROSE_Bot extends Bot<Context>
 
       this.isStarted = true;
 
-      // 获取自身信息
-      this.userInfoTimeout = setTimeout(async () =>
-      {
-        // 检查是否正在停用
-        if (this.disposed)
-        {
-          return;
-        }
-
-        try
-        {
-          const user = await this.getSelf();
-          this.user = user;
-          // 再次检查是否正在停用，避免在停用过程中上线
-          if (!this.disposed)
-          {
-            this.online();
-          }
-        } catch (error)
-        {
-          if (!this.disposed)
-          {
-            this.loggerError('获取用户信息失败:', error);
-          }
-        }
-      }, 10000);
-
     } catch (error)
     {
       // 如果插件正在停用，不记录错误
