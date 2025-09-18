@@ -1,13 +1,21 @@
 <!--
-SweiNutSansCJKjp-Black.woff2 
-4.38 MB
-ver 2.128 CJK JP
+ZhuZiAWan-2.ttc
 
-https://github.com/max32002/swei-nut-sans/tree/master/WebFont/CJK%20JP
+完整字体：
+- https://github.com/BSTluo/koishi-plugin-adapter-iirose/releases/download/v1.0.0/ZhuZiAWan-2.ttc
+- https://www.fonts.net.cn/font-34569394773.html
 
-https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSansCJKjp-Black.woff2 
+精简字体：https://github.com/BSTluo/koishi-plugin-adapter-iirose/tree/docs/docs/public/fonts
 
-现在使用本地字体文件 ZhuZiAWan-2.ttc
+更改此HTML文件，并且推送至github仓库的main分支，工作流会自动剪裁字体到docs分支的docs/public/fonts/ZhuZiAWan-2.ttc
+
+---
+
+关于hmr热重载：
+
+由于此文件是单独的HTML文件，在koishi开发时，如需在koishi前端热重载此文件
+
+需要先触发`src\index.ts`的热重载（保存一下），才会让此usage部分显示内容重载。
 -->
 <style>
     @font-face {
@@ -36,9 +44,9 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         font-weight: 900 !important;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        text-shadow: 0.5px 0.5px 0.5px currentColor;
     }
 
-    /* 作用域隔离 */
     .iirose-container {
         font-family: 'ZhuZiAWan', sans-serif !important;
         line-height: 1.4;
@@ -49,6 +57,8 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         border-radius: 4px;
         backdrop-filter: blur(10px);
         font-weight: 900 !important;
+        text-shadow: 0.8px 0.8px 0.8px currentColor;
+        font-size: 1.05em;
     }
 
     .iirose-header {
@@ -59,20 +69,23 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         border-radius: 4px;
         border: 1px solid rgba(128, 128, 128, 0.18);
         font-weight: 900 !important;
+        text-shadow: 0.6px 0.6px 0.6px currentColor;
     }
 
     .iirose-title {
-        font-size: 1.8em;
+        font-size: 1.5em;
         font-weight: 900 !important;
         margin: 0 0 6px 0;
         letter-spacing: 0.5px;
+        text-shadow: 1px 1px 1px currentColor;
     }
 
     .iirose-subtitle {
-        font-size: 1em;
+        font-size: 1.1em;
         margin: 0 0 14px 0;
         opacity: 0.8;
         font-weight: 900 !important;
+        text-shadow: 0.6px 0.6px 0.6px currentColor;
     }
 
     .iirose-link {
@@ -84,9 +97,10 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         text-decoration: none;
         color: inherit;
         font-weight: 900 !important;
-        font-size: 0.9em;
+        font-size: 1.05em;
         transition: all 0.3s ease;
         backdrop-filter: blur(5px);
+        text-shadow: 0.5px 0.5px 0.5px currentColor;
     }
 
     .iirose-link:hover {
@@ -103,6 +117,7 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         margin-bottom: 12px;
         backdrop-filter: blur(8px);
         font-weight: 900 !important;
+        text-shadow: 0.5px 0.5px 0.5px currentColor;
     }
 
     .iirose-warning {
@@ -113,12 +128,13 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         background: rgba(255, 193, 7, 0.1);
         border: 1px solid rgba(255, 193, 7, 0.2);
         border-radius: 4px;
-        font-size: 0.9em;
+        font-size: 1.05em;
         font-weight: 900 !important;
+        text-shadow: 0.5px 0.5px 0.5px currentColor;
     }
 
     .iirose-warning-icon {
-        font-size: 1.1em;
+        font-size: 1.15em;
         filter: drop-shadow(0 0 3px rgba(255, 193, 7, 0.3));
         font-weight: 900 !important;
     }
@@ -129,6 +145,7 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         margin: 0 0 12px 0;
         padding-bottom: 6px;
         border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+        text-shadow: 0.6px 0.6px 0.6px currentColor;
     }
 
     .iirose-dep-list {
@@ -136,19 +153,20 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         padding: 0;
         margin: 0;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: 6px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
     }
 
     .iirose-dep-item {
-        padding: 6px 12px;
+        padding: 8px 14px;
         background: rgba(128, 128, 128, 0.15);
         border: 1px solid rgba(128, 128, 128, 0.18);
         border-radius: 4px;
         text-align: left;
-        font-size: 0.85em;
+        font-size: 1.05em;
         font-weight: 900 !important;
         transition: all 0.2s ease;
+        text-shadow: 0.5px 0.5px 0.5px currentColor;
     }
 
     .iirose-dep-item:hover {
@@ -171,6 +189,7 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         border: 1px solid rgba(128, 128, 128, 0.18);
         border-radius: 4px;
         font-weight: 900 !important;
+        text-shadow: 0.6px 0.6px 0.6px currentColor;
     }
 
     .iirose-community-title {
@@ -180,21 +199,24 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         display: flex;
         align-items: center;
         gap: 6px;
+        text-shadow: 0.6px 0.6px 0.6px currentColor;
     }
 
     .iirose-qq-group {
-        font-size: 1em;
-        padding: 8px 16px;
+        font-size: 1.05em;
+        padding: 10px 18px;
         background: rgba(128, 128, 128, 0.15);
         border: 1px solid rgba(128, 128, 128, 0.22);
         border-radius: 4px;
         display: inline-block;
         font-weight: 900 !important;
         letter-spacing: 0.3px;
+        text-shadow: 0.6px 0.6px 0.6px currentColor;
     }
 
     .iirose-qq-number {
         font-weight: 900 !important;
+        text-shadow: 0.7px 0.7px 0.7px currentColor;
     }
 
     @media (max-width: 640px) {
@@ -208,7 +230,7 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
         }
 
         .iirose-title {
-            font-size: 1.5em;
+            font-size: 1.7em;
         }
 
         .iirose-dep-list {
@@ -277,7 +299,8 @@ https://github.com/max32002/swei-nut-sans/blob/master/WebFont/CJK%20JP/SweiNutSa
             💬 反馈与交流
         </h3>
         <div class="iirose-qq-group">
-            <span class="english-text">QQ</span>群: <span class="iirose-qq-number">1059933235</span>
+            <span class="english-text">QQ</span>群: <a href="https://qm.qq.com/q/Z7QQVjOFO2" target="_blank"
+                class="iirose-qq-number">1059933235</a>
         </div>
     </div>
 </div>
