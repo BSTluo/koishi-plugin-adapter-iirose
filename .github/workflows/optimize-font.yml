@@ -6,7 +6,8 @@ on:
       - main
     paths:
       - 'data/usage.html'
-
+  workflow_dispatch:  # 允许手动触发
+  
 jobs:
   optimize-font:
     runs-on: ubuntu-latest
