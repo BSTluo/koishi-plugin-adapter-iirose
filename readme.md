@@ -1,35 +1,56 @@
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/initialencounter/mykoishi">
-    <a href="https://koishi.chat/" target="_blank">
-    <img width="160" src="https://koishi.chat/logo.png" alt="logo">
-  </a>
-  </a>
+# 开发指南
 
-<h3 align="center">koishi-plugin-adapter-iirose</h3>
+本页面为开发者提供使用 IIROSE 适配器进行插件开发的详细指南。
 
-  <p align="center">
-    使koishi机器人平台支持<a href="https://www.iirose.com">IIROSE-蔷薇花园</a>聊天平台
-  </p>
-</div>
+## 环境准备
 
-[![npm](https://img.shields.io/npm/v/koishi-plugin-adapter-iirose?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-adapter-iirose)
+### 前置要求
 
-IIROSE-蔷薇花园适配器
+- Node.js >= 22.0.0
+- Koishi 4.18.8+
+- TypeScript 
 
-适合在koishi平台的[蔷薇花园](https://www.iirose.com)宝宝体质的新适配器))
+### 安装依赖
+在koishi项目模板安装
+```bash
+yarn clone BSTluo/koishi-plugin-adapter-iirose
+yarn dev
+```
 
-- [x] 基础文字问答
-- [x] 图片回复和图片元素的识别
-- [x] 控制台花园聊天室界面
-- [ ] 使用文档编写
-- [ ] 更多插件适配
-- [x] 回复信息的识别
-- [ ] 音频识别和回复
-- [ ] 词库插件施工
-- [x] 欢迎词插件施工
-- [x] 跟随插件施工
-- [ ] 更多内容！请务必发issue告诉我！
+---
 
-### 正在开发中！
+## IIROSE 开发方法
+
+### 监听ws消息
+
+浏览器打开 https://iirose.com/ 页面
+
+打开 `开发人员工具`（按下F12），
+
+选择 `控制台` 标签页。
+
+在`JavaScript上下文`处，选择`mainFrame(mesages.html)`
+
+在控制台输入函数
+```JavaScript
+function proxyFunction(targetFunction, callback) {
+        return ((...param) => {
+            if (callback(param, targetFunction) != true)
+                return targetFunction(...param)
+        });
+    }
+
+
+    socket.send = proxyFunction(socket.send.bind(socket), (p) => {
+        console.log("send", p)
+    });
+    socket._onmessage = proxyFunction(socket._onmessage.bind(socket), (p) => {
+        console.log("onMessage", p)
+    });
+
+```
+
+
+### 更多文档
+
+**https://github.com/XCWQW1/iirose-docs**
