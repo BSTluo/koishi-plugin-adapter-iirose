@@ -10,6 +10,10 @@
 </div>
 :::
 
+## 平台
+
+- **iirose.com**: [https://iirose.com/](https://iirose.com/)
+
 ## 社区
 
 - **QQ群**: 1059933235
