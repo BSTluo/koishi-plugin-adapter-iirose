@@ -84,6 +84,11 @@
                 "text": "Koishi 官网",
                 "link": "https://koishi.chat/zh-CN/guide/",
                 "target": "_blank"
+            },
+            {
+                "text": "iirose.com",
+                "link": "https://iirose.com/",
+                "target": "_blank"
             }
         ]
     }
