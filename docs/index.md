@@ -1,6 +1,8 @@
 # 快速开始
 
 :::tip
+---
+
 <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 10px; text-align: center;">
 <h3 style="color: #667eea; margin: 0 0 10px 0; font-size: 1.2em;">🌸 什么什么？第一次使用？</h3>
 <p style="color: #666; margin: 10px 0; font-size: 0.95em;">别担心呢～让我们一起阅读使用教程吧！</p>
@@ -8,6 +10,8 @@
 ✨ 请立即前往使用教程~
 </a>
 </div>
+
+---
 :::
 
 ## 平台

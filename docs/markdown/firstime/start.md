@@ -49,6 +49,8 @@
 
 在配置中填写你账号的密码：
 
+> 注意此步骤，确保你填入的是注册账号时的正确密码。
+
 ![设置密码](./../../public/assets/start/7c5c9e2a-9c5a-49d2-a953-83816acd1a33.png)
 
 ### 8.4 获取房间地址
@@ -69,19 +71,13 @@
 
 ## 第九步：启动插件
 
-### 9.1 启动 filemanager
-
-首先启动文件管理器插件：
-
-![启动 filemanager](./../../public/assets/start/af3c3cdd-1dbf-458c-9104-3a7d5b46c612.png)
-
-### 9.2 启动 adapter-iirose
+### 9.1 启动 adapter-iirose
 
 然后启动 IIROSE 适配器：
 
 ![启动适配器](./../../public/assets/start/e2c1195a-3d03-4822-b9ac-02dca4daeeb6.png)
 
-### 9.3 验证连接
+### 9.2 验证连接
 
 启动成功后，机器人应该会出现在你指定的房间中。
 
@@ -109,11 +105,11 @@
 
 
 ## 第十步：富媒体消息配置
-### filemanager 图床服务
+### assets 资源转存服务
 
-`filemanager`用于提供图床支持，
+插件市场中的`assets`类插件 提供了资源转存的服务支持，
 
-让你的机器人可以在iirose平台发送富媒体消息（图片、视频、语音）！
+让你的机器人可以在 iirose 平台发送富媒体消息（图片、视频、语音）！
 
-下一页内容 我们将说明如何配置`filemanager`插件。
+下一页内容 我们将说明如何配置`assets`插件。
 
