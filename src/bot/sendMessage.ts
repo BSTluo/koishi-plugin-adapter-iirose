@@ -126,13 +126,13 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
       case 'audio': {
         let url = attrs.link || attrs.url || attrs.src;
 
-        // 如果是 http 协议，直接使用
-        if (url.startsWith('http'))
+        // 如果是 https 协议，直接使用
+        if (url.startsWith('https'))
         {
-          // 直接使用 http URL
+          // 直接使用 https URL
         } else
         {
-          // 使用 assets 服务转存非 http 协议的资源
+          // 使用 assets 服务转存非 https 协议的资源
           try
           {
             const audioElement = `${h.audio(url)}`;
@@ -282,26 +282,13 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
       case 'img': {
         let url = attrs.src;
 
-        // 如果是 http 协议，直接使用
-        if (url.startsWith('http'))
+        // 如果是 https 协议，直接使用
+        if (url.startsWith('https'))
         {
-          const arr = ['jpg', 'jpeg', 'png', 'gif'];
-          let isDirectImage = false;
-          for (const ext of arr)
-          {
-            if (url.endsWith(`.${ext}`))
-            {
-              this.outDataOringin += `[${url}]`;
-              isDirectImage = true;
-              break;
-            }
-          }
-          if (isDirectImage) { break; }
-          this.outDataOringin += `[${url}]`;
+          this.outDataOringin += `[${url}#e]`;
           break;
         }
-
-        // 使用 assets 服务转存非 http 协议的资源
+        // 使用 assets 服务转存非 https 协议的资源
         try
         {
           const imgElement = `${h.image(url)}`;
@@ -322,7 +309,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           this.outDataOringin += '[图片转存异常]';
           this.bot.loggerError(error);
         }
-
         break;
       }
 
