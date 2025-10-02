@@ -40,10 +40,10 @@ function proxyFunction(targetFunction, callback) {
         });
     }
     socket.send = proxyFunction(socket.send.bind(socket), (p) => {
-        ctx.logger.info("send", p)
+        console.log("send", p)
     });
     socket._onmessage = proxyFunction(socket._onmessage.bind(socket), (p) => {
-        ctx.logger.info("onMessage", p)
+        console.log("onMessage", p)
     });
 
 ```
