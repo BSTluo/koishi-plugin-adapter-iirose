@@ -266,7 +266,7 @@ export class WsClient
         n: username || this.bot.config.usename,
         p: hashedPassword,
         st: 'n',
-        mo: this.bot.config.Signature,
+        mo: this.bot.config.signature,
         mb: '',
         mu: '01',
         lr: this.bot.config.oldRoomId,
