@@ -113,6 +113,18 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
       .replace(/>/g, '&gt;');
   }
 
+  /**
+   * 确保在添加内容前有换行符
+   * 用于图文消息里的图片和文字之间的换行
+   */
+  private ensureNewlineBefore(): void
+  {
+    if (this.outDataOringin.length > 0 && !this.outDataOringin.endsWith('\n'))
+    {
+      this.outDataOringin += '\n';
+    }
+  }
+
   async visit(element: h): Promise<void>
   {
     const { type, attrs, children } = element;
@@ -303,13 +315,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         // 如果是 https 协议，直接使用
         if (url.startsWith('https'))
         {
-          // 如果当前内容不为空且不以换行符结尾，则在图片前添加换行符
-          if (this.outDataOringin.length > 0 && !this.outDataOringin.endsWith('\n'))
-          {
-            this.outDataOringin += '\n';
-          }
+          this.ensureNewlineBefore();
           this.outDataOringin += `[${url}#e]`;
-          // 在图片后添加换行符，确保后续内容不会紧跟在图片后面
           this.outDataOringin += '\n';
           break;
         }
@@ -324,13 +331,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           if (urlMatch && urlMatch[1])
           {
             const transformedUrl = urlMatch[1];
-            // 如果当前内容不为空且不以换行符结尾，则在图片前添加换行符
-            if (this.outDataOringin.length > 0 && !this.outDataOringin.endsWith('\n'))
-            {
-              this.outDataOringin += '\n';
-            }
+            this.ensureNewlineBefore();
             this.outDataOringin += `[${transformedUrl}#e]`;
-            // 在图片后添加换行符，确保后续内容不会紧跟在图片后面
             this.outDataOringin += '\n';
           } else
           {
@@ -338,13 +340,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           }
         } catch (error)
         {
-          // 如果当前内容不为空且不以换行符结尾，则在错误信息前添加换行符
-          if (this.outDataOringin.length > 0 && !this.outDataOringin.endsWith('\n'))
-          {
-            this.outDataOringin += '\n';
-          }
+          this.ensureNewlineBefore();
           this.outDataOringin += '[图片转存异常]';
-          // 在错误信息后添加换行符
           this.outDataOringin += '\n';
           this.bot.loggerError(error);
         }
