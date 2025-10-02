@@ -18,6 +18,8 @@
 
 - **iirose.com**: [https://iirose.com/](https://iirose.com/)
 
+> 进一步了解此平台？ 请前往 [bilibili.com/read/cv19686904](https://www.bilibili.com/read/cv19686904/?jump_opus=1)
+
 ## 社区
 
 - **QQ群**: 1059933235
