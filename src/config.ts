@@ -42,13 +42,13 @@ export const Config: Schema<Config> = Schema.intersect([
     uid: Schema.string().required().description('BOT的唯一标识<br>`不带[@@]的部分`').pattern(/[a-z0-9]{13}/),
     password: Schema.string().required().role('secret').description('BOT的密码'),
     roomId: Schema.string().required().description('BOT的初始房间地址<br>`不带[__]的部分`').pattern(/([a-z0-9]{13})/),
-    roomPassword: Schema.string().default(null).description('BOT的初始房间密码(可空)'),
-    signature: Schema.string().role('textarea', { rows: [2, 4] }).default('Bot of Koishi~\nPowered by IIROSE Adapter.').description('BOT的个人资料中的签名文本'),
+    roomPassword: Schema.string().default(null).description('BOT的初始房间地址的 房间密码 (一般不需要写)'),
   }).description('基础设置'),
 
   Schema.object({
-    color: Schema.string().role('color').default("rgba(49, 31, 186, 1)").description('BOT气泡颜色（RGB）<br>透明度通道不生效。'),
     hangUpMode: Schema.boolean().default(false).description('是否开启 挂机模式（iirose平台展示的账号状态）'),
+    color: Schema.string().role('color').default("rgba(49, 31, 186, 1)").description('BOT的聊天气泡颜色<br>注：透明度不生效。'),
+    signature: Schema.string().role('textarea', { rows: [2, 4] }).default('Bot of Koishi~\nPowered by IIROSE Adapter.').description('BOT的个人资料中的签名文本'),
   }).description('进阶设置'),
 
   Schema.object({
@@ -79,9 +79,12 @@ export const Config: Schema<Config> = Schema.intersect([
   ]),
 
   Schema.object({
-    deleteMessageDelay: Schema.number().min(0).max(10000).default(1500).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000'),
+    deleteMessageDelay: Schema.number().min(0).max(10000).default(1500).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
     oldRoomId: Schema.string().default(null).description('仅内部使用'),
+  }).description('开发者选项'),
+
+  Schema.object({
     debugMode: Schema.boolean().default(false).description('是否 开启调试模式<br>提issue时，请务必开启此项，附上复现问题的日志'),
     fullDebugMode: Schema.boolean().default(false).description('是否 开启详细调试模式<br>慎重开启'),
-  }).description('开发者选项'),
+  }).description('开发调试选项'),
 ]);
