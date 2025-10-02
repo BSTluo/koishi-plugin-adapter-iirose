@@ -52,7 +52,7 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('进阶设置'),
 
   Schema.object({
-    timeout: Schema.number().min(1000).max(10000).default(3000).description('连接超时的判定时限 (单位：毫秒)'),
+    timeout: Schema.number().min(1 * 1000).max(20 * 1000).default(5 * 1000).description('连接超时的判定时限 (单位：毫秒)'),
     keepAliveEnable: Schema.boolean().default(true).description('是否开启心跳包'),
     maxRetries: Schema.number().min(1).max(100).default(5).description('连接失败时的最大重试次数。达到后不再重试。'),
   }).description('连接设置'),
@@ -79,7 +79,7 @@ export const Config: Schema<Config> = Schema.intersect([
   ]),
 
   Schema.object({
-    deleteMessageDelay: Schema.number().min(0).max(10000).default(1500).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
+    deleteMessageDelay: Schema.number().min(0).max(10 * 1000).default(1.5 * 1000).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
     oldRoomId: Schema.string().default(null).description('仅内部使用'),
   }).description('开发者选项'),
 
