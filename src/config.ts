@@ -38,16 +38,16 @@ export interface Config
 
 export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
-    usename: Schema.string().required().description('BOT用户名<br>`不带[**]的部分`'),
+    usename: Schema.string().required().description('BOT的用户名<br>`不带[**]的部分`'),
     uid: Schema.string().required().description('BOT的唯一标识<br>`不带[@@]的部分`').pattern(/[a-z0-9]{13}/),
     password: Schema.string().required().role('secret').description('BOT的密码'),
     roomId: Schema.string().required().description('BOT的初始房间地址<br>`不带[__]的部分`').pattern(/([a-z0-9]{13})/),
-    roomPassword: Schema.string().default('').description('BOT的初始房间密码(可空)'),
-    signature: Schema.string().default('').description('BOT签名'),
+    roomPassword: Schema.string().default(null).description('BOT的初始房间密码(可空)'),
+    signature: Schema.string().role('textarea', { rows: [2, 4] }).default('Bot of Koishi~\nPowered by IIROSE Adapter.').description('BOT的个人资料中的签名文本'),
   }).description('基础设置'),
 
   Schema.object({
-    color: Schema.string().role('color').default('rgba(102, 204, 255, 1)').description('BOT气泡颜色（RGB）<br>透明度通道不生效。'),
+    color: Schema.string().role('color').default("rgba(49, 31, 186, 1)").description('BOT气泡颜色（RGB）<br>透明度通道不生效。'),
     hangUpMode: Schema.boolean().default(false).description('是否开启 挂机模式（iirose平台展示的账号状态）'),
   }).description('进阶设置'),
 
@@ -60,27 +60,27 @@ export const Config: Schema<Config> = Schema.intersect([
     Schema.object({
       password: Schema.const('ec3a4ac482b483ac02d26e440aa0a948').required(),
       smStart: Schema.boolean().default(false),
-      smPassword: Schema.string().default('').role('secret'),
-      smRoom: Schema.string().default(''),
-      smUsername: Schema.string().default(''),
-      smImage: Schema.string().default(''),
-      smColor: Schema.string().default(''),
-      smGender: Schema.string().default(''),
-      smst: Schema.string().default(''),
-      smmo: Schema.string().default(''),
-      smUid: Schema.string().default(''),
-      smli: Schema.string().default(''),
-      smmb: Schema.string().default(''),
-      smmu: Schema.string().default(''),
-      smLocation: Schema.string().default(''),
-      smvc: Schema.string().default(''),
+      smPassword: Schema.string().default(null).role('secret'),
+      smRoom: Schema.string().default(null),
+      smUsername: Schema.string().default(null),
+      smImage: Schema.string().default(null),
+      smColor: Schema.string().default(null),
+      smGender: Schema.string().default(null),
+      smst: Schema.string().default(null),
+      smmo: Schema.string().default(null),
+      smUid: Schema.string().default(null),
+      smli: Schema.string().default(null),
+      smmb: Schema.string().default(null),
+      smmu: Schema.string().default(null),
+      smLocation: Schema.string().default(null),
+      smvc: Schema.string().default(null),
     }).description('神秘内容'),
     Schema.object({}) as Schema<Partial<Config>> // 可选
   ]),
 
   Schema.object({
     deleteMessageDelay: Schema.number().min(0).max(10000).default(1500).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000'),
-    oldRoomId: Schema.string().default('').description('仅内部使用'),
+    oldRoomId: Schema.string().default(null).description('仅内部使用'),
     debugMode: Schema.boolean().default(false).description('是否 开启调试模式<br>提issue时，请务必开启此项，附上复现问题的日志'),
     fullDebugMode: Schema.boolean().default(false).description('是否 开启详细调试模式<br>慎重开启'),
   }).description('开发者选项'),

@@ -199,7 +199,7 @@ export class WsClient
       }
 
       const targetUrl = `wss://${faseter}.iirose.com:8778`;
-      this.bot.loggerInfo(`websocket 客户端地址： ${targetUrl}`);
+      this.bot.loggerInfo(`websocket 客户端地址：${targetUrl}`);
 
       socket = new WebSocket(targetUrl);
 
@@ -301,7 +301,7 @@ export class WsClient
 
     socket.addEventListener('open', async () =>
     {
-      this.bot.loggerInfo('websocket 客户端连接成功，正在登录...');
+      this.bot.loggerInfo('websocket 客户端：正在登录中...');
 
       try
       {
