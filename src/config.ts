@@ -8,7 +8,7 @@ export interface Config
   roomId: string;
   roomPassword: string;
   oldRoomId?: string;
-  Signature: string;
+  signature: string;
   color: string;
   timeout: number;
   keepAliveEnable: boolean;
@@ -43,7 +43,7 @@ export const Config: Schema<Config> = Schema.intersect([
     password: Schema.string().required().role('secret').description('BOT的密码'),
     roomId: Schema.string().required().description('BOT的初始房间地址<br>`不带[__]的部分`').pattern(/([a-z0-9]{13})/),
     roomPassword: Schema.string().default('').description('BOT的初始房间密码(可空)'),
-    Signature: Schema.string().default('').description('BOT签名'),
+    signature: Schema.string().default('').description('BOT签名'),
   }).description('基础设置'),
 
   Schema.object({
