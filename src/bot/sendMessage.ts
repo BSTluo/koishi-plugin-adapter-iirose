@@ -3,7 +3,7 @@ import { Context, MessageEncoder, h } from 'koishi';
 import { } from '@koishijs/assets';
 import PrivateMessage from '../encoder/messages/PrivateMessage';
 import PublicMessage from '../encoder/messages/PublicMessage';
-import { rgbaToHex } from '../utils/utils';
+import { rgbaToHex, generateMessageId } from '../utils/utils';
 import Like from '../encoder/system/Like';
 import { musicOrigin } from './event';
 import { IIROSE_WSsend } from '../utils/ws';
@@ -41,10 +41,18 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
   private outDataOringin: string = '';
   private outDataOringinObj: string = '';
   private currentMessageId: string = '';
+  private audioSent: boolean = false;
 
   async flush(): Promise<void>
   {
     if (this.bot.config.hangUpMode) { return; }
+
+    // 如果已经发送了音频消息且没有其他内容，则不发送额外消息
+    if (this.audioSent && this.outDataOringin.length <= 0)
+    {
+      return;
+    }
+
     if (this.outDataOringin.length <= 0)
     {
       this.outDataOringin = ' '; // 默认内容
@@ -155,35 +163,35 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           }
         }
 
-        function getRandomColor()
+        // 确保URL以.weba结尾，IIROSE平台需要此后缀才能正确识别为语音消息
+        if (!url.endsWith('.weba'))
         {
-          const letters = '0123456789ABCDEF';
-          let color = '#';
-          for (let i = 0; i < 6; i++)
+          if (url.includes('?'))
           {
-            color += letters[Math.floor(Math.random() * 16)];
+            url += `&iiroseaudio=.weba`;
+          } else
+          {
+            url += `?iiroseaudio=.weba`;
           }
-          return color;
         }
 
-        const metadata = await getMediaMetadata(url, this.bot.ctx);
+        let audioMessage: string;
+        if (this.channelId.startsWith('public:'))
+        {
+          const result = PublicMessage(url, rgbaToHex(this.bot.config.color));
+          audioMessage = result.data;
+        } else if (this.channelId.startsWith('private:'))
+        {
+          const result = PrivateMessage(this.channelId.split(':')[1], url, rgbaToHex(this.bot.config.color));
+          audioMessage = result.data;
+        }
 
-        const obj: musicOrigin = {
-          type: 'music',
-          name: attrs.name || metadata.title,
-          signer: attrs.author || metadata.artist,
-          cover: attrs.cover || metadata.picture,
-          link: url,
-          url: url,
-          duration: attrs.duration || metadata.duration,
-          bitRate: attrs.bitRate || metadata.bitrate,
-          color: attrs.color || getRandomColor(),
-          lyrics: (attrs.lyrics) ? attrs.lyrics : (Math.random() > 0.9) ? '' : '俺不中嘞，插件没给俺歌词啊喵',
-          origin: (attrs.origin) ? attrs.origin : null
-        };
-
-        this.bot.internal.makeMusic(obj);
-        // ctx.emit('iirose/makeMusic', obj);
+        if (audioMessage)
+        {
+          await IIROSE_WSsend(this.bot, audioMessage);
+          // 标记已发送音频消息，防止flush时发送空格消息
+          this.audioSent = true;
+        }
         break;
       }
 

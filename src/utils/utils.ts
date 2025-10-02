@@ -44,6 +44,15 @@ export function rgbaToHex(rgba: string): string
   return `${rHex}${gHex}${bHex}`;
 }
 
+/**
+ * 生成消息ID
+ * @returns 12位随机字符串作为消息ID
+ */
+export function generateMessageId(): string
+{
+  return Math.random().toString().substring(2, 14);
+}
+
 export const startEventsServer = (bot: IIROSE_Bot) =>
 {
   let event: (() => boolean)[] = [];

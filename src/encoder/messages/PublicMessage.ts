@@ -1,6 +1,8 @@
+import { generateMessageId } from '../../utils/utils';
+
 export default (message: any, color: string) =>
 {
-  const messageId = Math.random().toString().substr(2, 12); // 生成消息ID
+  const messageId = generateMessageId();
 
   if (message === 'cut')
   {
@@ -9,7 +11,7 @@ export default (message: any, color: string) =>
       data: `{0${JSON.stringify({
         m: message,
         mc: color,
-        i: messageId,// messageid 
+        i: messageId,
       })}`
     };
   }
@@ -18,7 +20,7 @@ export default (message: any, color: string) =>
     data: JSON.stringify({
       m: message,
       mc: color,
-      i: messageId, // messageid 
+      i: messageId,
     })
   };
 };
