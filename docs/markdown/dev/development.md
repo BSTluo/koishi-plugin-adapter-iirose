@@ -39,18 +39,19 @@ function proxyFunction(targetFunction, callback) {
                 return targetFunction(...param)
         });
     }
-
-
     socket.send = proxyFunction(socket.send.bind(socket), (p) => {
-        console.log("send", p)
+        ctx.logger.info("send", p)
     });
     socket._onmessage = proxyFunction(socket._onmessage.bind(socket), (p) => {
-        console.log("onMessage", p)
+        ctx.logger.info("onMessage", p)
     });
 
 ```
 
+### 现有规范问题
 
+详情 请前往 -> [sonarcloud.io](https://sonarcloud.io/project/security_hotspots?id=BSTluo_koishi-plugin-adapter-iirose&branch=main&issueStatuses=OPEN,CONFIRMED&sinceLeakPeriod=true
+)
 ### 更多文档
 
 **https://github.com/XCWQW1/iirose-docs**

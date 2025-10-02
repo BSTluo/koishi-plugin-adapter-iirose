@@ -91,8 +91,8 @@ getSelf(): Promise<Universal.User>
 **示例:**
 ```typescript
 const selfInfo = await bot.getSelf()
-console.log('机器人名称:', selfInfo.name)
-console.log('机器人ID:', selfInfo.id)
+ctx.logger.info('机器人名称:', selfInfo.name)
+ctx.logger.info('机器人ID:', selfInfo.id)
 ```
 
 ### getUser
@@ -112,8 +112,8 @@ getUser(userId: string, guildId?: string): Promise<Universal.User>
 **示例:**
 ```typescript
 const userInfo = await bot.getUser('user123abc456')
-console.log('用户名:', userInfo.name)
-console.log('头像:', userInfo.avatar)
+ctx.logger.info('用户名:', userInfo.name)
+ctx.logger.info('头像:', userInfo.avatar)
 ```
 
 ### getMessage
@@ -352,8 +352,8 @@ bot.internal.getUserByName(name: string): Promise<Universal.User | undefined>
 ```typescript
 const user = await bot.internal.getUserByName('张三')
 if (user) {
-  console.log('用户ID:', user.id)
-  console.log('用户名:', user.name)
+  ctx.logger.info('用户ID:', user.id)
+  ctx.logger.info('用户名:', user.name)
 }
 ```
 
@@ -374,8 +374,8 @@ bot.internal.getUserById(id: string): Promise<Universal.User | undefined>
 ```typescript
 const user = await bot.internal.getUserById('user123abc456')
 if (user) {
-  console.log('用户名:', user.name)
-  console.log('头像:', user.avatar)
+  ctx.logger.info('用户名:', user.name)
+  ctx.logger.info('头像:', user.avatar)
 }
 ```
 
@@ -556,9 +556,9 @@ bot.internal.stockGet(callback: (stockData: StockSession) => void): void
 ```typescript
 // 获取股票信息
 bot.internal.stockGet((stockData) => {
-  console.log('股票价格:', stockData.price)
-  console.log('涨跌:', stockData.change)
-  console.log('成交量:', stockData.volume)
+  ctx.logger.info('股票价格:', stockData.price)
+  ctx.logger.info('涨跌:', stockData.change)
+  ctx.logger.info('成交量:', stockData.volume)
   
   // 可以发送消息
   if (stockData.send) {
