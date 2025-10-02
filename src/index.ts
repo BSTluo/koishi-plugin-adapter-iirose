@@ -104,6 +104,10 @@ export function apply(ctx: Context, config: Config)
       // 创建机器人
       bot = new IIROSE_Bot(ctx, config);
 
+      // // 启动机器人
+      // 好像koishi会自动调用 bot.start();
+      // await bot.start();
+
     });
   });
 }

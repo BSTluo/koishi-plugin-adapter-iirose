@@ -93,33 +93,51 @@ export class WsClient
       }
 
       allErrors = true;
+      const speedTests: Promise<{ index: string, speed: number | 'error'; }>[] = [];
 
+      // 并行测试所有服务器
       for (let webIndex of iiroseList)
       {
-        // 在每次检查前都验证停用状态
+        speedTests.push(
+          this.getLatency(`wss://${webIndex}.iirose.com:8778`)
+            .then(speed => ({ index: webIndex, speed }))
+            .catch(() => ({ index: webIndex, speed: 'error' as const }))
+        );
+      }
+
+      try
+      {
+        // 等待所有测试完成，但有超时保护
+        const results = await Promise.race([
+          Promise.all(speedTests),
+          new Promise<{ index: string, speed: 'error'; }[]>(resolve =>
+            setTimeout(() => resolve(iiroseList.map(index => ({ index, speed: 'error' as const }))), 5000)
+          )
+        ]);
+
+        // 检查是否正在停用
         if (this.disposed)
         {
           return;
         }
 
-        let speed: number | 'error' = 'error';
-        try
+        // 找到最快的可用服务器
+        for (const result of results)
         {
-          speed = await this.getLatency(`wss://${webIndex}.iirose.com:8778`);
-        } catch (error)
-        {
-          speed = 'error';
-        }
-
-        if (speed != 'error')
-        {
-          allErrors = false;
-          if (maximumSpeed > speed)
+          if (result.speed !== 'error')
           {
-            faseter = webIndex;
-            maximumSpeed = speed;
+            allErrors = false;
+            if (maximumSpeed > result.speed)
+            {
+              faseter = result.index;
+              maximumSpeed = result.speed;
+            }
           }
         }
+
+      } catch (error)
+      {
+        this.bot.loggerWarn('服务器测试过程中出现错误:', error);
       }
 
       if (allErrors)
@@ -180,8 +198,13 @@ export class WsClient
         faseter = 'www';
       }
 
-      socket = new WebSocket(`wss://${faseter}.iirose.com:8778`);
-      this.bot.loggerInfo(`websocket 客户端地址： wss://${faseter}.iirose.com:8778`);
+      const targetUrl = `wss://${faseter}.iirose.com:8778`;
+      this.bot.loggerInfo(`websocket 客户端地址： ${targetUrl}`);
+
+      socket = new WebSocket(targetUrl);
+
+      // 添加连接选项以提高连接成功率
+      socket.binaryType = 'arraybuffer';
 
       this.bot.ctx.on('dispose', () =>
       {
@@ -198,7 +221,7 @@ export class WsClient
         return;
       }
       this.bot.loggerError('websocket连接创建失败:', error);
-      return;
+      throw error; // 重新抛出错误，让上层处理重试
     }
 
     this.bot.socket = socket;
@@ -278,23 +301,34 @@ export class WsClient
 
     socket.addEventListener('open', async () =>
     {
-      this.bot.loggerInfo('websocket 客户端连接中...');
-      const loginPack = '*' + JSON.stringify(this.loginObj);
+      this.bot.loggerInfo('websocket 客户端连接成功，正在登录...');
 
-      await IIROSE_WSsend(this.bot, loginPack);
-
-      this.event = startEventsServer(this.bot);
-      // 清理旧的心跳定时器（如果存在）
-      if (this.live)
+      try
       {
-        clearInterval(this.live);
-        this.live = null;
-      }
+        const loginPack = '*' + JSON.stringify(this.loginObj);
+        await IIROSE_WSsend(this.bot, loginPack);
 
-      // 设置基础心跳包保活
-      if (this.bot.config.keepAliveEnable)
+        this.event = startEventsServer(this.bot);
+
+        // 清理旧的心跳定时器（如果存在）
+        if (this.live)
+        {
+          clearInterval(this.live);
+          this.live = null;
+        }
+
+        // 设置基础心跳包保活
+        if (this.bot.config.keepAliveEnable)
+        {
+          this.startHeartbeat();
+        }
+      } catch (error)
       {
-        this.startHeartbeat();
+        this.bot.loggerError('登录包发送失败:', error);
+        if (socket.readyState === WebSocket.OPEN)
+        {
+          socket.close();
+        }
       }
     });
 
@@ -815,9 +849,8 @@ export class WsClient
    */
   private getLatency(url: string): Promise<number | 'error'>
   {
-    return new Promise(async (resolve, reject) =>
+    return new Promise((resolve) =>
     {
-
       // 检查是否正在停用
       if (this.disposed)
       {
@@ -825,70 +858,93 @@ export class WsClient
         return;
       }
 
+      let ws: WebSocket | null = null;
+      let timeoutId: NodeJS.Timeout | null = null;
+      let disposingCheckId: NodeJS.Timeout | null = null;
+      let resolved = false;
+
+      const cleanup = () =>
+      {
+        if (timeoutId)
+        {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+        if (disposingCheckId)
+        {
+          clearInterval(disposingCheckId);
+          disposingCheckId = null;
+        }
+        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING))
+        {
+          try
+          {
+            ws.close();
+          } catch (e)
+          {
+            // 忽略关闭错误
+          }
+        }
+        ws = null;
+      };
+
+      const safeResolve = (value: number | 'error') =>
+      {
+        if (!resolved)
+        {
+          resolved = true;
+          cleanup();
+          resolve(value);
+        }
+      };
+
       try
       {
         const startTime = Date.now();
 
-        let ws;
-        try
+        // 增加超时时间，给网络更多时间
+        const timeout = Math.max(this.bot.config.timeout, 2000); // 至少2秒
+
+        ws = new WebSocket(url);
+
+        // 设置超时
+        timeoutId = setTimeout(() =>
         {
-          ws = new WebSocket(url);
-        } catch (wsError)
-        {
-          resolve('error');
-          return;
-        }
-        const timeout: number = Math.min(this.bot.config.timeout, 3000); // 最多3秒超时
-        const timeoutId = setTimeout(() =>
-        {
-          if (ws.readyState === WebSocket.OPEN)
-          {
-            ws.close();
-          }
-          resolve('error');
+          safeResolve('error');
         }, timeout);
 
-        // 添加停用检查
-        const disposingCheckId = setInterval(() =>
+        // 定期检查停用状态
+        disposingCheckId = setInterval(() =>
         {
           if (this.disposed)
           {
-            clearTimeout(timeoutId);
-            clearInterval(disposingCheckId);
-            if (ws.readyState === WebSocket.OPEN)
-            {
-              ws.close();
-            }
-            resolve('error');
+            safeResolve('error');
           }
-        }, 100);
+        }, 200);
 
         ws.addEventListener('open', () =>
         {
           const endTime = Date.now();
           const latency = endTime - startTime;
-          clearTimeout(timeoutId);
-          clearInterval(disposingCheckId);
-          ws.close();
-          resolve(latency);
+          safeResolve(latency);
         });
 
-        ws.addEventListener('error', (error) =>
+        ws.addEventListener('error', () =>
         {
-          clearTimeout(timeoutId);
-          clearInterval(disposingCheckId);
-          ws.close();
-          resolve('error');
+          safeResolve('error');
         });
 
         ws.addEventListener('close', () =>
         {
-          clearTimeout(timeoutId);
-          clearInterval(disposingCheckId);
+          if (!resolved)
+          {
+            safeResolve('error');
+          }
         });
+
       } catch (error)
       {
-        resolve('error');
+        safeResolve('error');
       }
     });
   }
