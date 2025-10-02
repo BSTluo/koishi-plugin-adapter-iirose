@@ -24,7 +24,7 @@ export class IIROSE_Bot extends Bot<Context>
     data: Record<string, any>;
   }[] = [];
 
-  static inject = ['filemanager'];
+  static inject = ['assets'];
 
   public wsClient: WsClient;
   public readonly config: Config;

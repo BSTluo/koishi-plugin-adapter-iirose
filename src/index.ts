@@ -9,8 +9,8 @@ import { join } from 'node:path';
 export const name = 'adapter-iirose';
 
 export const inject = {
-  required: ['http', 'logger', 'filemanager'],
-  optional: ['database']
+  required: ['http', 'logger', 'database'],
+  optional: ['assets']
 };
 
 export const reusable = true;

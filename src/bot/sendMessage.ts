@@ -1,8 +1,6 @@
 
 import { Context, MessageEncoder, h } from 'koishi';
-
-import { } from 'koishi-plugin-filemanager';
-
+import { } from '@koishijs/assets';
 import PrivateMessage from '../encoder/messages/PrivateMessage';
 import PublicMessage from '../encoder/messages/PublicMessage';
 import { rgbaToHex } from '../utils/utils';
@@ -10,9 +8,6 @@ import Like from '../encoder/system/Like';
 import { musicOrigin } from './event';
 import { IIROSE_WSsend } from '../utils/ws';
 import { IIROSE_Bot } from './bot';
-import FormData from 'form-data';
-
-import fs from 'node:fs';
 
 async function getMediaMetadata(url: string, ctx: Context)
 {
@@ -103,9 +98,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
   async visit(element: h): Promise<void>
   {
     const { type, attrs, children } = element;
-    // console.log('type', type);
-    // console.log('attrs', attrs);
-    // console.log('children', children);
     switch (type)
     {
       case 'video': {
@@ -133,64 +125,33 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
       case 'audio': {
         let url = attrs.link || attrs.url || attrs.src;
-        let file: Buffer;
-        let uid: string;
-        let config: { contentType: string; filename: string; } | undefined;
-        if (url.startsWith('file://'))
-        {
-          const fileUrl = new URL(url);
-          file = fs.readFileSync(fileUrl);
-          uid = this.bot.config.uid;
-        }
 
-        if (url.startsWith('data:audio'))
+        // 如果是 http 协议，直接使用
+        if (url.startsWith('http'))
         {
-          // 创建一个FormData实例
-          const base64ImgStr = url.replace(/^data:audio\/[a-z]+;base64,/, '');
-          file = Buffer.from(base64ImgStr, 'base64');
-          uid = this.bot.config.uid;
-          config = { contentType: 'audio/mpeg', filename: 'x.mp3' };
-        }
-
-        if (!url.startsWith('http'))
+          // 直接使用 http URL
+        } else
         {
+          // 使用 assets 服务转存非 http 协议的资源
           try
           {
-            const formData = new FormData();
+            const audioElement = `${h.audio(url)}`;
+            const transformedContent = await this.bot.ctx.assets.transform(audioElement);
 
-            // JSON.parse(this.bot.config.picFormData, (key, value) =>
-            // {
-            //   if (key == '') { return; }
-            //   if (value == '[file]')
-            //   {
-            //     config ? formData.append(key, file, config) : formData.append(key, file);
-            //   }
-            //   if (value == '[uid]')
-            //   {
-            //     formData.append(key, uid);
-            //   }
-
-            // });
-
-            // 发送formData到后端
-            url = await this.bot.ctx.filemanager.audio.upload(file, this.bot.ctx.filemanager.makeTempName() + '.mp3');
-
-            // const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
-
-            // if (match)
-            // {
-            //   match.forEach(element =>
-            //   {
-            //     // const urlStr = element.replace(/[\[\]]/g, '');
-            //     // 这里返回的data必须是类似a.mp3的这样的格式
-            //     url = `${(this.bot.config.picBackLink).replace(element, outData)}`;
-            //   });
-            // }
-            break;
+            // 从转存后的内容中提取 URL
+            const urlMatch = transformedContent.match(/src="([^"]+)"/);
+            if (urlMatch && urlMatch[1])
+            {
+              url = urlMatch[1];
+            } else
+            {
+              throw new Error('无法从转存结果中提取音频 URL');
+            }
           } catch (error)
           {
-            this.outDataOringin += '[音频异常]';
-            console.error(error);
+            this.outDataOringin += '[音频转存异常]';
+            this.bot.loggerError(error);
+            break;
           }
         }
 
@@ -319,92 +280,47 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
       case 'image':
       case 'img': {
-        let i = 0;
-        if (attrs.src.startsWith('http'))
+        let url = attrs.src;
+
+        // 如果是 http 协议，直接使用
+        if (url.startsWith('http'))
         {
           const arr = ['jpg', 'jpeg', 'png', 'gif'];
-          for (const iterator of arr)
+          let isDirectImage = false;
+          for (const ext of arr)
           {
-            if (attrs.src.endsWith(`.${iterator}`))
+            if (url.endsWith(`.${ext}`))
             {
-              this.outDataOringin += `[${attrs.src}]`;
-              i = 1;
+              this.outDataOringin += `[${url}]`;
+              isDirectImage = true;
               break;
             }
           }
-          if (i > 0) { break; }
-          // if (!this.outDataOringin.startsWith('\\\\\\*\n')) { this.outDataOringin = '\\\\\\*\n' + this.outDataOringin; }
-          this.outDataOringin += `[${attrs.src}]`;
+          if (isDirectImage) { break; }
+          this.outDataOringin += `[${url}]`;
           break;
         }
 
-        let file: Buffer<ArrayBuffer>;
-        let uid: string;
-        let config: { contentType: string; filename: string; } | undefined;
-        if (attrs.src.startsWith('file://'))
-        {
-          const fileUrl = new URL(attrs.src);
-          file = fs.readFileSync(fileUrl.pathname);
-          uid = this.bot.config.uid;
-        }
-
-        if (attrs.src.startsWith('data:image'))
-        {
-          // 创建一个FormData实例
-          const base64ImgStr = attrs.src.replace(/^data:image\/[a-z]+;base64,/, '');
-          file = Buffer.from(base64ImgStr, 'base64');
-          uid = this.bot.config.uid;
-          config = { contentType: 'image/png', filename: 'x.png' };
-        }
-
+        // 使用 assets 服务转存非 http 协议的资源
         try
         {
-          // JSON.parse(this.bot.config.picFormData, (key, value) =>
-          // {
-          //   if (key == '') { return; }
-          //   if (value == '[file]')
-          //   {
-          //     config ? formData.append(key, file, config) : formData.append(key, file);
-          //   }
-          //   if (value == '[uid]')
-          //   {
-          //     // console.log('uid', uid);
-          //     // console.log('key', key);
-          //     formData.append(key, uid);
-          //   }
+          const imgElement = `${h.image(url)}`;
+          const transformedContent = await this.bot.ctx.assets.transform(imgElement);
 
-          // formData.append(key, value); 加了这个会导致上传失败，意义不明
-          // });
-
-          // 发送formData到后端
-
-          // 发送formData到后端
-          // const response = await axios.post(this.bot.config.picLink, formData, {
-          //   headers: formData.getHeaders(),
-          // });
-          // let outData = response.data; // 确保你正确地访问了响应数据
-          // const match = this.bot.config.picBackLink.match(/\[([\s\S]+?)\]/g);
-          // if (match)
-          // {
-          //   match.forEach(element =>
-          //   {
-          //     const urlStr = element.replace(/[\[\]]/g, '');
-          //     // const repNodeList = urlStr.split('.');
-
-          //     // 使用reduce来访问嵌套属性
-          //     // outData = repNodeList.reduce((acc, key) => acc[key], outData);
-          //     // console.log('outData', outData);
-          //     this.outDataOringin += `[${(this.bot.config.picBackLink).replace(element, outData)}]`;
-          //     // console.log('outDataOringin', this.outDataOringin);
-          //   });
-          // }
-
-          const url = await this.bot.ctx.filemanager.img.upload(file, `${this.bot.ctx.filemanager.makeTempName()}.png`);
-          this.outDataOringin += `[${url}#e]`;
+          // 从转存后的内容中提取 URL
+          const urlMatch = transformedContent.match(/src="([^"]+)"/);
+          if (urlMatch && urlMatch[1])
+          {
+            const transformedUrl = urlMatch[1];
+            this.outDataOringin += `[${transformedUrl}#e]`;
+          } else
+          {
+            throw new Error('无法从转存结果中提取图片 URL');
+          }
         } catch (error)
         {
-          this.outDataOringin += '[图片显示异常]';
-          //console.error(error);
+          this.outDataOringin += '[图片转存异常]';
+          this.bot.loggerError(error);
         }
 
         break;
