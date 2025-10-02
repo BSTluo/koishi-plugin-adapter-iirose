@@ -56,6 +56,16 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
     if (this.outDataOringin.length <= 0)
     {
       this.outDataOringin = ' '; // 默认内容
+    } else
+    {
+      // 清理消息末尾多余的换行符，避免发送空白行
+      this.outDataOringin = this.outDataOringin.replace(/\n+$/, '');
+
+      // 如果清理后内容为空，设置默认内容
+      if (this.outDataOringin.length <= 0)
+      {
+        this.outDataOringin = ' ';
+      }
     }
 
     // 在实际发送消息时生成消息ID和消息对象
@@ -293,7 +303,14 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         // 如果是 https 协议，直接使用
         if (url.startsWith('https'))
         {
+          // 如果当前内容不为空且不以换行符结尾，则在图片前添加换行符
+          if (this.outDataOringin.length > 0 && !this.outDataOringin.endsWith('\n'))
+          {
+            this.outDataOringin += '\n';
+          }
           this.outDataOringin += `[${url}#e]`;
+          // 在图片后添加换行符，确保后续内容不会紧跟在图片后面
+          this.outDataOringin += '\n';
           break;
         }
         // 使用 assets 服务转存非 https 协议的资源
@@ -307,14 +324,28 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           if (urlMatch && urlMatch[1])
           {
             const transformedUrl = urlMatch[1];
+            // 如果当前内容不为空且不以换行符结尾，则在图片前添加换行符
+            if (this.outDataOringin.length > 0 && !this.outDataOringin.endsWith('\n'))
+            {
+              this.outDataOringin += '\n';
+            }
             this.outDataOringin += `[${transformedUrl}#e]`;
+            // 在图片后添加换行符，确保后续内容不会紧跟在图片后面
+            this.outDataOringin += '\n';
           } else
           {
             throw new Error('无法从转存结果中提取图片 URL');
           }
         } catch (error)
         {
+          // 如果当前内容不为空且不以换行符结尾，则在错误信息前添加换行符
+          if (this.outDataOringin.length > 0 && !this.outDataOringin.endsWith('\n'))
+          {
+            this.outDataOringin += '\n';
+          }
           this.outDataOringin += '[图片转存异常]';
+          // 在错误信息后添加换行符
+          this.outDataOringin += '\n';
           this.bot.loggerError(error);
         }
         break;
