@@ -114,6 +114,20 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
   }
 
   /**
+   * HTML反转义函数，用于处理assets转换后的URL中的转义字符
+   * @param text 需要反转义的文本
+   * @returns 反转义后的文本
+   */
+  private unescapeHtml(text: string): string
+  {
+    return text
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"');
+  }
+
+  /**
    * 确保在添加内容前有换行符
    * 用于图文消息里的图片和文字之间的换行
    */
@@ -172,7 +186,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
             const urlMatch = transformedContent.match(/src="([^"]+)"/);
             if (urlMatch && urlMatch[1])
             {
-              url = urlMatch[1];
+              url = this.unescapeHtml(urlMatch[1]);
             } else
             {
               throw new Error('无法从转存结果中提取音频 URL');
@@ -330,7 +344,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           const urlMatch = transformedContent.match(/src="([^"]+)"/);
           if (urlMatch && urlMatch[1])
           {
-            const transformedUrl = urlMatch[1];
+            const transformedUrl = this.unescapeHtml(urlMatch[1]);
             this.ensureNewlineBefore();
             this.outDataOringin += `[${transformedUrl}#e]`;
             this.outDataOringin += '\n';
