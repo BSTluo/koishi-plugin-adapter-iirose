@@ -45,7 +45,7 @@ assets-
 
 配置成功后，开启插件，即可提供 `assets` 服务
 
-> 为了方便，这里我们使用 `koishi-plugin-assets-xinyewapi` 作为演示。
+> 为了方便，这里我们使用 `koishi-plugin-assets-filebin-net` 作为演示。
 
 ![](./../../public/assets/start/assets-2025-10-02_20-00-38.png)
 
