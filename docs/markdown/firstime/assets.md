@@ -47,6 +47,10 @@ assets-
 
 > 为了方便，这里我们使用 `koishi-plugin-assets-filebin-net` 作为演示。
 
+安装 `koishi-plugin-assets-filebin-net` 插件，然后配置此插件。
+
+在 `seed` 配置项里填入任意不容易重复的种子字符串，然后开启插件即可！
+
 ![](./../../public/assets/start/assets-2025-10-02_20-00-38.png)
 
 ## 🎉 完成！
