@@ -51,11 +51,19 @@ https://koishi.chat/zh-CN/about/contact.html
 ![配置插件市场源](./../../public/assets/start/67482a19-b762-44f7-881f-d137f7fab3a9.png)
 
 
+
 :::warning 
 ### 重要
 完成此步骤后需要 **重启 Koishi**，以强制刷新插件市场
 
 ---
+:::
+
+:::warning 
+在此步骤中，如果你使用`第三步`的镜像源仍无法访问插件市场，请尝试更换为以下镜像源 并重试此步骤：
+```
+https://gitee.com/shangxueink/koishi-registry-aggregator/raw/gh-pages/market.json
+```
 :::
 
 ## 第四步：更新所有插件
