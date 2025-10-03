@@ -61,7 +61,7 @@ https://koishi.chat/zh-CN/about/contact.html
 
 :::warning 
 在此步骤中，如果你使用`第三步`的镜像源仍无法访问插件市场，请尝试更换为以下镜像源 并重试此步骤：
-```
+```bash
 https://gitee.com/shangxueink/koishi-registry-aggregator/raw/gh-pages/market.json
 ```
 :::
