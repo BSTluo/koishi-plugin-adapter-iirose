@@ -708,7 +708,7 @@ async function clearMsg(msg: string, bot: IIROSE_Bot)
   const result: [RegExp, string, string, RegExp, RegExp][] = [
     [/\s*\[\*([\s\S]+)\*\]\s*/g, '<at name="', '"></at>', /\s\[\*/g, /\*\]\s/g],
     [/\s*\[@([\s\S]+)@\]\s*/g, '<at id="', '"></at>', /\s\[\@/g, /\@\]\s/g],
-    [/https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif)(#e)*/g, '<img src="', '"></img>', /\[/g, /]/g],
+    [/(https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif))(#e)*/g, '<img src="', '"></img>', /\[/g, /]/g],
   ];
 
   let msg1 = msg;
@@ -756,7 +756,8 @@ async function clearMsg(msg: string, bot: IIROSE_Bot)
         } else if (reg[1].startsWith('<img src="'))
         {
           // 处理 img
-          msg = reg[1] + v + reg[2];
+          const cleanUrl = v.replace(/#e$/, '');
+          msg = reg[1] + cleanUrl + reg[2];
         }
         msg1 = msg1.replace(`\^\$${index}\$\^`, msg);
       }
