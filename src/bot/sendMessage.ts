@@ -82,6 +82,11 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
     }
 
     await IIROSE_WSsend(this.bot, this.outDataOringinObj);
+
+    if (this.currentMessageId)
+    {
+      this.results.push({ id: this.currentMessageId });
+    }
   }
 
   async sendData(message: string): Promise<void>
@@ -212,14 +217,17 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         }
 
         let audioMessage: string;
+        let audioMessageId: string;
         if (this.channelId.startsWith('public:'))
         {
           const result = PublicMessage(url, rgbaToHex(this.bot.config.color));
           audioMessage = result.data;
+          audioMessageId = result.messageId;
         } else if (this.channelId.startsWith('private:'))
         {
           const result = PrivateMessage(this.channelId.split(':')[1], url, rgbaToHex(this.bot.config.color));
           audioMessage = result.data;
+          audioMessageId = result.messageId;
         }
 
         if (audioMessage)
@@ -227,6 +235,10 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           await IIROSE_WSsend(this.bot, audioMessage);
           // 标记已发送音频消息，防止flush时发送空格消息
           this.audioSent = true;
+          if (audioMessageId)
+          {
+            this.results.push({ id: audioMessageId });
+          }
         }
         break;
       }

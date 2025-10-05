@@ -12,6 +12,8 @@ import { Config } from '../config';
 
 export class IIROSE_Bot extends Bot<Context>
 {
+  static MessageEncoder = IIROSE_BotMessageEncoder;
+
   platform: string = 'iirose';
   socket: WebSocket | undefined = undefined;
   public messageIdResolvers: ((messageId: string) => void)[] = [];
