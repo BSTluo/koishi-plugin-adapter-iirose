@@ -88,10 +88,10 @@ export function apply(ctx: Context, config: Config)
         {
           if (bot)
           {
-            bot.loggerError('[IIROSE] 清理旧适配器失败:', error);
+            bot.loggerError('清理旧适配器失败:', error);
           } else
           {
-            ctx.logger.error('[IIROSE] 清理旧适配器失败:', error);
+            ctx.logger.error('清理旧适配器失败:', error);
           }
         }
       }

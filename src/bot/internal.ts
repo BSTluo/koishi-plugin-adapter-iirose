@@ -8,7 +8,6 @@ import damakuFunction from '../encoder/messages/damaku';
 import cutOneFunction from '../encoder/admin/media_cut';
 import mediaCard from '../encoder/messages/media_card';
 import mediaData from '../encoder/messages/media_data';
-import moveRoom from "../encoder/user/moveRoomStart";
 import StockSell from '../encoder/user/StockSell';
 import kickFunction from '../encoder/admin/kick';
 import payment from "../encoder/system/payment";
@@ -49,15 +48,15 @@ export class Internal
     {
       if (this.bot.config.roomId === roomId)
       {
-        return this.bot.loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
+        return this.bot.loggerDebug('移动房间失败，当前所在房间已为目标房间 ');
       }
       this.bot.config.roomId = this.bot.config.roomId;
-      return this.bot.loggerDebug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
+      return this.bot.loggerDebug(`移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
     }
 
     if (this.bot.config.roomId === roomId)
     {
-      return this.bot.loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
+      return this.bot.loggerDebug('移动房间失败，当前所在房间已为目标房间 ');
     }
 
     // 保存旧房间信息
