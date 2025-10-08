@@ -51,10 +51,10 @@ export function apply(ctx: Context, config: Config)
             bot.stop(),
             new Promise(resolve => setTimeout(resolve, 1000))
           ]);
-          bot.loggerInfo('[IIROSE] 适配器已停止运行。');
+          bot.loggerInfo('适配器已停止运行。');
         } catch (error)
         {
-          bot.loggerError('[IIROSE] 适配器停止失败:', error);
+          bot.loggerError('适配器停止失败:', error);
         } finally
         {
           bot = null;

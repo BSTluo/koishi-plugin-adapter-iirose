@@ -1,6 +1,5 @@
 import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './MailboxMessage';
 import { getUserListCallback, GetUserListCallback } from './GetUserListCallback';
-import { beforeMoveRoomStart, BeforeMoveRoomStart } from './BeforeMoveRoomStart';
 import { userProfileCallback, UserProfileCallback } from './UserProfileCallback';
 import { mediaListCallback, MediaListCallback } from './MediaListCallback';
 import { paymentCallback, PaymentCallback } from './PaymentCallback';
@@ -43,7 +42,6 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
   len.mailboxMessage = mailboxMessage(msg);
   len.musicMessage = musicMessage(msg);
   len.stock = stock(msg, bot);
-  len.beforeMoveRoomStart = beforeMoveRoomStart(msg);
   len.messageDeleted = MessageDeleted(bot, msg);
 
   const newObj = {};
@@ -96,6 +94,5 @@ export interface MessageType
   mailboxMessage?: Follower | Like | RoomNotice | Payment;
   musicMessage?: MusicMessage;
   stock?: Stock;
-  beforeMoveRoomStart?: BeforeMoveRoomStart;
   messageDeleted?: MessageDeletedData;
 }

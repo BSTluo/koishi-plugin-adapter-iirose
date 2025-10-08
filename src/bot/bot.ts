@@ -66,22 +66,22 @@ export class IIROSE_Bot extends Bot<Context>
 
   public loggerError(message: any, ...args: any[]): void
   {
-    this.ctx.logger.error(message, ...args);
+    this.ctx.logger.error(`[${this.config.uid}]`, message, ...args);
   }
 
   public loggerInfo(message: any, ...args: any[]): void
   {
-    this.ctx.logger.info(message, ...args);
+    this.ctx.logger.info(`[${this.config.uid}]`, message, ...args);
   }
 
   public loggerDebug(message: any, ...args: any[]): void
   {
-    this.ctx.logger.debug(message, ...args);
+    this.ctx.logger.debug(`[${this.config.uid}]`, message, ...args);
   }
 
   public loggerWarn(message: any, ...args: any[]): void
   {
-    this.ctx.logger.warn(message, ...args);
+    this.ctx.logger.warn(`[${this.config.uid}]`, message, ...args);
   }
 
   public logInfo(message: any, ...args: any[]): void

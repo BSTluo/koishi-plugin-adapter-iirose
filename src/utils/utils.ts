@@ -59,26 +59,7 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
 
   event.push(bot.ctx.on('iirose/moveRoom', async moveData =>
   {
-    const roomId = moveData.roomId;
-    if (!roomId)
-    {
-      if (bot.config.roomId === roomId)
-      {
-        return bot.loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
-      }
-      bot.config.roomId = bot.config.roomId;
-      return bot.loggerDebug(` [IIROSE-BOT] 移动房间失败，目标房间为: ${roomId}，已经自动移动到默认房间`);
-    }
-    if (bot.config.roomId === roomId)
-    {
-      return bot.loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
-    }
-    bot.config.oldRoomId = bot.config.roomId;
-    bot.config.roomId = roomId;
-    bot.config.roomPassword = moveData.roomPassword;
-
-    await bot.adapter.disconnect(bot);
-    await bot.adapter.connect(bot);
+    await bot.internal.moveRoom(moveData);
   }));
 
   event.push(bot.ctx.on('iirose/kick', (kickData: EventType.kickData) =>

@@ -608,22 +608,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
-      case 'beforeMoveRoomStart': {
-        const data = obj.beforeMoveRoomStart;
-        bot.internal.moveRoomStart();
-
-        const event = {
-          type: 'moveRoomStart',
-          platform: 'iirose',
-          guildId: bot.config.roomId
-        };
-
-        const session = bot.session(event);
-        bot.ctx.emit('iirose/BeforeMoveRoomStart', session, data);
-        // 自身移动房间
-        break;
-      }
-
       case 'messageDeleted': {
         const data = obj.messageDeleted;
         if (!data) return;

@@ -52,8 +52,8 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('进阶设置'),
 
   Schema.object({
-    timeout: Schema.number().min(1 * 1000).max(20 * 1000).default(5 * 1000).description('连接超时的判定时限 (单位：毫秒)'),
     keepAliveEnable: Schema.boolean().default(true).description('是否开启心跳包'),
+    timeout: Schema.number().min(1 * 1000).max(20 * 1000).default(5 * 1000).description('连接超时的判定时限 (单位：毫秒)'),
     maxRetries: Schema.number().min(1).max(100).default(5).description('连接失败时的最大重试次数。达到后不再重试。'),
   }).description('连接设置'),
   Schema.union([

@@ -107,9 +107,12 @@ export class WsClient
 
       try
       {
-        // 等待所有测试完成，但有超时保护
         const results = await Promise.race([
-          Promise.all(speedTests),
+          Promise.allSettled(speedTests).then(settledResults =>
+            settledResults.map(result =>
+              result.status === 'fulfilled' ? result.value : { index: '', speed: 'error' as const }
+            ).filter(r => r.index !== '')
+          ),
           new Promise<{ index: string, speed: 'error'; }[]>(resolve =>
             setTimeout(() => resolve(iiroseList.map(index => ({ index, speed: 'error' as const }))), 5000)
           )
@@ -133,6 +136,13 @@ export class WsClient
               maximumSpeed = result.speed;
             }
           }
+        }
+
+        // 如果找到了可用的服务器，立即使用，不等待其他测试完成
+        if (!allErrors)
+        {
+          this.bot.loggerInfo(`找到可用服务器: ${faseter}, 延迟: ${maximumSpeed}ms`);
+          break; // 跳出重试循环
         }
 
       } catch (error)
@@ -199,7 +209,7 @@ export class WsClient
       }
 
       const targetUrl = `wss://${faseter}.iirose.com:8778`;
-      this.bot.loggerInfo(`websocket 客户端地址：${targetUrl}`);
+      this.bot.logInfo(`服务器地址：${targetUrl}`);
 
       socket = new WebSocket(targetUrl);
 
@@ -301,7 +311,7 @@ export class WsClient
 
     socket.addEventListener('open', async () =>
     {
-      this.bot.loggerInfo('websocket 客户端：正在登录中...');
+      this.bot.loggerInfo('正在登录中...');
 
       try
       {
@@ -667,11 +677,19 @@ export class WsClient
         this.bot.status == Universal.Status.DISCONNECT ||
         this.bot.status == Universal.Status.OFFLINE ||
         code == 1000 ||
-        this.disposed ||
-        this.isReconnecting
+        this.disposed
       )
       {
-        this.bot.logInfo("websocket停止：正常关闭，不重连");
+        if (!this.isReconnecting)
+        {
+          this.bot.logInfo("websocket停止：正常关闭，不重连");
+        }
+        return;
+      }
+
+      // 如果是重连状态，不输出异常关闭日志
+      if (this.isReconnecting)
+      {
         return;
       }
 
@@ -947,6 +965,39 @@ export class WsClient
         safeResolve('error');
       }
     });
+  }
+
+  /**
+   * 切换房间
+   * 重新连接到新房间
+   */
+  async switchRoom()
+  {
+    // 保存当前状态
+    const wasReconnecting = this.isReconnecting;
+
+    // 设置为重连状态，避免被当作异常断线
+    this.isReconnecting = true;
+
+    // 重置状态
+    this.isStarting = false;
+    this.isStarted = false;
+
+    // 清理当前连接但不设置 disposed
+    this.cleanup();
+    try
+    {
+      // 重新连接
+      await this.start();
+    } catch (error)
+    {
+      this.bot.loggerError('房间切换失败:', error);
+      throw error;
+    } finally
+    {
+      // 恢复重连状态
+      this.isReconnecting = wasReconnecting;
+    }
   }
 
 }

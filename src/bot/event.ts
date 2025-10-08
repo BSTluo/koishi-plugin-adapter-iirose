@@ -117,7 +117,6 @@ export interface Events
   'iirose/before-bank'(session: Session, data: MessageType['bankCallback']): void;
   'iirose/before-mediaList'(session: Session, data: MessageType['mediaListCallback']): void;
   'iirose/selfMove'(session: Session, data: MessageType['selfMove']): void;
-  'iirose/BeforeMoveRoomStart'(session: Session, data: MessageType['beforeMoveRoomStart']): void;
   'iirose/mailboxMessage'(session: Session, data: MessageType['mailboxMessage']): void;
   'iirose/kick'(kickData: kickData): void;
   'iirose/cut-one'(cutOne: cutOne): void;

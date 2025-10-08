@@ -59,26 +59,22 @@ export class Internal
     {
       return this.bot.loggerDebug(' [IIROSE-BOT] 移动房间失败，当前所在房间已为目标房间 ');
     }
+
+    // 保存旧房间信息
     this.bot.config.oldRoomId = this.bot.config.roomId;
+
+    // 更新房间配置
     this.bot.config.roomId = roomId;
     this.bot.config.roomPassword = moveData.roomPassword;
-    // await this.bot.adapter.disconnect(this.bot);
-    // await this.bot.adapter.connect(this.bot);
 
-    (moveData.roomPassword) ? IIROSE_WSsend(this.bot, moveRoom(moveData.roomId, moveData.roomPassword)) : IIROSE_WSsend(this.bot, moveRoom(moveData.roomId));
+    // 使用房间切换方法
+    if (this.bot.wsClient)
+    {
+      await this.bot.wsClient.switchRoom();
+      this.bot.loggerInfo(`移动到房间: ${roomId}`);
+    }
   }
 
-  /**
-     * 移动到指定房间开始(一般不调用这个..调用moveRoom)
-     * @returns 
-     */
-  async moveRoomStart()
-  {
-    await this.bot.adapter.disconnect(this.bot);
-    await this.bot.adapter.connect(this.bot);
-    // this.bot.config.oldRoomId = null;
-    // this.bot.config.roomPassword = null;
-  }
 
   kick(kickData: eventType.kickData)
   {
@@ -200,7 +196,6 @@ export interface InternalType
   stockBuy(numberData: number): void;
   stockSell(numberData: number): void;
   stockGet(callBack: eventType.StockGet): void;
-  moveRoomStart(): void;
   payment(uid: string, money: number, message?: string): void;
   initUserData(): void;
   getUserByName(name: string): Promise<Universal.User | undefined>;
