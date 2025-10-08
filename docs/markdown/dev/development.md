@@ -18,11 +18,13 @@ yarn dev
 ```
 
 :::tip
+
 注意将此项目添加至VScode的工作区，
 
 以确保 `settings.json` 生效，以统一项目的代码风格。
 
 详见 -> https://github.com/BSTluo/koishi-plugin-adapter-iirose/blob/main/.vscode/settings.json
+
 :::
 
 
