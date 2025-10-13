@@ -1,13 +1,10 @@
 import { Context, sleep, Universal } from 'koishi';
-import WebSocket from 'ws';
-
+import { getMd5Password, comparePassword, md5 } from './password';
 import { startEventsServer, stopEventsServer } from './utils';
-import { getMd5Password, comparePassword } from './password';
 import { decoderMessage } from '../decoder/decoderMessage';
-import { decoder } from '../decoder';
 import { IIROSE_Bot } from '../bot/bot';
+import { decoder } from '../decoder';
 import pako from 'pako';
-import md5 from 'md5';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -141,7 +138,6 @@ export class WsClient
         // 如果找到了可用的服务器，立即使用，不等待其他测试完成
         if (!allErrors)
         {
-          this.bot.loggerInfo(`找到可用服务器: ${faseter}, 延迟: ${maximumSpeed}ms`);
           break; // 跳出重试循环
         }
 
@@ -209,19 +205,20 @@ export class WsClient
       }
 
       const targetUrl = `wss://${faseter}.iirose.com:8778`;
-      this.bot.logInfo(`服务器地址：${targetUrl}`);
+      this.bot.loggerInfo(`找到可用服务器: ${targetUrl}, 延迟: ${maximumSpeed}ms`);
 
-      socket = new WebSocket(targetUrl);
+      socket = this.ctx.http.ws(targetUrl);
 
-      // 添加连接选项以提高连接成功率
+      // 设置二进制类型
       socket.binaryType = 'arraybuffer';
 
-      this.bot.ctx.on('dispose', () =>
+      const dispose = this.ctx.on('dispose', () =>
       {
-        if (socket && socket.readyState === WebSocket.OPEN)
+        if (socket && socket.readyState === 1) // WebSocket.OPEN
         {
           socket.close();
         }
+        dispose();
       });
 
     } catch (error)
@@ -335,7 +332,7 @@ export class WsClient
       } catch (error)
       {
         this.bot.loggerError('登录包发送失败:', error);
-        if (socket.readyState === WebSocket.OPEN)
+        if (socket.readyState === 1) // WebSocket.OPEN
         {
           socket.close();
         }
@@ -643,7 +640,7 @@ export class WsClient
       this.bot.socket.removeEventListener('close', () => { });
       this.bot.socket.removeEventListener('error', () => { });
 
-      if (this.bot.socket.readyState === WebSocket.OPEN || this.bot.socket.readyState === WebSocket.CONNECTING)
+      if (this.bot.socket.readyState === 1 || this.bot.socket.readyState === 0) // WebSocket.OPEN || WebSocket.CONNECTING
       {
         this.bot.socket.close();
       }
@@ -717,7 +714,7 @@ export class WsClient
 
       if (this.bot.socket)
       {
-        if (this.bot.socket.readyState === WebSocket.OPEN)
+        if (this.bot.socket.readyState === 1) // WebSocket.OPEN
         {
           if (this.bot.status == Universal.Status.ONLINE)
           {
@@ -731,7 +728,7 @@ export class WsClient
               this.bot.loggerWarn('心跳包发送失败:', error);
             }
           }
-        } else if (this.bot.socket.readyState === WebSocket.CLOSED || this.bot.socket.readyState === WebSocket.CLOSING)
+        } else if (this.bot.socket.readyState === 3 || this.bot.socket.readyState === 2) // WebSocket.CLOSED || WebSocket.CLOSING
         {
           this.bot.loggerWarn(`心跳保活检测到连接异常 实例: ${this.bot.user?.id || 'unknown'}, readyState: ${this.bot.socket.readyState}`);
           this.handleConnectionLoss();
@@ -852,7 +849,7 @@ export class WsClient
       this.bot.socket.removeEventListener('error', () => { });
 
       // 强制关闭连接
-      if (this.bot.socket.readyState === WebSocket.OPEN || this.bot.socket.readyState === WebSocket.CONNECTING)
+      if (this.bot.socket.readyState === 1 || this.bot.socket.readyState === 0) // WebSocket.OPEN || WebSocket.CONNECTING
       {
         this.bot.socket.close(1000, 'Plugin disposing');
       }
@@ -893,7 +890,7 @@ export class WsClient
           clearInterval(disposingCheckId);
           disposingCheckId = null;
         }
-        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING))
+        if (ws && (ws.readyState === 1 || ws.readyState === 0)) // WebSocket.OPEN || WebSocket.CONNECTING
         {
           try
           {
@@ -923,7 +920,7 @@ export class WsClient
         // 增加超时时间，给网络更多时间
         const timeout = Math.max(this.bot.config.timeout, 2000); // 至少2秒
 
-        ws = new WebSocket(url);
+        ws = this.ctx.http.ws(url);
 
         // 设置超时
         timeoutId = setTimeout(() =>

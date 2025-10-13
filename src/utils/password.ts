@@ -1,4 +1,12 @@
-import md5 from 'md5';
+import { createHash } from 'node:crypto';
+
+/**
+ * 生成 MD5 哈希
+ */
+export function md5(data: string): string
+{
+  return createHash('md5').update(data).digest('hex');
+}
 
 /**
  * 检查密码是否为32位小写MD5格式

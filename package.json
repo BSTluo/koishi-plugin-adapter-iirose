@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-adapter-iirose",
   "description": "[IIROSE-蔷薇花园](https://iirose.com/)适配器",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -42,17 +42,13 @@
   },
   "dependencies": {
     "html-entities": "^2.6.0",
-    "md5": "^2.3.0",
     "music-metadata": "^11.7.1",
-    "pako": "^2.1.0",
-    "ws": "^8.18.0"
+    "pako": "^2.1.0"
   },
   "peerDependencies": {
     "koishi": "^4.18.8"
   },
   "devDependencies": {
-    "@types/md5": "^2.3.5",
-    "@types/pako": "^2.0.3",
-    "@types/ws": "^8.5.12"
+    "@types/pako": "^2.0.3"
   }
 }
