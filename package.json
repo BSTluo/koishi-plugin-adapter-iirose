@@ -20,7 +20,7 @@
   "bugs": {
     "url": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/issues/new/choose"
   },
-  "homepage": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/tree/main",
+  "homepage": "https://github.com/BSTluo/koishi-plugin-adapter-iirose",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BSTluo/koishi-plugin-adapter-iirose.git"
