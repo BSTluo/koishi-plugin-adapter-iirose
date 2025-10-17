@@ -14,8 +14,10 @@ koishi 的 <a href="https://www.iirose.com">IIROSE-蔷薇花园</a> 平台适配
 
 ## IIROSE-蔷薇花园适配器
 
-[![npm](https://img.shields.io/npm/v/koishi-plugin-adapter-iirose?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-adapter-iirose)
+[![npm version](https://img.shields.io/npm/v/koishi-plugin-adapter-iirose?color=blue)](https://www.npmjs.com/package/koishi-plugin-adapter-iirose)
 [![npm downloads](https://img.shields.io/npm/dm/koishi-plugin-adapter-iirose)](https://www.npmjs.com/package/koishi-plugin-adapter-iirose)
+[![platform](https://img.shields.io/badge/platform-Koishi-blueviolet)](https://koishi.chat/)
+[![license](https://img.shields.io/github/license/BSTluo/koishi-plugin-adapter-iirose)](https://github.com/BSTluo/koishi-plugin-adapter-iirose?tab=MIT-1-ov-file)
 
 适合在 koishi 平台使用的 [蔷薇花园](https://www.iirose.com) 的宝宝体质适配器
 
