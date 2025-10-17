@@ -1,4 +1,5 @@
 {
+    "editor.formatOnSave": true,
     "editor.defaultFormatter": null, // 移除全局默认格式化器
     // 明确指定内置格式化器
     "[javascript]": {
