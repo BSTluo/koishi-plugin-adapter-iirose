@@ -307,7 +307,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         session.platform = 'iirose';
         session.subtype = 'private';
         session.subsubtype = 'private';
-        session.guildId = data.uid;
+        session.isDirect = true;
         session.content = data.message;
         session.channelId = `private:${data.uid}`;
 
