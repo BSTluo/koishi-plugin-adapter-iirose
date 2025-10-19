@@ -66,7 +66,7 @@ export const Config: Schema<Config> = Schema.intersect([
       Schema.const('e').description('😔 自闭中'),
       Schema.const('f').description('❤️ 请撩我'),
     ]).description('机器人平台状态').default('n'),
-    color: Schema.string().role('color').default("rgba(49, 31, 186, 1)").description('BOT的聊天气泡颜色<br>注：透明度不生效。'),
+    color: Schema.string().role('color').default("rgba(49, 31, 186, 1)").description('BOT的聊天气泡颜色<br>注：仅RGB通道生效，A通道(透明度)不生效。'),
     signature: Schema.string().role('textarea', { rows: [2, 4] }).default('Bot of Koishi~\nPowered by IIROSE Adapter.').description('BOT的个人资料中的签名文本'),
   }).description('进阶设置'),
 
