@@ -45,7 +45,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
   async flush(): Promise<void>
   {
-    if (this.bot.config.hangUpMode) { return; }
+    if (this.bot.config.onlyHangUp) { return; }
 
     // 如果已经发送了音频消息且没有其他内容，则不发送额外消息
     if (this.audioSent && this.outDataOringin.length <= 0)

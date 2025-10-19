@@ -9,10 +9,11 @@ export interface Config
   roomPassword: string;
   oldRoomId?: string;
   signature: string;
+  botStatus: string;
   color: string;
   timeout: number;
   keepAliveEnable: boolean;
-  hangUpMode: boolean;
+  onlyHangUp: boolean;
   debugMode: boolean;
   fullDebugMode: boolean;
   maxRetries: number;
@@ -46,7 +47,25 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('基础设置'),
 
   Schema.object({
-    hangUpMode: Schema.boolean().default(false).description('是否开启 挂机模式（iirose平台展示的账号状态）'),
+    botStatus: Schema.union([
+      Schema.const('n').description('⚪ 无状态'),
+      Schema.const('0').description('💬 会话中'),
+      Schema.const('1').description('🏃 忙碌中'),
+      Schema.const('2').description('🚶 离开中'),
+      Schema.const('3').description('🍴 就餐中'),
+      Schema.const('4').description('📞 通话中'),
+      Schema.const('5').description('🚶 移动中'),
+      Schema.const('6').description('🚽 如厕中'),
+      Schema.const('7').description('🛀 沐浴中'),
+      Schema.const('8').description('💤 睡觉中'),
+      Schema.const('9').description('📖 上课中'),
+      Schema.const('a').description('📝 作业中'),
+      Schema.const('b').description('🎮 游戏中'),
+      Schema.const('c').description('📺 看剧中'),
+      Schema.const('d').description('🖥️ 挂机中'),
+      Schema.const('e').description('😔 自闭中'),
+      Schema.const('f').description('❤️ 请撩我'),
+    ]).description('机器人平台状态').default('n'),
     color: Schema.string().role('color').default("rgba(49, 31, 186, 1)").description('BOT的聊天气泡颜色<br>注：透明度不生效。'),
     signature: Schema.string().role('textarea', { rows: [2, 4] }).default('Bot of Koishi~\nPowered by IIROSE Adapter.').description('BOT的个人资料中的签名文本'),
   }).description('进阶设置'),
@@ -74,14 +93,15 @@ export const Config: Schema<Config> = Schema.intersect([
       smmu: Schema.string().default(null),
       smLocation: Schema.string().default(null),
       smvc: Schema.string().default(null),
-    }).description('神秘内容'),
+    }).description('游客模式'),
     Schema.object({}) as Schema<Partial<Config>> // 可选
   ]),
 
   Schema.object({
+    onlyHangUp: Schema.boolean().default(false).description('是否开启 静默模式（不会发送消息）'),
     deleteMessageDelay: Schema.number().min(0).max(10 * 1000).default(1.5 * 1000).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
     oldRoomId: Schema.string().default(null).description('仅内部使用'),
-  }).description('开发者选项'),
+  }).description('调试功能'),
 
   Schema.object({
     debugMode: Schema.boolean().default(false).description('是否 开启调试模式<br>提issue时，请务必开启此项，附上复现问题的日志'),

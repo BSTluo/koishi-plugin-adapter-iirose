@@ -21,16 +21,16 @@ export class WsClient
   private reconnectTimer: NodeJS.Timeout | null = null;
 
   loginObj: {
-    r?: string;
-    n?: string;
-    p?: string;
-    st?: string;
-    mo?: string;
-    mb?: string;
-    mu?: string; // 关系到服务器给不给你媒体信息
-    lr?: string;
-    rp?: string;
-    fp?: string;
+    r?: string; // roomId // 机器人上线的房间唯一标识
+    n?: string; // username //  机器人用户名
+    p?: string; // hashedPassword //  机器人密码md5
+    st?: string;  // botStatus // 账号状态
+    mo?: string;  // signature  // 机器人签名
+    mb?: string;  //  神秘参数 作用未知
+    mu?: string;  // 关系到服务器给不给你媒体信息  //  神秘参数 作用未知
+    lr?: string;  //   oldRoomId  //  离开的房间唯一标识
+    rp?: string;  //  roomPassword  //  目标房间密码
+    fp?: string;  //  hashed username //  @(机器人用户名md5)
 
     // 游客专用
     i?: string, // 头像
@@ -39,7 +39,7 @@ export class WsClient
     uid?: string, // 唯一标识
     li?: string, // 重复游客ID才需要
     la?: string, // 注册地址
-    vc?: string, // 设备版本号
+    vc?: string, // 网页客户端版本号
   };
 
   firstLogin: boolean = false;
@@ -295,7 +295,7 @@ export class WsClient
         r: room || this.bot.config.roomId,
         n: username || this.bot.config.usename,
         p: hashedPassword,
-        st: 'n',
+        st: this.bot.config.botStatus,
         mo: this.bot.config.signature,
         mb: '',
         mu: '01',
