@@ -14,6 +14,9 @@
 在koishi项目模板安装
 ```bash
 yarn clone BSTluo/koishi-plugin-adapter-iirose
+```
+
+```bash
 yarn dev
 ```
 

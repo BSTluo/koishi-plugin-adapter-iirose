@@ -17,16 +17,14 @@
 1. **克隆文档仓库**
 
 ```bash
-git clone https://github.com/BSTluo/koishi-plugin-adapter-iirose.git
+git clone --branch docs https://github.com/BSTluo/koishi-plugin-adapter-iirose.git
 ```
 
 2. **切换到文档分支**
 
 ```bash
 cd koishi-plugin-adapter-iirose
-git checkout docs
 ```
-> 以上步骤 也可以使用压缩包下载 https://github.com/BSTluo/koishi-plugin-adapter-iirose/archive/refs/heads/docs.zip
 
 3. **安装依赖**
 
@@ -34,13 +32,19 @@ git checkout docs
 yarn install
 ```
 
-4. **启动开发服务器**
+4. **打开vscode**
+
+```bash
+code .
+```
+
+5. **启动开发服务器**
 
 ```bash
 yarn dev
 ```
 
-5. **构建文档**
+6. **构建文档**
 
 ```bash
 yarn build
