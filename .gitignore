@@ -16,4 +16,4 @@ tsconfig.tsbuildinfo
 *.njsproj
 *.sln
 .yarn
-docs/.vitepress
+docs/.vitepress/cache/*
