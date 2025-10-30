@@ -686,13 +686,12 @@ async function clearMsg(msg: string, bot: IIROSE_Bot)
     匹配规则,
     koishi元素前缀,
     koishi元素后缀,
-    若干个文字过滤项..
   ]
   */
-  const result: [RegExp, string, string, RegExp, RegExp][] = [
-    [/\s*\[\*([\s\S]+)\*\]\s*/g, '<at name="', '"></at>', /\s\[\*/g, /\*\]\s/g],
-    [/\s*\[@([\s\S]+)@\]\s*/g, '<at id="', '"></at>', /\s\[\@/g, /\@\]\s/g],
-    [/(https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif))(#e)*/g, '<img src="', '"></img>', /\[/g, /]/g],
+  const result: [RegExp, string, string][] = [
+    [/\[\*([\s\S]+?)\*\]/g, '<at name="', '"></at>'],
+    [/\[@([\s\S]+?)@\]/g, '<at id="', '"></at>'],
+    [/(https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif))(#e)*/g, '<img src="', '"></img>'],
   ];
 
   let msg1 = msg;
@@ -706,40 +705,36 @@ async function clearMsg(msg: string, bot: IIROSE_Bot)
       let findIndex = -1;
       const stringTemp: string[] = [];
 
+      // 第一次遍历，替换占位符并保存原始匹配
       matchArr.forEach(v =>
       {
-        if (reg.length > 3)
-        {
-          for (let i = 3; i < reg.length; i++)
-          {
-            msg1 = msg1.replace(reg[i], '');
-            v = v.replace(reg[i], '');
-          }
-        }
-
         findIndex++;
         msg1 = msg1.replace(v, `\^\$${findIndex}\$\^`);
-        stringTemp.push(v.trim());
+        stringTemp.push(v);
       });
 
+      // 第二次遍历，处理并替换回真实内容
       for (let index = 0; index < stringTemp.length; index++)
       {
         let v = stringTemp[index];
         let msg = '';
         if (reg[1].startsWith('<at name="'))
         {
-          // 处理atname
-          const user = await bot.internal.getUserByName(v);
-
-          msg = `<at id="${user.id}" name="${v}"></at>`;
+          // at by name: [*name*]
+          const name = v.substring(2, v.length - 2);
+          const user = await bot.internal.getUserByName(name);
+          // 如果找不到用户，则保留原始文本
+          msg = user ? `<at id="${user.id}" name="${name}"></at>` : v;
         } else if (reg[1].startsWith('<at id="'))
         {
-          // 处理 atId
-          const user = await bot.internal.getUserById(v);
-          msg = `<at id="${v}" name="${user.name}"></at>`;
+          // at by id: [@id@]
+          const id = v.substring(2, v.length - 2);
+          const user = await bot.internal.getUserById(id);
+          // 如果找不到用户，则保留原始文本
+          msg = user ? `<at id="${id}" name="${user.name}"></at>` : v;
         } else if (reg[1].startsWith('<img src="'))
         {
-          // 处理 img
+          // image
           const cleanUrl = v.replace(/#e$/, '');
           msg = reg[1] + cleanUrl + reg[2];
         }
