@@ -2,6 +2,7 @@ import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './MailboxMe
 import { getUserListCallback, GetUserListCallback } from './GetUserListCallback';
 import { userProfileCallback, UserProfileCallback } from './UserProfileCallback';
 import { mediaListCallback, MediaListCallback } from './MediaListCallback';
+import { MessageDeleted, MessageDeletedData } from './MessageDeleted';
 import { paymentCallback, PaymentCallback } from './PaymentCallback';
 import { privateMessage, PrivateMessage } from './PrivateMessage';
 import { publicMessage, PublicMessage } from './PublicMessage';
@@ -17,7 +18,6 @@ import { damaku, Damaku } from './Damaku';
 import { leaveRoom } from './LeaveRoom';
 import { stock, Stock } from './Stock';
 import { music, Music } from './Music';
-import { MessageDeleted, MessageDeletedData } from './MessageDeleted';
 import { IIROSE_Bot } from '../bot/bot';
 
 export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
