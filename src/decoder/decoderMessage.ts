@@ -681,17 +681,10 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
 async function clearMsg(msg: string, bot: IIROSE_Bot)
 {
-  /*
-  result规则：  [
-    匹配规则,
-    koishi元素前缀,
-    koishi元素后缀,
-  ]
-  */
   const result: [RegExp, string, string][] = [
-    [/\[\*([\s\S]+?)\*\]/g, '<at name="', '"></at>'],
-    [/\[@([\s\S]+?)@\]/g, '<at id="', '"></at>'],
-    [/(https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif))(#e)*/g, '<img src="', '"></img>'],
+    [/\[\*([\s\S]+?)\*\]/g, '<at name="', '"/>'],
+    [/\[@([\s\S]+?)@\]/g, '<at id="', '"/>'],
+    [/(https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif))(#e)*/g, '<img src="', '"/>'],
   ];
 
   let msg1 = msg;
@@ -717,28 +710,28 @@ async function clearMsg(msg: string, bot: IIROSE_Bot)
       for (let index = 0; index < stringTemp.length; index++)
       {
         let v = stringTemp[index];
-        let msg = '';
+        let replacement = '';
         if (reg[1].startsWith('<at name="'))
         {
           // at by name: [*name*]
           const name = v.substring(2, v.length - 2);
           const user = await bot.internal.getUserByName(name);
           // 如果找不到用户，则保留原始文本
-          msg = user ? `<at id="${user.id}" name="${name}"></at>` : v;
+          replacement = user ? `${h('at', { id: user.id, name })}` : v;
         } else if (reg[1].startsWith('<at id="'))
         {
           // at by id: [@id@]
           const id = v.substring(2, v.length - 2);
           const user = await bot.internal.getUserById(id);
           // 如果找不到用户，则保留原始文本
-          msg = user ? `<at id="${id}" name="${user.name}"></at>` : v;
+          replacement = user ? `${h('at', { id, name: user.name })}` : v;
         } else if (reg[1].startsWith('<img src="'))
         {
           // image
           const cleanUrl = v.replace(/#e$/, '');
-          msg = reg[1] + cleanUrl + reg[2];
+          replacement = `${h('img', { src: cleanUrl })}`;
         }
-        msg1 = msg1.replace(`\^\$${index}\$\^`, msg);
+        msg1 = msg1.replace(`\^\$${index}\$\^`, replacement);
       }
     }
   }
