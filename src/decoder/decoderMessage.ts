@@ -503,6 +503,8 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
 export async function clearMsg(msg: string, bot: IIROSE_Bot)
 {
+  msg = msg.replace(/\[((https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif))(#e)*)\]/g, '$1');
+
   const result: [RegExp, string, string][] = [
     [/\[\*([\s\S]+?)\*\]/g, '<at name="', '"/>'],
     [/\[@([\s\S]+?)@\]/g, '<at id="', '"/>'],
