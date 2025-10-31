@@ -8,7 +8,7 @@ import { rgbaToHex } from '../utils/utils';
 import Like from '../encoder/system/Like';
 import { musicOrigin } from './event';
 import { IIROSE_Bot } from './bot';
-import { clearMsg } from '../decoder/decoderMessage';
+import { clearMsg } from '../decoder/clearMsg';
 
 async function getMediaMetadata(url: string, ctx: Context)
 {

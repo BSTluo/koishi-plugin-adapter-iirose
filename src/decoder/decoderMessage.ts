@@ -4,6 +4,7 @@ import { GetUserListCallback } from './GetUserListCallback';
 import { comparePassword } from '../utils/password';
 import { MessageType } from '.';
 import { IIROSE_Bot } from '../bot/bot';
+import { clearMsg } from './clearMsg';
 
 export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 {
