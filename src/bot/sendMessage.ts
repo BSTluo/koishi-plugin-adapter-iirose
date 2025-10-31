@@ -383,8 +383,10 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         break;
       }
 
+      case 'iirose:markdown':
       case 'markdown': {
-        this.outDataOringin += `\`\`\`\n${attrs.content}`;
+        // 在开头添加 \\\*
+        this.outDataOringin += `\\\\\\*\n`;
         break;
       }
 
@@ -428,11 +430,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         break;
       }
 
-      case 'p': {
-        // p元素处理完子元素后需要添加换行符
-        break;
-      }
-
       case 'br': {
         // br元素直接添加换行符
         this.outDataOringin += '\n';
@@ -445,28 +442,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         break;
       }
 
-      case '': {
-        break;
-      }
-
-      // case 'onebot:music': {
-      //   const response = await axios.get((this.bot.ctx.config.musicLink).replace('[musicid]', attrs.id))
-      //   if (response.data.code !== 200) { break }
-      //   const musicData = response.data.data[0]
-      //   if (musicData.br === 0) {
-      //     this.outDataOringin += `[歌曲点播失败,可能为VIP歌曲]`
-      //     break
-      //   }
-      //   const durationSeconds = Math.trunc((musicData.size * 8) / musicData.br) + 1
-      //   const cardData = mediaCard('music', attrs.name, attrs.artist, 'https://api.vvhan.com/api/acgimg', (musicData.br / 1000), '66ccff')
-      //   // eslint-disable-next-line max-len
-      //   const mData = mediaData('music', attrs.name, attrs.artist, 'https://api.vvhan.com/api/acgimg', 'https://github.com/BSTluo', musicData.url, durationSeconds)
-      //   this.sendData(cardData)
-      //   this.sendData(mData)
-
-      //   break
-      // }
-
+      case 'p':
+      case '':
       default: {
         break;
       }
