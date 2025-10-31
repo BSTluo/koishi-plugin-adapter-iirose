@@ -82,8 +82,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
               },
               channel: {
                 id: quotedSession.channelId,
-                name: quotedSession.subtype === 'private' ? '私聊' : '公屏',
-                type: 0, // Universal.Channel.Type.TEXT
+                type: 0,
               },
               guild: {
                 id: quotedSession.guildId,
@@ -116,10 +115,13 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             elements: h.parse(data.message),
             quote: quotePayload,
           },
-          subtype: 'group',
-          subsubtype: 'group',
-          guild: { id: guildId },
-          channel: { id: `public:${guildId}`, type: 0 },
+          guild: {
+            id: guildId
+          },
+          channel: {
+            id: `public:${guildId}`,
+            type: 0
+          },
         };
 
         const session = bot.session(event);
@@ -175,12 +177,8 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
               },
               channel: {
                 id: quotedSession.channelId,
-                name: quotedSession.subtype === 'private' ? '私聊' : '公屏',
-                type: 1, // Universal.Channel.Type.DIRECT
-              },
-              guild: {
-                id: quotedSession.guildId,
-              },
+                type: 1
+              }
             };
           }
         }
@@ -208,10 +206,10 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             elements: h.parse(data.message),
             quote: quotePayload,
           },
-          subtype: 'private',
-          subsubtype: 'private',
-          guild: { id: `private:${data.uid}` },
-          channel: { id: `private:${data.uid}`, type: 0 },
+          channel: {
+            id: `private:${data.uid}`,
+            type: 1
+          },
         };
 
         const session = bot.session(event);
