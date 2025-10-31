@@ -469,6 +469,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
       case 'broadcastMessage': {
         const data = obj.broadcastMessage;
         if (!data) return;
+        const processedContent = await clearMsg(data.message, bot);
 
         const event = {
           type: 'broadcast',
@@ -482,8 +483,8 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           message: {
             id: data.messageId,
             messageId: data.messageId,
-            content: data.message,
-            elements: h.parse(data.message),
+            content: processedContent,
+            elements: h.parse(processedContent),
           },
         };
 
