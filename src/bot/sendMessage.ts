@@ -3,10 +3,10 @@ import { Context, MessageEncoder, h } from 'koishi';
 import { } from '@koishijs/assets';
 import PrivateMessage from '../encoder/messages/PrivateMessage';
 import PublicMessage from '../encoder/messages/PublicMessage';
-import { rgbaToHex, generateMessageId } from '../utils/utils';
+import { IIROSE_WSsend } from '../utils/ws';
+import { rgbaToHex } from '../utils/utils';
 import Like from '../encoder/system/Like';
 import { musicOrigin } from './event';
-import { IIROSE_WSsend } from '../utils/ws';
 import { IIROSE_Bot } from './bot';
 
 async function getMediaMetadata(url: string, ctx: Context)
