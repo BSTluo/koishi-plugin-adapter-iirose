@@ -51,6 +51,16 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
   private outDataOringinObj: string = '';
   private currentMessageId: string = '';
   private audioSent: boolean = false;
+  private isMarkdown: boolean = false;
+
+  private resetState(): void
+  {
+    this.outDataOringin = '';
+    this.outDataOringinObj = '';
+    this.currentMessageId = '';
+    this.audioSent = false;
+    this.isMarkdown = false;
+  }
 
   async flush(): Promise<void>
   {
@@ -59,22 +69,28 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
     // 如果已经发送了音频消息且没有其他内容，则不发送额外消息
     if (this.audioSent && this.outDataOringin.length <= 0)
     {
+      this.resetState();
       return;
     }
 
     if (this.outDataOringin.length <= 0)
     {
-      this.outDataOringin = ' '; // 默认内容
-    } else
-    {
-      // 清理消息末尾多余的换行符，避免发送空白行
-      this.outDataOringin = this.outDataOringin.replace(/\n+$/, '');
+      this.resetState();
+      return;
+    }
 
-      // 如果清理后内容为空，设置默认内容
-      if (this.outDataOringin.length <= 0)
-      {
-        this.outDataOringin = ' ';
-      }
+    // 清理消息末尾多余的换行符
+    this.outDataOringin = this.outDataOringin.replace(/\n+$/, '');
+    if (this.outDataOringin.length <= 0)
+    {
+      this.resetState();
+      return;
+    }
+
+    // 如果是 Markdown 消息，添加前缀
+    if (this.isMarkdown)
+    {
+      this.outDataOringin = `\\\\\\*\n${this.outDataOringin}`;
     }
 
     // 在实际发送消息时生成消息ID和消息对象
@@ -97,6 +113,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
       this.results.push({ id: this.currentMessageId });
       await this.cacheSentMessage(this.currentMessageId, this.outDataOringin);
     }
+
+    this.resetState();
   }
 
   async sendData(message: string): Promise<void>
@@ -257,7 +275,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           }
         }
 
-        // 必须以.weba结尾才是语音消息
+        // 确保URL以.weba结尾，IIROSE平台需要此后缀才能正确识别为语音消息
         if (!url.endsWith('.weba'))
         {
           if (url.includes('?'))
@@ -378,15 +396,85 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         break;
       }
 
+      case 'sharp': {
+        // 提及频道
+        let channelId = attrs.id;
+        // 如果 id 不在 attrs 中，尝试从子元素获取
+        if (!channelId && children.length > 0)
+        {
+          channelId = children.map(c => c.attrs.content).join('');
+        }
+
+        if (channelId)
+        {
+          this.outDataOringin += ` [_${channelId.replace(/^public:|private:/, '')}_] `;
+        }
+        return; // 阻止后续对子节点的重复渲染
+      }
+
       case 'a': {
-        this.outDataOringin += attrs.href;
-        break;
+        // 链接
+        this.isMarkdown = true;
+        const text = children.map(c => c.attrs.content).join('');
+        this.outDataOringin += `[${text || attrs.href}](${attrs.href})`;
+        return; // 链接元素特殊处理，不再遍历子节点
+      }
+
+      case 'b':
+      case 'strong': {
+        this.isMarkdown = true;
+        this.outDataOringin += '**';
+        await this.render(children);
+        this.outDataOringin += '**';
+        return;
+      }
+
+      case 'i':
+      case 'em': {
+        this.isMarkdown = true;
+        this.outDataOringin += '*';
+        await this.render(children);
+        this.outDataOringin += '*';
+        return;
+      }
+
+      case 'u':
+      case 'ins': {
+        this.isMarkdown = true;
+        this.outDataOringin += '__';
+        await this.render(children);
+        this.outDataOringin += '__';
+        return;
+      }
+
+      case 's':
+      case 'del': {
+        this.isMarkdown = true;
+        this.outDataOringin += '~~';
+        await this.render(children);
+        this.outDataOringin += '~~';
+        return;
+      }
+
+      case 'spl': {
+        this.isMarkdown = true;
+        this.outDataOringin += '||';
+        await this.render(children);
+        this.outDataOringin += '||';
+        return;
+      }
+
+      case 'code': {
+        this.isMarkdown = true;
+        this.outDataOringin += '`';
+        await this.render(children);
+        this.outDataOringin += '`';
+        return;
       }
 
       case 'iirose:markdown':
       case 'markdown': {
-        // 在开头添加 \\\*
-        this.outDataOringin += `\\\\\\*\n`;
+        this.isMarkdown = true;
         break;
       }
 
@@ -441,24 +529,32 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         break;
       }
 
-      case 'p': //  稍后处理换行
+      case 'message': {
+        await this.flush();
+        await this.render(children);
+        return;
+      }
+
+      case 'p':
       case '':
       default: {
         break;
       }
     }
-    if (children.length > 0)
-    {
-      for (const h of children)
-      {
-        await this.visit(h);
-      }
-    }
+    await this.render(children);
 
     // p元素 处理完子元素后需要添加换行符
     if (type === 'p' && this.outDataOringin.length > 0)
     {
       this.outDataOringin += '\n';
+    }
+  }
+
+  async render(elements: h[]): Promise<void>
+  {
+    for (const element of elements)
+    {
+      await this.visit(element);
     }
   }
 }
