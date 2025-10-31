@@ -1,6 +1,7 @@
 
 import { Context, MessageEncoder, h } from 'koishi';
 import { } from '@koishijs/assets';
+import * as musicMetadata from 'music-metadata';
 import PrivateMessage from '../encoder/messages/PrivateMessage';
 import PublicMessage from '../encoder/messages/PublicMessage';
 import { IIROSE_WSsend } from '../utils/ws';
@@ -12,29 +13,36 @@ import { clearMsg } from '../decoder/clearMsg';
 
 async function getMediaMetadata(url: string, ctx: Context)
 {
-  const response = await ctx.http.get(url, {
-    responseType: 'stream'
-  });
+  try
+  {
+    const { data, type } = await ctx.http.file(url);
+    const buffer = Buffer.from(data);
+    const metadata = await musicMetadata.parseBuffer(buffer, type, { duration: true });
+    const { common, format } = metadata;
 
-  const mm = await import('music-metadata');
-  const { Readable } = await import('stream');
-
-  const nodeStream = Readable.fromWeb(response as ReadableStream);
-  const metadata = await mm.parseStream(nodeStream, null, { duration: true });
-
-  const { common, format } = metadata;
-
-  return {
-    title: common.title || ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我歌曲名字欸'][Math.floor(Math.random() * 7)],
-    artist: common.artist || ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我音乐家的名字欸'][Math.floor(Math.random() * 7)],
-    album: common.album || ['群星', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我专辑的名字欸'][Math.floor(Math.random() * 7)],
-    duration: format.duration || 0,
-    bitrate: format.bitrate || 0,
-    picture: common.picture?.[0] ? {
-      format: common.picture[0].format,
-      data: Buffer.from(common.picture[0].data).toString('base64') // 如果你想用作封面图
-    } : 'https://www.loliapi.com/acg/'
-  };
+    return {
+      title: common.title || ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我歌曲名字欸'][Math.floor(Math.random() * 7)],
+      artist: common.artist || ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我音乐家的名字欸'][Math.floor(Math.random() * 7)],
+      album: common.album || ['群星', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我专辑的名字欸'][Math.floor(Math.random() * 7)],
+      duration: format.duration || 0,
+      bitrate: format.bitrate || 0,
+      picture: common.picture?.[0] ? {
+        format: common.picture[0].format,
+        data: Buffer.from(common.picture[0].data).toString('base64') // 如果你想用作封面图
+      } : 'https://www.loliapi.com/acg/'
+    };
+  } catch (error)
+  {
+    ctx.logger('iirose').warn(`获取媒体元数据失败: ${url}`, error);
+    return {
+      title: ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我歌曲名字欸'][Math.floor(Math.random() * 7)],
+      artist: ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我音乐家的名字欸'][Math.floor(Math.random() * 7)],
+      album: ['群星', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我专辑的名字欸'][Math.floor(Math.random() * 7)],
+      duration: 0,
+      bitrate: 0,
+      picture: 'https://www.loliapi.com/acg/'
+    };
+  }
 }
 
 export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot>
