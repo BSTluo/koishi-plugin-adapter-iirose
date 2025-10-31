@@ -13,7 +13,7 @@ export interface Config
   color: string;
   timeout: number;
   keepAliveEnable: boolean;
-  onlyHangUp: boolean;
+  onlyHangUpMode: boolean;
   debugMode: boolean;
   fullDebugMode: boolean;
   maxRetries: number;
@@ -99,13 +99,13 @@ export const Config: Schema<Config> = Schema.intersect([
   ]),
 
   Schema.object({
-    onlyHangUp: Schema.boolean().default(false).description('是否开启 静默模式（不会发送消息）'),
-    deleteMessageDelay: Schema.number().min(0).max(10 * 1000).default(1.5 * 1000).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
-    oldRoomId: Schema.string().default(null).description('仅内部使用'),
     sessionCacheSize: Schema.number().min(50).max(1000).default(500).description('消息缓存大小'),
+    deleteMessageDelay: Schema.number().min(0).max(10 * 1000).default(1.5 * 1000).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
+    onlyHangUpMode: Schema.boolean().default(false).description('是否开启 静默模式（不会发送消息，仅接收消息）').hidden(),
   }).description('调试功能'),
 
   Schema.object({
+    oldRoomId: Schema.string().default(null).description('仅内部使用'),
     debugMode: Schema.boolean().default(false).description('是否 开启调试模式<br>提issue时，请务必开启此项，附上复现问题的日志'),
     fullDebugMode: Schema.boolean().default(false).description('是否 开启详细调试模式<br>慎重开启'),
   }).description('开发调试选项'),
