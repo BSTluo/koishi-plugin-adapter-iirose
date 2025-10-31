@@ -47,40 +47,38 @@ export class PublicMessage
   }
 }
 
-const replyMsg = (msg: string): replyMessage[] | null =>
+export const replyMsg = (msg: string): [string, replyMessage[] | null] =>
 {
-  if (msg.includes(' (_hr) '))
+  // 判断是否为引用消息
+  if (!msg.includes(' (_hr) '))
   {
-    const replies: replyMessage[] = [];
-
-    msg.split(' (hr_) ').forEach(e =>
-    {
-      if (e.includes(' (_hr) '))
-      {
-        const tmp = e.split(' (_hr) ');
-        const user = tmp[1].split('_');
-
-        replies.unshift({
-          message: decode(tmp[0]),
-          username: decode(user[0]),
-          time: Number(user[1]),
-        });
-
-        replies.sort((a, b) =>
-        {
-          return (a.time - b.time);
-        });
-      } else
-      {
-        // @ts-ignore
-        replies.unshift(e);
-      }
-    });
-
-    return replies;
+    return [msg, null];
   }
 
-  return null;
+  const parts = msg.split(' (hr_) ');
+  const newMsg = parts.pop()!; // 最后一部分是新消息
+  const replies: replyMessage[] = [];
+
+  for (const part of parts)
+  {
+    const quoteParts = part.split(' (_hr) ');
+    if (quoteParts.length === 2)
+    {
+      const [message, authorPart] = quoteParts;
+      const authorMatch = authorPart.match(/(.*)_(\d+)$/);
+      if (authorMatch)
+      {
+        const [, username, time] = authorMatch;
+        replies.push({
+          message: decode(message),
+          username: decode(username.trim()),
+          time: Number(time),
+        });
+      }
+    }
+  }
+  // 返回消息和引用数组
+  return [newMsg, replies.length > 0 ? replies : null];
 };
 
 export const publicMessage = (input: string) =>
@@ -96,8 +94,7 @@ export const publicMessage = (input: string) =>
     {
       if (/^\d+$/.test(tmp[0]))
       {
-        const reply = replyMsg(tmp[3]);
-        const message = reply ? String(reply.shift()) : tmp[3];
+        const [message, reply] = replyMsg(tmp[3]);
 
         if (message.startsWith('m__4@')) { return null; }
 

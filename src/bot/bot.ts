@@ -1,8 +1,9 @@
-import { Context, Bot, Fragment, Universal, Logger } from 'koishi';
+import { Context, Bot, Fragment, Universal, Logger, Session } from 'koishi';
 
 import { MessageInfo, messageObjList as MessageObjListType } from './messageTemp';
 import { IIROSE_BotMessageEncoder } from './sendMessage';
 import { Internal, InternalType } from './internal';
+import { SessionCache } from './sessionCache';
 import { comparePassword } from '../utils/password';
 import { SendOptions } from '@satorijs/protocol';
 import { IIROSE_WSsend, WsClient } from '../utils/ws';
@@ -30,6 +31,7 @@ export class IIROSE_Bot extends Bot<Context>
 
   public wsClient: WsClient;
   public readonly config: Config;
+  public sessionCache: SessionCache;
   private isStarting: boolean = false;
   private isStarted: boolean = false;
   private disposed: boolean = false;
@@ -44,6 +46,7 @@ export class IIROSE_Bot extends Bot<Context>
     this.platform = 'iirose';
     this.config = config;
     this.logger = new Logger(`DEV:adapter-iirose`);
+    this.sessionCache = new SessionCache(config.sessionCacheSize);
 
     // 重置状态
     this.isStarting = false;

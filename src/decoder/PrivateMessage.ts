@@ -1,25 +1,28 @@
 import { decode } from 'html-entities';
+import { replyMessage, replyMsg } from './PublicMessage';
 
 interface data
 {
-  timestamp: Number;
+  timestamp: number;
   uid: string;
   username: string;
   avatar: string;
   message: string;
   color: string;
-  messageId: Number;
+  messageId: number;
+  replyMessage: replyMessage[] | null;
 }
 
 export class PrivateMessage
 {
-  public timestamp: Number;
+  public timestamp: number;
   public uid: string;
   public username: string;
   public avatar: string;
   public message: string;
   public color: string;
-  public messageId: Number;
+  public messageId: number;
+  public replyMessage: replyMessage[] | null;
 
   constructor(data: data)
   {
@@ -30,23 +33,9 @@ export class PrivateMessage
     this.message = data.message;
     this.color = data.color;
     this.messageId = data.messageId;
+    this.replyMessage = data.replyMessage;
   }
 }
-
-/**
- * 从包含引用的消息字符串中提取真实消息。
- * @param rawMessage 原始消息字符串
- * @returns 提取出的真实消息
- */
-const getMessageFromReply = (rawMessage: string): string =>
-{
-  if (rawMessage.includes(' (hr_) '))
-  {
-    const parts = rawMessage.split(' (hr_) ');
-    return parts[parts.length - 1];
-  }
-  return rawMessage;
-};
 
 export const privateMessage = (message: string) =>
 {
@@ -62,8 +51,7 @@ export const privateMessage = (message: string) =>
       {
         if (/^\d+$/.test(tmp[0]))
         {
-          // 提取真实消息，处理引用回复
-          const realMessage = getMessageFromReply(tmp[4]);
+          const [realMessage, reply] = replyMsg(tmp[4]);
 
           const msg = new PrivateMessage({
             timestamp: Number(tmp[0]),
@@ -73,6 +61,7 @@ export const privateMessage = (message: string) =>
             message: decode(realMessage),
             color: tmp[5],
             messageId: Number(tmp[10]),
+            replyMessage: reply,
           });
           // PrivateMessage
           return msg;

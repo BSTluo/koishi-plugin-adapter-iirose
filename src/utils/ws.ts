@@ -479,21 +479,19 @@ export class WsClient
 
       if (funcObj.manyMessage)
       {
-        funcObj.manyMessage
-          .slice()
-          .reverse()
-          .forEach((element) =>
+        const reversedMessages = funcObj.manyMessage.slice().reverse();
+        for (const element of reversedMessages)
+        {
+          if (!element.type)
           {
-            if (!element.type)
-            {
-              return;
-            }
-            const test: Record<string, any> = {};
-            const type = element.type;
+            continue;
+          }
+          const test: Record<string, any> = {};
+          const type = element.type;
 
-            test[type] = element;
-            decoderMessage(test, this.bot);
-          });
+          test[type] = element;
+          await decoderMessage(test, this.bot);
+        }
       } else if (funcObj.hasOwnProperty("userlist"))
       {
         const userData = funcObj.userlist;
@@ -540,10 +538,10 @@ export class WsClient
 
         this.bot.internal.initUserData();
 
-        decoderMessage(funcObj, this.bot);
+        await decoderMessage(funcObj, this.bot);
       } else
       {
-        decoderMessage(funcObj, this.bot);
+        await decoderMessage(funcObj, this.bot);
       }
     });
   }
@@ -718,7 +716,7 @@ export class WsClient
         {
           if (this.bot.status == Universal.Status.ONLINE)
           {
-            this.bot.fulllogInfo(`发送空包（心跳保活） 实例: ${this.bot.user?.id || 'unknown'}`);
+            // this.bot.fulllogInfo(`发送空包（心跳保活） 实例: ${this.bot.user?.id || 'unknown'}`);
             try
             {
               await IIROSE_WSsend(this.bot, ''); // 心跳包不需要严格的错误处理

@@ -1,4 +1,4 @@
-import { h } from 'koishi';
+import { h, Universal } from 'koishi';
 
 import { GetUserListCallback } from './GetUserListCallback';
 import { comparePassword } from '../utils/password';
@@ -8,7 +8,6 @@ import { IIROSE_Bot } from '../bot/bot';
 export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 {
   // 定义会话列表
-  // console.log('decoderMessage', obj);
   for (const key in obj)
   {
     switch (key)
@@ -31,24 +30,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
         const session = bot.session(event);
 
-        // const session: passiveEvent.getUserListCallbackEvent = {
-        //   // 开启兼容性
-        //   // type: 'guild-deleted',
-        //   type: 'userlist',
-        //   platform: 'iirose',
-        //   selfId: bot.ctx.config.uid,
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // };
-
         // 大包触发
         bot.ctx.emit('iirose/before-getUserList', session, data);
         break;
@@ -58,7 +39,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         if (!obj.publicMessage) return;
         bot.setMessage(String(obj.publicMessage.messageId), {
           messageId: String(obj.publicMessage.messageId),
-          isDirect: true,
+          isDirect: false,
           content: obj.publicMessage.message,
           timestamp: Number(obj.publicMessage.timestamp),
           author: {
@@ -73,20 +54,43 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
         const data = obj.publicMessage;
 
-        const session = bot.session({
-          type: 'message',
-          user: {
-            id: data.uid,
-            name: data.username,
-            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
-          },
-          message: {
-            messageId: String(data.messageId),
-            content: data.message,
-            elements: h.parse(data.message),
-          },
-          timestamp: Number(data.timestamp),
-        });
+        // 引用
+        let quotePayload: Universal.Message | undefined = undefined;
+        if (data.replyMessage && data.replyMessage.length > 0)
+        {
+          const quoteInfo = data.replyMessage[0];
+          const processedQuoteContent = await clearMsg(quoteInfo.message, bot);
+
+          const quotedSession = bot.sessionCache.findQuote({
+            username: quoteInfo.username,
+            content: processedQuoteContent,
+          });
+
+          if (quotedSession)
+          {
+            quotePayload = {
+              id: quotedSession.messageId,
+              messageId: quotedSession.messageId,
+              content: quotedSession.content,
+              timestamp: quotedSession.timestamp,
+              elements: quotedSession.elements,
+              user: {
+                id: quotedSession.author.id,
+                name: quotedSession.author.name,
+                avatar: quotedSession.author.avatar,
+                nickname: quotedSession.author.nickname,
+              },
+              channel: {
+                id: quotedSession.channelId,
+                name: quotedSession.subtype === 'private' ? '私聊' : '公屏',
+                type: 0, // Universal.Channel.Type.TEXT
+              },
+              guild: {
+                id: quotedSession.guildId,
+              },
+            };
+          }
+        }
 
         let uid = bot.ctx.config.uid;
         let guildId = bot.ctx.config.roomId;
@@ -96,15 +100,123 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId = bot.ctx.config.smRoom;
         }
 
-        session.platform = 'iirose';
-        session.subtype = 'group';
-        session.subsubtype = 'group';
-        session.guildId = guildId;
-        session.content = data.message;
-        session.channelId = `public:${guildId}`;
-        session.selfId = uid;
-        session.isDirect = false;
+        const event = {
+          type: 'message',
+          platform: 'iirose',
+          selfId: uid,
+          timestamp: Number(data.timestamp),
+          user: {
+            id: data.uid,
+            name: data.username,
+            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
+          },
+          message: {
+            messageId: String(data.messageId),
+            content: data.message,
+            elements: h.parse(data.message),
+            quote: quotePayload,
+          },
+          subtype: 'group',
+          subsubtype: 'group',
+          guild: { id: guildId },
+          channel: { id: `public:${guildId}`, type: 0 },
+        };
 
+        const session = bot.session(event);
+
+        bot.sessionCache.add(session);
+        bot.dispatch(session);
+        break;
+      }
+
+      case 'privateMessage': {
+        if (!obj.privateMessage) return;
+        bot.setMessage(String(obj.privateMessage.messageId), {
+          messageId: String(obj.privateMessage.messageId),
+          isDirect: true,
+          content: obj.privateMessage.message,
+          timestamp: Number(obj.privateMessage.timestamp),
+          author: {
+            userId: obj.privateMessage.uid,
+            avatar: obj.privateMessage.avatar,
+            username: obj.privateMessage.username,
+            nickname: obj.privateMessage.username,
+          },
+        });
+
+        obj.privateMessage.message = await clearMsg(obj.privateMessage.message, bot);
+        const data = obj.privateMessage;
+
+        // 提前处理引用信息
+        let quotePayload: Universal.Message | undefined = undefined;
+        if (data.replyMessage && data.replyMessage.length > 0)
+        {
+          const quoteInfo = data.replyMessage[0];
+          const processedQuoteContent = await clearMsg(quoteInfo.message, bot);
+
+          const quotedSession = bot.sessionCache.findQuote({
+            username: quoteInfo.username,
+            content: processedQuoteContent,
+          });
+
+          if (quotedSession)
+          {
+            quotePayload = {
+              id: quotedSession.messageId,
+              messageId: quotedSession.messageId,
+              content: quotedSession.content,
+              elements: quotedSession.elements,
+              timestamp: quotedSession.timestamp,
+              user: {
+                id: quotedSession.author.id,
+                name: quotedSession.author.name,
+                avatar: quotedSession.author.avatar,
+                nickname: quotedSession.author.nickname,
+              },
+              channel: {
+                id: quotedSession.channelId,
+                name: quotedSession.subtype === 'private' ? '私聊' : '公屏',
+                type: 1, // Universal.Channel.Type.DIRECT
+              },
+              guild: {
+                id: quotedSession.guildId,
+              },
+            };
+          }
+        }
+
+        let uid = bot.ctx.config.uid;
+
+        if (bot.ctx.config.smStart && comparePassword(bot.ctx.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
+        {
+          uid = bot.ctx.config.smUid;
+        }
+
+        const event = {
+          type: 'message',
+          platform: 'iirose',
+          selfId: uid,
+          timestamp: Number(data.timestamp),
+          user: {
+            id: data.uid,
+            name: data.username,
+            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
+          },
+          message: {
+            messageId: String(data.messageId),
+            content: data.message,
+            elements: h.parse(data.message),
+            quote: quotePayload,
+          },
+          subtype: 'private',
+          subsubtype: 'private',
+          guild: { id: `private:${data.uid}` },
+          channel: { id: `private:${data.uid}`, type: 0 },
+        };
+
+        const session = bot.session(event);
+
+        bot.sessionCache.add(session);
         bot.dispatch(session);
         break;
       }
@@ -140,62 +252,10 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId: data.room,
         };
 
-        // const session = {
-        //   // 开启兼容性
-        //   // type: 'guild-deleted',
-        //   type: 'room-leave',
-        //   userId: data.uid,
-        //   username: data.username,
-        //   timestamp: Number(data.timestamp),
-        //   author: {
-        //     userId: data.uid,
-        //     avatar: data.avatar,
-        //     username: data.username,
-        //   },
-        //   platform: 'iirose',
-        //   guildId: data.room,
-        //   selfId: bot.ctx.config.uid,
-        //   bot: bot,
-        //   data: data,
-        //   user: {
-        //     id: data.uid,
-        //     name: data.username
-        //   },
-        //   message: {
-        //     messageId: data.uid + 'leaveRoom',
-        //     content: 'leaveRoom',
-        //     elements: h.parse('leaveRoom'),
-        //   }
-        // };
-
         const session = bot.session(event);
         session.guildId = bot.ctx.config.roomIdfa;
         bot.ctx.emit('iirose/leaveRoom', session, data);
 
-        // const sessionV2: passiveEvent.leaveRoomEvent = {
-        //   type: 'leaveRoom',
-        //   userId: data.uid,
-        //   username: data.username,
-        //   author: {
-        //     userId: data.uid,
-        //     avatar: data.avatar,
-        //     username: data.username,
-        //   },
-        //   platform: 'iirose',
-        //   guildId: data.room,
-        //   selfId: bot.ctx.config.uid,
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // }
-
-        // bot.ctx.emit('iirose/leaveRoom', sessionV2);
         break;
       }
 
@@ -243,85 +303,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         session.guildId = guildId;
         bot.ctx.emit('iirose/joinRoom', session, data);
 
-        // const sessionV2: passiveEvent.joinRoomEvent = {
-        //   type: 'joinRoom',
-        //   userId: data.uid,
-        //   username: data.username,
-        //   author: {
-        //     userId: data.uid,
-        //     avatar: data.avatar,
-        //     username: data.username,
-        //   },
-        //   platform: 'iirose',
-        //   guildId: bot.ctx.config.roomId,
-        //   selfId: bot.ctx.config.uid,
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // };
-
-        // const botSession = bot.session(session) as Session;
-        // botSession.guildId = bot.ctx.config.roomId
-        // bot.ctx.emit('iirose/joinRoom', sessionV2);
-        break;
-      }
-
-      case 'privateMessage': {
-        if (!obj.privateMessage) return;
-        bot.setMessage(String(obj.privateMessage.messageId), {
-          messageId: String(obj.privateMessage.messageId),
-          isDirect: true,
-          content: obj.privateMessage.message,
-          timestamp: Number(obj.privateMessage.timestamp),
-          author: {
-            userId: obj.privateMessage.uid,
-            avatar: obj.privateMessage.avatar,
-            username: obj.privateMessage.username,
-            nickname: obj.privateMessage.username,
-          },
-        });
-
-        obj.privateMessage.message = await clearMsg(obj.privateMessage.message, bot);
-        const data = obj.privateMessage;
-
-        const session = bot.session({
-          type: 'message',
-          user: {
-            id: data.uid,
-            name: data.username,
-            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
-          },
-          message: {
-            messageId: String(data.messageId),
-            content: data.message,
-            elements: h.parse(data.message),
-          },
-          timestamp: Number(data.timestamp),
-        });
-        session.platform = 'iirose';
-        session.subtype = 'private';
-        session.subsubtype = 'private';
-        session.isDirect = true;
-        session.content = data.message;
-        session.channelId = `private:${data.uid}`;
-
-        let uid = bot.ctx.config.uid;
-
-        if (bot.ctx.config.smStart && comparePassword(bot.ctx.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
-        {
-          uid = bot.ctx.config.smUid;
-        }
-
-        session.selfId = uid;
-        session.isDirect = true;
-
-        bot.dispatch(session);
         break;
       }
 
@@ -360,29 +341,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           },
         };
 
-        // const session: passiveEvent.damakuEvent = {
-        //   type: 'damaku',
-        //   userId: data.username,
-        //   author: {
-        //     userId: data.username,
-        //     avatar: data.avatar,
-        //     username: data.username,
-        //   },
-        //   platform: 'iirose',
-        //   // 房间地址
-        //   guildId: 'damaku',
-        //   selfId: bot.ctx.config.uid,
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // };
-
         const session = bot.session(event);
         bot.ctx.emit('iirose/newDamaku', session, data);
         break;
@@ -396,20 +354,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId: bot.config.roomId
         };
         const session = bot.session(event);
-        // const session: passiveEvent.switchRoomEvent = {
-        //   type: 'switchRoom',
-        //   platform: 'iirose',
-        //   guildId: bot.config.roomId,
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: obj.switchRoom
-        // };
 
         bot.ctx.emit('iirose/switchRoom', session, obj.switchRoom);
         break;
@@ -419,19 +363,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         // 音乐
         const data = obj.music;
 
-        // const session: passiveEvent.musicEvent = {
-        //   type: 'music',
-        //   platform: 'iirose',
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // };
         const event = {
           type: 'music',
           platform: 'iirose',
@@ -445,20 +376,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
       case 'paymentCallback': {
         const data = obj.paymentCallback;
-
-        // const session: passiveEvent.paymentCallbackEvent = {
-        //   type: 'paymentCallback',
-        //   platform: 'iirose',
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // };
 
         const event = {
           type: 'paymentCallback',
@@ -474,20 +391,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
       case 'getUserListCallback': {
         const data = obj.getUserListCallback;
 
-        // const session: passiveEvent.getUserListCallbackEvent = {
-        //   type: 'getUserListCallback',
-        //   platform: 'iirose',
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // };
-
         const event = {
           type: 'getUserListCallback',
           platform: 'iirose',
@@ -502,19 +405,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
       case 'userProfileCallback': {
         const data = obj.userProfileCallback;
 
-        // const session: passiveEvent.userProfileCallbackEvent = {
-        //   type: 'userProfileCallback',
-        //   platform: 'iirose',
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // };
         const event = {
           type: 'userProfileCallback',
           platform: 'iirose',
@@ -529,19 +419,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
       case 'bankCallback': {
         const data = obj.bankCallback;
 
-        // const session: passiveEvent.bankCallbackEvent = {
-        //   type: 'bankCallback',
-        //   platform: 'iirose',
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // };
         const event = {
           type: 'bankCallback',
           platform: 'iirose',
@@ -556,19 +433,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
       case 'mediaListCallback': {
         const data = obj.mediaListCallback;
 
-        // const session: passiveEvent.mediaListCallbackEvent = {
-        //   type: 'mediaListCallback',
-        //   platform: 'iirose',
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // };
         const event = {
           type: 'mediaListCallback',
           platform: 'iirose',
@@ -583,19 +447,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
       case 'selfMove': {
         const data = obj.selfMove;
 
-        // const session: passiveEvent.selfMoveEvent = {
-        //   type: 'selfMove',
-        //   platform: 'iirose',
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data
-        // };
         const event = {
           type: 'selfMove',
           platform: 'iirose',
@@ -645,20 +496,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
       case 'mailboxMessage': {
         const data = obj.mailboxMessage;
-
-        // const session: passiveEvent.mailboxMessageEvent = {
-        //   type: 'mailboxMessage',
-        //   platform: 'iirose',
-        //   send: (data) =>
-        //   {
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.public) { bot.sendMessage('public:', data.public.message); }
-        //     // eslint-disable-next-line no-prototype-builtins
-        //     if (data.private) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
-        //   },
-        //   bot: bot,
-        //   data: data,
-        // };
 
         const event = {
           type: 'mailboxMessage',

@@ -18,6 +18,7 @@ export interface Config
   fullDebugMode: boolean;
   maxRetries: number;
   deleteMessageDelay: number;
+  sessionCacheSize: number;
 
   // 可选
   smStart?: boolean;
@@ -101,6 +102,7 @@ export const Config: Schema<Config> = Schema.intersect([
     onlyHangUp: Schema.boolean().default(false).description('是否开启 静默模式（不会发送消息）'),
     deleteMessageDelay: Schema.number().min(0).max(10 * 1000).default(1.5 * 1000).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
     oldRoomId: Schema.string().default(null).description('仅内部使用'),
+    sessionCacheSize: Schema.number().min(50).max(1000).default(500).description('消息缓存大小'),
   }).description('调试功能'),
 
   Schema.object({
