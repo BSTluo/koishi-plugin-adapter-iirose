@@ -7,20 +7,19 @@ export async function clearMsg(msg: string, bot: IIROSE_Bot)
     // 优先处理历史遗留的图片格式 `[url#e]`，将其转换为裸链接
     msg = msg.replace(/\[((https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif))(#e)*)\]/g, '$1');
 
-    // Helper function for async string replacement.
     async function replaceAsync(str: string, regex: RegExp, asyncFn: (...args: any[]) => Promise<string>)
     {
         const promises: Promise<string>[] = [];
         str.replace(regex, (...args) =>
         {
             promises.push(asyncFn(...args));
-            return ''; // Dummy return, not used.
+            return '';
         });
         const data = await Promise.all(promises);
         return str.replace(regex, () => data.shift()!);
     }
 
-    // 1. 处理图片 (同步)
+    // 处理图片 (同步)
     const imageUrlRegex = /((?:https?:\/\/[\s\S]+?)\.(?:png|jpg|jpeg|gif)(?:#e)?)/g;
     msg = msg.replace(imageUrlRegex, (match) =>
     {
@@ -28,7 +27,7 @@ export async function clearMsg(msg: string, bot: IIROSE_Bot)
         return h.image(cleanUrl).toString();
     });
 
-    // 2. 处理 at-by-name (异步)
+    // 处理 at-by-name (异步)
     // 消耗前后空格，但将空格捕获以便在替换时放回
     const atNameRegex = /(\s)\[\*([\s\S]+?)\*\](\s)/g;
     msg = await replaceAsync(msg, atNameRegex, async (raw, space1, name, space2) =>
@@ -42,7 +41,7 @@ export async function clearMsg(msg: string, bot: IIROSE_Bot)
         return raw;
     });
 
-    // 3. 处理 at-by-id (异步)
+    // 处理 at-by-id (异步)
     const atIdRegex = /(\s)\[@([\s\S]+?)@\](\s)/g;
     msg = await replaceAsync(msg, atIdRegex, async (raw, space1, id, space2) =>
     {
