@@ -10,15 +10,14 @@ import { musicMessage, MusicMessage } from './MusicMessage';
 import { bankCallback, BankCallback } from './BankCallback';
 import { manyMessage, ManyMessage } from './ManyMessage';
 import { switchRoom, SwitchRoom } from './SwitchRoom';
-import { joinRoom, SystemMessage } from './JoinRoom';
 import { comparePassword } from '../utils/password';
 import { selfMove, SelfMove } from './SelfMove';
 import { userList, UserList } from './Userlist';
 import { damaku, Damaku } from './Damaku';
-import { leaveRoom } from './LeaveRoom';
 import { stock, Stock } from './Stock';
 import { music, Music } from './Music';
 import { IIROSE_Bot } from '../bot/bot';
+import { MemberUpdateData, memberUpdate } from './MemberUpdate';
 
 export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
 {
@@ -27,10 +26,9 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
   len.manyMessage = manyMessage(msg, bot);
   len.userlist = userList(msg);
   len.publicMessage = publicMessage(msg);
-  len.leaveRoom = leaveRoom(msg);
-  len.joinRoom = joinRoom(msg);
   len.privateMessage = privateMessage(msg);
   len.damaku = damaku(msg);
+  len.memberUpdate = memberUpdate(msg);
   len.switchRoom = switchRoom(msg);
   len.music = music(msg);
   len.paymentCallback = paymentCallback(msg);
@@ -79,10 +77,9 @@ export interface MessageType
   manyMessage?: ManyMessage[];
   userlist?: UserList[];
   publicMessage?: PublicMessage;
-  leaveRoom?: SystemMessage;
-  joinRoom?: SystemMessage;
   privateMessage?: PrivateMessage;
   damaku?: Damaku;
+  memberUpdate?: MemberUpdateData;
   switchRoom?: SwitchRoom;
   music?: Music;
   paymentCallback?: PaymentCallback;

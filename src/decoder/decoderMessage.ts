@@ -219,87 +219,45 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
-      case 'leaveRoom': {
-        // 作为事件
-        const data = obj.leaveRoom;
-        if (!data) return;
-
-        let uid = bot.ctx.config.uid;
-
-        if (bot.ctx.config.smStart && comparePassword(bot.ctx.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
-        {
-          uid = bot.ctx.config.smUid;
-        }
-
-        const event = {
-          selfId: uid,
-          type: 'room-leave',
-          platform: 'iirose',
-          timestamp: Date.now(),
-          userId: data.uid,
-          username: data.username,
-          user: {
-            id: data.uid,
-            name: data.username
-          },
-          message: {
-            messageId: data.uid + 'leaveRoom',
-            content: 'leaveRoom',
-            elements: h.parse('leaveRoom'),
-          },
-          guildId: data.room,
-        };
-
-        const session = bot.session(event);
-        session.guildId = bot.ctx.config.roomIdfa;
-        bot.ctx.emit('iirose/leaveRoom', session, data);
-
-        break;
-      }
-
-      case 'joinRoom': {
-        // 作为事件
-        const data = obj.joinRoom;
+      case 'memberUpdate': {
+        const data = obj.memberUpdate;
         if (!data) return;
 
         let uid = bot.ctx.config.uid;
         let guildId = bot.ctx.config.roomId;
-
         if (bot.ctx.config.smStart && comparePassword(bot.ctx.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
         {
           uid = bot.ctx.config.smUid;
-          guildId = bot.ctx.config.sm;
+          guildId = bot.ctx.config.smRoom;
         }
 
-        const event = {
-          type: 'room-join',
-          userId: data.uid,
-          username: data.username,
-          timestamp: Number(data.timestamp),
-          author: {
-            userId: data.uid,
-            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`,
-            username: data.username,
-          },
-          platform: 'iirose',
-          guildId: guildId,
-          selfId: uid,
-          bot: bot,
-          data: data,
-          user: {
-            id: data.uid,
-            name: data.username
-          },
-          message: {
-            messageId: data.uid + 'joinRoom',
-            content: 'joinRoom',
-            elements: h.parse('joinRoom'),
-          },
+        const createEvent = (type: 'guild-member-added' | 'guild-member-removed' | 'guild-member-updated') =>
+        {
+          const session = bot.session({
+            type,
+            platform: 'iirose',
+            selfId: uid,
+            timestamp: Number(data.timestamp),
+            guild: { id: guildId },
+            user: {
+              id: data.uid,
+              name: data.username,
+              avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
+            }
+          });
+          bot.dispatch(session);
         };
 
-        const session = bot.session(event);
-        session.guildId = guildId;
-        bot.ctx.emit('iirose/joinRoom', session, data);
+        switch (data.type)
+        {
+          case 'join':
+            createEvent('guild-member-added');
+            break;
+          case 'leave':
+          case 'move':
+            createEvent('guild-member-removed');
+            break;
+        }
 
         break;
       }

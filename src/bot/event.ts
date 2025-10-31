@@ -104,10 +104,7 @@ export interface StockSession extends Stock
 
 export interface Events
 {
-  // 'iirose/leaveRoom'(session: passiveEvent.joinRoomEvent): void;
-  // 'iirose/joinRoom'(session: passiveEvent.leaveRoomEvent): void;
-  'iirose/leaveRoom'(session: Session, data: MessageType['leaveRoom']): void;
-  'iirose/joinRoom'(session: Session, data: MessageType['joinRoom']): void;
+  'iirose/member-update'(session: Session, data: MessageType['memberUpdate']): void;
   'iirose/newDamaku'(session: Session, data: MessageType['damaku']): void;
   'iirose/switchRoom'(session: Session, data: MessageType['switchRoom']): void;
   'iirose/newMusic'(session: Session, data: MessageType['music']): void;
