@@ -4,6 +4,7 @@ import { Fragment, Session } from 'koishi';
 import { GetUserListCallback } from '../decoder/GetUserListCallback';
 import { Stock } from '../decoder/Stock';
 import { MessageType } from '../decoder';
+import { BroadcastMessage } from '../decoder/BroadcastMessage';
 import { IIROSE_Bot } from './bot';
 
 export interface kickData
@@ -115,6 +116,7 @@ export interface Events
   'iirose/before-mediaList'(session: Session, data: MessageType['mediaListCallback']): void;
   'iirose/selfMove'(session: Session, data: MessageType['selfMove']): void;
   'iirose/mailboxMessage'(session: Session, data: MessageType['mailboxMessage']): void;
+  'iirose/broadcast'(session: Session, data: BroadcastMessage): void;
   'iirose/kick'(kickData: kickData): void;
   'iirose/cut-one'(cutOne: cutOne): void;
   'iirose/cut-all'(): void;

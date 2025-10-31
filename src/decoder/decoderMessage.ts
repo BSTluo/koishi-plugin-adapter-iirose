@@ -466,6 +466,33 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
+      case 'broadcastMessage': {
+        const data = obj.broadcastMessage;
+        if (!data) return;
+
+        const event = {
+          type: 'broadcast',
+          platform: 'iirose',
+          guildId: bot.config.roomId,
+          timestamp: Number(data.timestamp),
+          user: {
+            id: data.username, // 广播消息没有提供用户ID，暂用用户名代替
+            name: data.username,
+          },
+          message: {
+            id: data.messageId,
+            messageId: data.messageId,
+            content: data.message,
+            elements: h.parse(data.message),
+          },
+        };
+
+        const session = bot.session(event);
+
+        bot.ctx.emit('iirose/broadcast', session, data);
+        break;
+      }
+
       default: {
         break;
       }

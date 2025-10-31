@@ -18,6 +18,7 @@ import { stock, Stock } from './Stock';
 import { music, Music } from './Music';
 import { IIROSE_Bot } from '../bot/bot';
 import { MemberUpdateData, memberUpdate } from './MemberUpdate';
+import { BroadcastMessage, broadcastMessage } from './BroadcastMessage';
 
 export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
 {
@@ -41,6 +42,7 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
   len.musicMessage = musicMessage(msg);
   len.stock = stock(msg, bot);
   len.messageDeleted = MessageDeleted(bot, msg);
+  len.broadcastMessage = broadcastMessage(msg);
 
   const newObj = {};
   for (const key in len)
@@ -92,4 +94,5 @@ export interface MessageType
   musicMessage?: MusicMessage;
   stock?: Stock;
   messageDeleted?: MessageDeletedData;
+  broadcastMessage?: BroadcastMessage;
 }
