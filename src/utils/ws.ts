@@ -1020,7 +1020,13 @@ export async function IIROSE_WSsend(bot: IIROSE_Bot, data: string): Promise<void
       }
 
       const shortData = data.length > 50 ? data.substring(0, 50) + '...' : data;
-      bot.fulllogInfo(`[WS发送-${callId}] 发送数据: ${shortData}`);
+      if (shortData.trim().length > 0) 
+      {
+        bot.fulllogInfo(`[WS发送-${callId}] 发送数据: ${shortData}`);
+      } else
+      {
+        //  bot.fulllogInfo(`[WS发送-${callId}] 发送数据: ${shortData}`); //  不打印心跳
+      }
 
       const buffer = Buffer.from(data);
       const unintArray: any = Uint8Array.from(buffer);
