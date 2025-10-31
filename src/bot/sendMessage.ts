@@ -257,7 +257,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           }
         }
 
-        // 确保URL以.weba结尾，IIROSE平台需要此后缀才能正确识别为语音消息
+        // 必须以.weba结尾才是语音消息
         if (!url.endsWith('.weba'))
         {
           if (url.includes('?'))
@@ -431,7 +431,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
       }
 
       case 'br': {
-        // br元素直接添加换行符
         this.outDataOringin += '\n';
         break;
       }
@@ -442,7 +441,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         break;
       }
 
-      case 'p':
+      case 'p': //  稍后处理换行
       case '':
       default: {
         break;
