@@ -473,7 +473,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
   }
 };
 
-async function clearMsg(msg: string, bot: IIROSE_Bot)
+export async function clearMsg(msg: string, bot: IIROSE_Bot)
 {
   const result: [RegExp, string, string][] = [
     [/\[\*([\s\S]+?)\*\]/g, '<at name="', '"/>'],

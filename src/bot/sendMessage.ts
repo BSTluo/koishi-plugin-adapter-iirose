@@ -8,6 +8,7 @@ import { rgbaToHex } from '../utils/utils';
 import Like from '../encoder/system/Like';
 import { musicOrigin } from './event';
 import { IIROSE_Bot } from './bot';
+import { clearMsg } from '../decoder/decoderMessage';
 
 async function getMediaMetadata(url: string, ctx: Context)
 {
@@ -86,6 +87,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
     if (this.currentMessageId)
     {
       this.results.push({ id: this.currentMessageId });
+      await this.cacheSentMessage(this.currentMessageId, this.outDataOringin);
     }
   }
 
@@ -99,6 +101,49 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
   {
     return this.currentMessageId;
   }
+  /**
+   * @description 缓存发出的消息
+   * @param messageId 消息id
+   * @param content 消息内容
+   */
+  private async cacheSentMessage(messageId: string, content: string): Promise<void>
+  {
+    if (!this.bot.sessionCache) return;
+
+    // 缓存前也需要对消息进行处理
+    const processedContent = await clearMsg(content, this.bot);
+
+    const event: any = {
+      type: 'message',
+      platform: 'iirose',
+      selfId: this.bot.selfId,
+      timestamp: Date.now(),
+      user: {
+        id: this.bot.user.id,
+        name: this.bot.user.name,
+        avatar: this.bot.user.avatar,
+      },
+      message: {
+        id: messageId,
+        messageId: messageId,
+        content: processedContent,
+        elements: h.parse(processedContent),
+      },
+      channel: {
+        id: this.channelId,
+        type: this.channelId.startsWith('public:') ? 0 : 1,
+      },
+    };
+
+    if (this.channelId.startsWith('public:'))
+    {
+      event.guild = { id: this.channelId.substring(7) };
+    }
+
+    const session = this.bot.session(event);
+    this.bot.sessionCache.add(session);
+  }
+
 
   /**
    * 转义特殊字符，目前发现仅适用于media_card
@@ -238,6 +283,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           if (audioMessageId)
           {
             this.results.push({ id: audioMessageId });
+            await this.cacheSentMessage(audioMessageId, url);
           }
         }
         break;
