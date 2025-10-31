@@ -69,8 +69,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           if (quotedSession)
           {
             quotePayload = {
-              id: quotedSession.messageId,
-              messageId: quotedSession.messageId,
+              messageId: quotedSession.event.message.id,
               content: quotedSession.content,
               timestamp: quotedSession.timestamp,
               elements: quotedSession.elements,
@@ -110,6 +109,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
           },
           message: {
+            id: String(data.messageId),
             messageId: String(data.messageId),
             content: data.message,
             elements: h.parse(data.message),
@@ -164,8 +164,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           if (quotedSession)
           {
             quotePayload = {
-              id: quotedSession.messageId,
-              messageId: quotedSession.messageId,
+              messageId: quotedSession.event.message.id,
               content: quotedSession.content,
               elements: quotedSession.elements,
               timestamp: quotedSession.timestamp,
@@ -201,6 +200,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
           },
           message: {
+            id: String(data.messageId),
             messageId: String(data.messageId),
             content: data.message,
             elements: h.parse(data.message),
@@ -435,6 +435,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             name: data.userId
           },
           message: {
+            id: data.messageId,
             messageId: data.messageId,
             content: '',
             elements: []
