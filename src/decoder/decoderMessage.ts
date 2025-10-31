@@ -38,18 +38,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
       case 'publicMessage': {
         if (!obj.publicMessage) return;
-        bot.setMessage(String(obj.publicMessage.messageId), {
-          messageId: String(obj.publicMessage.messageId),
-          isDirect: false,
-          content: obj.publicMessage.message,
-          timestamp: Number(obj.publicMessage.timestamp),
-          author: {
-            userId: obj.publicMessage.uid,
-            avatar: obj.publicMessage.avatar,
-            username: obj.publicMessage.username,
-            nickname: obj.publicMessage.username,
-          },
-        });
 
         obj.publicMessage.message = await clearMsg(obj.publicMessage.message, bot);
 
@@ -134,18 +122,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
       case 'privateMessage': {
         if (!obj.privateMessage) return;
-        bot.setMessage(String(obj.privateMessage.messageId), {
-          messageId: String(obj.privateMessage.messageId),
-          isDirect: true,
-          content: obj.privateMessage.message,
-          timestamp: Number(obj.privateMessage.timestamp),
-          author: {
-            userId: obj.privateMessage.uid,
-            avatar: obj.privateMessage.avatar,
-            username: obj.privateMessage.username,
-            nickname: obj.privateMessage.username,
-          },
-        });
 
         obj.privateMessage.message = await clearMsg(obj.privateMessage.message, bot);
         const data = obj.privateMessage;

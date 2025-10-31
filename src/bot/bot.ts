@@ -1,6 +1,5 @@
 import { Context, Bot, Fragment, Universal, Logger, Session } from 'koishi';
 
-import { MessageInfo, messageObjList as MessageObjListType } from './messageTemp';
 import { IIROSE_BotMessageEncoder } from './sendMessage';
 import { Internal, InternalType } from './internal';
 import { SessionCache } from './sessionCache';
@@ -36,7 +35,6 @@ export class IIROSE_Bot extends Bot<Context>
   private isStarted: boolean = false;
   private disposed: boolean = false;
   private userInfoTimeout: NodeJS.Timeout | null = null;
-  private messageObjList: MessageObjListType = {};
   public logger: Logger;
 
   constructor(public ctx: Context, config: Config)
@@ -277,19 +275,31 @@ export class IIROSE_Bot extends Bot<Context>
     return user;
   }
 
-  async getMessage(channelId: string, messageId: string)
+  async getMessage(channelId: string, messageId: string): Promise<Universal.Message>
   {
-    return this.messageObjList[messageId];
-  }
-
-  setMessage(messageId: string, messageInfo: MessageInfo)
-  {
-    this.messageObjList[messageId] = messageInfo;
+    const session = this.sessionCache.findById(messageId);
+    if (session)
+    {
+      return {
+        id: session.messageId,
+        messageId: session.messageId,
+        content: session.content,
+        channel: {
+          id: session.channelId,
+          type: session.channelId.startsWith('private:') ? Universal.Channel.Type.DIRECT : Universal.Channel.Type.TEXT,
+        },
+        guild: session.guildId ? { id: session.guildId } : undefined,
+        user: session.author,
+        timestamp: session.timestamp,
+        quote: session.quote,
+      };
+    }
+    return undefined;
   }
 
   getMessageKeys(): string[]
   {
-    return Object.keys(this.messageObjList);
+    return this.sessionCache.getAllMessageIds();
   }
 
   async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void>

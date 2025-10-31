@@ -309,7 +309,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
         if (messData)
         {
-          this.outDataOringin = `${messData.content} (_hr) ${messData.author.username}_${Math.round(new Date().getTime() / 1e3)} (hr_) ` + this.outDataOringin;
+          this.outDataOringin = `${messData.content} (_hr) ${messData.user.name}_${Math.round(new Date().getTime() / 1e3)} (hr_) ` + this.outDataOringin;
         } else
         {
           this.bot.loggerWarn(`[Quote处理] 未找到消息ID: ${id}`);

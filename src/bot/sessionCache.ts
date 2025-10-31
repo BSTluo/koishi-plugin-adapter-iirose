@@ -46,4 +46,22 @@ export class SessionCache
         return undefined;
     }
 
+    /**
+     * 根据消息 ID 查找 Session
+     * @param messageId 消息 ID
+     * @returns 匹配的 Session，如果找不到则返回 undefined
+     */
+    public findById(messageId: string): Session | undefined
+    {
+        return this.sessions.find(session => session.messageId === messageId);
+    }
+
+    /**
+     * 获取所有缓存的 messageId
+     * @returns messageId 数组
+     */
+    public getAllMessageIds(): string[]
+    {
+        return this.sessions.map(session => session.messageId).filter(id => !!id);
+    }
 }
