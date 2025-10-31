@@ -42,7 +42,7 @@ export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
     usename: Schema.string().required().description('BOT的用户名<br>`不带[**]的部分`'),
     uid: Schema.string().required().description('BOT的唯一标识<br>`不带[@@]的部分`').pattern(/[a-z0-9]{13}/),
-    password: Schema.string().required().role('secret').description('BOT的密码'),
+    password: Schema.string().required().role('secret').description('BOT的登录密码'),
     roomId: Schema.string().required().description('BOT的初始房间地址<br>`不带[__]的部分`').pattern(/([a-z0-9]{13})/),
     roomPassword: Schema.string().default(null).description('BOT的初始房间地址的 房间密码 (一般不需要写)'),
   }).description('基础设置'),
@@ -99,7 +99,7 @@ export const Config: Schema<Config> = Schema.intersect([
   ]),
 
   Schema.object({
-    sessionCacheSize: Schema.number().min(50).max(1000).default(500).description('消息缓存大小'),
+    sessionCacheSize: Schema.number().min(50).max(1000).default(500).description('消息缓存大小（单位：条）'),
     deleteMessageDelay: Schema.number().min(0).max(10 * 1000).default(1.5 * 1000).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
     onlyHangUpMode: Schema.boolean().default(false).description('是否开启 静默模式（不会发送消息，仅接收消息）').hidden(),
   }).description('调试功能'),
