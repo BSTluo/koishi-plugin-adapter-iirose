@@ -245,7 +245,7 @@ export class IIROSE_Bot extends Bot<Context>
    * @param timeout 超时时间 (毫秒)
    * @returns 返回一个Promise，该Promise会解析为响应字符串，或在超时/失败时解析为null
    */
-  public requesWsResponse(payload: string, timeout?: number): Promise<string | null>
+  public requestResponse(payload: string, timeout?: number): Promise<string | null>
   {
     const effectiveTimeout = timeout ?? this.config.timeout;
 
@@ -292,9 +292,9 @@ export class IIROSE_Bot extends Bot<Context>
     return false;
   }
 
-  async getUser(userId: string): Promise<Universal.User>
+  async getUser(userId: string, guildId?: string): Promise<Universal.User>
   {
-    const response = await this.requesWsResponse(`+&${userId.toLowerCase()}`);
+    const response = await this.requestResponse(`+&${userId.toLowerCase()}`);
 
     if (!response || response === '+')
     {
@@ -311,6 +311,36 @@ export class IIROSE_Bot extends Bot<Context>
       name: parts[3],
       avatar: parts[1],
     };
+  }
+
+  async getChannel(channelId: string): Promise<Universal.Channel>
+  {
+    const rawChannelId = channelId.split(':').pop();
+    const response = await this.requestResponse(`=^v!${rawChannelId}`);
+
+    if (!response || !response.startsWith('i!'))
+    {
+      return {
+        id: channelId,
+        name: '频道不存在',
+        type: Universal.Channel.Type.TEXT,
+      };
+    }
+
+    const subscriberCount = parseInt(response.substring(2), 10);
+    const count = isNaN(subscriberCount) ? 0 : subscriberCount;
+
+    return {
+      id: channelId,
+      name: `频道 ${rawChannelId} (${count}订阅)`,
+      type: Universal.Channel.Type.TEXT,
+    };
+  }
+
+  async getChannelList(guildId: string): Promise<Universal.List<Universal.Channel>>
+  {
+    const channel = await this.getChannel(guildId);
+    return { data: [channel] };
   }
 
   async getMessage(channelId: string, messageId: string): Promise<Universal.Message>

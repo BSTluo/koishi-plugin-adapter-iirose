@@ -403,10 +403,9 @@ export class WsClient
         }
       }
 
-      // 检查是否有等待的响应
-      if (this.bot.responseQueue.length > 0)
+      // 检查是否是响应消息
+      if (message.startsWith('+') || message.startsWith('i!'))
       {
-        // 尝试处理响应
         if (this.bot.handleResponse(message))
         {
           return; // 如果消息被作为响应处理，则停止进一步解码
