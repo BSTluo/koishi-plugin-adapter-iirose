@@ -111,7 +111,6 @@ export interface Events
   'iirose/newMusic'(session: Session, data: MessageType['music']): void;
   'iirose/before-payment'(session: Session, data: MessageType['paymentCallback']): void;
   'iirose/before-getUserList'(session: Session, data: GetUserListCallback[]): void;
-  'iirose/before-userProfile'(session: Session, data: MessageType['userProfileCallback']): void;
   'iirose/before-bank'(session: Session, data: MessageType['bankCallback']): void;
   'iirose/before-mediaList'(session: Session, data: MessageType['mediaListCallback']): void;
   'iirose/selfMove'(session: Session, data: MessageType['selfMove']): void;

@@ -1,6 +1,5 @@
 import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './MailboxMessage';
 import { getUserListCallback, GetUserListCallback } from './GetUserListCallback';
-import { userProfileCallback, UserProfileCallback } from './UserProfileCallback';
 import { mediaListCallback, MediaListCallback } from './MediaListCallback';
 import { MessageDeleted, MessageDeletedData } from './MessageDeleted';
 import { paymentCallback, PaymentCallback } from './PaymentCallback';
@@ -34,7 +33,6 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
   len.music = music(msg);
   len.paymentCallback = paymentCallback(msg);
   len.getUserListCallback = getUserListCallback(msg);
-  len.userProfileCallback = userProfileCallback(msg);
   len.bankCallback = bankCallback(msg);
   len.mediaListCallback = mediaListCallback(msg);
   len.selfMove = selfMove(msg);
@@ -86,7 +84,6 @@ export interface MessageType
   music?: Music;
   paymentCallback?: PaymentCallback;
   getUserListCallback?: GetUserListCallback[];
-  userProfileCallback?: UserProfileCallback;
   bankCallback?: BankCallback;
   mediaListCallback?: MediaListCallback;
   selfMove?: SelfMove;

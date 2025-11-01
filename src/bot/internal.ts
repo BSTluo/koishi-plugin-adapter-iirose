@@ -166,17 +166,7 @@ export class Internal
 
   initUserData()
   {
-    this.UserData.name = {};
-    this.UserData.id = {};
-
-    this.bot.addData.forEach(v =>
-    {
-      const name = v.username;
-      const id = v.uid;
-
-      this.UserData.name[name] = id;
-      this.UserData.id[id] = name;
-    });
+    // 此功能已废弃
   }
 
   UserData: Record<string, Record<string, string>> = {};
@@ -196,7 +186,6 @@ export interface InternalType
   stockSell(numberData: number): void;
   stockGet(callBack: eventType.StockGet): void;
   payment(uid: string, money: number, message?: string): void;
-  initUserData(): void;
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserById(id: string): Promise<Universal.User | undefined>;
 }

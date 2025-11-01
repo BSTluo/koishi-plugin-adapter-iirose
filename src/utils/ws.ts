@@ -403,6 +403,13 @@ export class WsClient
         }
       }
 
+      // 处理用户信息回调
+      if (message.startsWith('+'))
+      {
+        this.bot.handleUserProfile(message);
+        return; // 用户信息消息不应被继续解码
+      }
+
       if (!this.firstLogin)
       {
         this.firstLogin = true;
@@ -500,43 +507,42 @@ export class WsClient
           return;
         }
 
-        userData.forEach(async (e) =>
-        {
-          if (!e.uid)
-          {
-            return;
-          }
-          let avatar = e.avatar;
+        // userData.forEach(async (e) =>
+        // {
+        //   if (!e.uid)
+        //   {
+        //     return;
+        //   }
+        //   let avatar = e.avatar;
 
-          if (
-            e.avatar.startsWith("cartoon") ||
-            e.avatar.startsWith("scenery") ||
-            e.avatar.startsWith("male") ||
-            e.avatar.startsWith("popular") ||
-            e.avatar.startsWith("anime")
-          )
-          {
-            avatar = `https://static.codemao.cn/rose/v0/images/icon/${e.avatar}.jpg`;
-          } else if (e.avatar.startsWith("http://r.iirose.com"))
-          {
-            avatar = `http://z.iirose.com/lib/php/function/loadImg.php?s=${e.avatar}`;
-          }
+        //   if (
+        //     e.avatar.startsWith("cartoon") ||
+        //     e.avatar.startsWith("scenery") ||
+        //     e.avatar.startsWith("male") ||
+        //     e.avatar.startsWith("popular") ||
+        //     e.avatar.startsWith("anime")
+        //   )
+        //   {
+        //     avatar = `https://static.codemao.cn/rose/v0/images/icon/${e.avatar}.jpg`;
+        //   } else if (e.avatar.startsWith("http://r.iirose.com"))
+        //   {
+        //     avatar = `http://z.iirose.com/lib/php/function/loadImg.php?s=${e.avatar}`;
+        //   }
 
-          this.bot.addData.push({
-            uid: e.uid,
-            username: e.username,
-            avatar: avatar,
-            room: e.room,
-            color: e.color,
-            data: {},
-          });
+        //   this.bot.addData.push({
+        //     uid: e.uid,
+        //     username: e.username,
+        //     avatar: avatar,
+        //     room: e.room,
+        //     color: e.color,
+        //     data: {},
+        //   });
 
-          // 更新自己的头像
-        });
+        //   // 更新自己的头像
+        // });
 
         this.bot.user = await this.bot.getSelf();
 
-        this.bot.internal.initUserData();
 
         await decoderMessage(funcObj, this.bot);
       } else

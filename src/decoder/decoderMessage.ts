@@ -337,19 +337,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
-      case 'userProfileCallback': {
-        const data = obj.userProfileCallback;
-
-        const event = {
-          type: 'userProfileCallback',
-          platform: 'iirose',
-          guildId: bot.config.roomId
-        };
-        const session = bot.session(event);
-        bot.fulllogInfo('iirose/before-userProfile', session);
-        bot.ctx.emit('iirose/before-userProfile', session, data);
-        break;
-      }
 
       case 'bankCallback': {
         const data = obj.bankCallback;

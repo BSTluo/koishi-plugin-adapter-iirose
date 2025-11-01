@@ -17,13 +17,11 @@ export class IIROSE_Bot extends Bot<Context>
   platform: string = 'iirose';
   socket: WebSocket | undefined = undefined;
   public messageIdResolvers: ((messageId: string) => void)[] = [];
-  public addData: {
-    uid: string;
-    username: string;
-    avatar: string;
-    room: string;
-    color: string;
-    data: Record<string, any>;
+  // 用于存储用户信息的Promise的解析函数队列
+  public userProfileResolvers: {
+    userId: string;
+    resolver: (profile: Universal.User | null) => void;
+    timer: NodeJS.Timeout;
   }[] = [];
 
   static inject = ['assets'];
@@ -245,34 +243,71 @@ export class IIROSE_Bot extends Bot<Context>
 
   async getUser(userId: string, guildId?: string): Promise<Universal.User>
   {
-    let user: Universal.User = {
-      id: 'error',
-      name: '用户数据库初始化ing',
-      avatar: ''
-    };
+    // 主动发送获取用户信息的请求
+    IIROSE_WSsend(this, `+&${userId.toLowerCase()}`);
 
-    let userData: { username: string; avatar: string; uid?: string; room?: string; color?: string; data?: Record<string, any>; } | undefined = undefined;
-    for (let v of this.addData)
+    return new Promise((resolve) =>
     {
-      if (v.uid == userId)
+      const resolver = (profile: Universal.User | null) =>
       {
-        userData = v;
-        break;
-      }
-    }
+        if (profile)
+        {
+          resolve(profile);
+        } else
+        {
+          // 如果查询失败，返回一个包含错误信息的用户对象
+          resolve({
+            id: userId,
+            name: '用户不存在',
+            avatar: ''
+          });
+        }
+      };
 
-    if (userData == undefined)
+      const timer = setTimeout(() =>
+      {
+        // 超时处理：从队列中移除并返回超时错误
+        const index = this.userProfileResolvers.findIndex(p => p.timer === timer);
+        if (index > -1)
+        {
+          this.userProfileResolvers.splice(index, 1);
+        }
+        resolve({
+          id: 'error',
+          name: '获取用户信息超时',
+          avatar: ''
+        });
+      }, 5000); // 5秒超时
+
+      // 将 resolver 和 timer 推入队列
+      this.userProfileResolvers.push({ userId, resolver, timer });
+    });
+  }
+
+  // 处理收到的用户信息回调
+  public handleUserProfile(data: string)
+  {
+    // 取出队列中最老的请求
+    const request = this.userProfileResolvers.shift();
+    if (!request) return; // 如果没有等待的请求，则忽略
+
+    clearTimeout(request.timer);
+
+    if (data === '+')
     {
-      return user;
+      // 查询失败，返回 null
+      request.resolver(null);
+      return;
     }
 
-    user = {
-      id: userId,
-      name: userData.username,
-      avatar: userData.avatar
+    // 查询成功，解析数据
+    const parts = data.substring(1).split('>');
+    const user: Universal.User = {
+      id: request.userId, // 使用请求时的 userId
+      name: parts[3],      // 用户名在第4个字段
+      avatar: parts[1],    // 头像在第2个字段
     };
-
-    return user;
+    request.resolver(user);
   }
 
   async getMessage(channelId: string, messageId: string): Promise<Universal.Message>
