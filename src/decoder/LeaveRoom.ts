@@ -1,4 +1,4 @@
-import { decode } from 'html-entities';
+import { decode } from '../utils/entities';
 
 export interface SystemMessage
 {

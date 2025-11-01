@@ -1,4 +1,4 @@
-import { decode } from 'html-entities';
+import { decode } from '../utils/entities';
 import { IIROSE_Bot } from '../bot/bot';
 
 export interface replyMessage

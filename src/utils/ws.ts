@@ -4,7 +4,7 @@ import { startEventsServer, stopEventsServer } from './utils';
 import { decoderMessage } from '../decoder/decoderMessage';
 import { IIROSE_Bot } from '../bot/bot';
 import { decoder } from '../decoder';
-import pako from 'pako';
+import * as zlib from 'zlib';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -364,9 +364,7 @@ export class WsClient
       let message: string;
       if (array[0] === 1)
       {
-        message = pako.inflate(array.slice(1), {
-          to: "string",
-        });
+        message = zlib.unzipSync(array.slice(1)).toString();
       } else
       {
         message = Buffer.from(array).toString("utf8");
@@ -1032,8 +1030,8 @@ export async function IIROSE_WSsend(bot: IIROSE_Bot, data: string): Promise<void
       {
         bot.fulllogInfo(`[WS发送-${callId}] 发送数据: ${shortData}`);
       } else
-      {
-        //  bot.fulllogInfo(`[WS发送-${callId}] 发送数据: ${shortData}`); //  不打印心跳
+      { //  不打印心跳
+        //  bot.fulllogInfo(`[WS发送-${callId}] 发送数据: ${shortData}`);
       }
 
       const buffer = Buffer.from(data);
@@ -1041,7 +1039,7 @@ export async function IIROSE_WSsend(bot: IIROSE_Bot, data: string): Promise<void
 
       if (unintArray.length > 256)
       {
-        const deflatedData = pako.gzip(data);
+        const deflatedData = zlib.gzipSync(data);
         const deflatedArray: any = new Uint8Array(deflatedData.length + 1);
         deflatedArray[0] = 1;
         deflatedArray.set(deflatedData, 1);

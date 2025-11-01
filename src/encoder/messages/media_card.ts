@@ -1,7 +1,7 @@
 
 import PublicMessage from './PublicMessage';
 import { musicOrigin } from '../../bot/event';
-import { encode } from 'html-entities';
+import { encode } from '../../utils/entities';
 
 export default (
   type: 'music' | 'video',

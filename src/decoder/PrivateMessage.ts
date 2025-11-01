@@ -1,4 +1,4 @@
-import { decode } from 'html-entities';
+import { decode } from '../utils/entities';
 import { replyMessage, replyMsg } from './PublicMessage';
 
 interface data

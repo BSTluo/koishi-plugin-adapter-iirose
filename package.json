@@ -50,14 +50,10 @@
     }
   },
   "dependencies": {
-    "html-entities": "^2.6.0",
-    "music-metadata": "^11.7.1",
-    "pako": "^2.1.0"
+    "music-metadata": "^11.7.1"
   },
   "peerDependencies": {
     "koishi": "^4.18.8"
   },
-  "devDependencies": {
-    "@types/pako": "^2.0.3"
-  }
+  "devDependencies": { }
 }
