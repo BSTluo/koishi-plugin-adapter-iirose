@@ -4,6 +4,12 @@ import { IIROSE_Bot } from '../bot/bot';
 
 export async function clearMsg(msg: string, bot: IIROSE_Bot)
 {
+    // 处理 markdown 元素：移除开头的 `\\\\\\*\n` 前缀
+    msg = msg.replace(/^\\\\\\\*\n/, '');
+
+    // 处理 a 元素：移除开头的反斜杠
+    msg = msg.replace(/\\(https*:\/\/[\s\S]+)/g, '$1');
+
     // 优先处理历史遗留的图片格式 `[url#e]`，将其转换为裸链接
     msg = msg.replace(/\[((https*:\/\/[\s\S]+?\.(png|jpg|jpeg|gif))(#e)*)\]/g, '$1');
 
