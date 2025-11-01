@@ -32,6 +32,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         const session = bot.session(event);
 
         // 大包触发
+        bot.fulllogInfo('iirose/before-getUserList', session);
         bot.ctx.emit('iirose/before-getUserList', session, data);
         break;
       }
@@ -275,6 +276,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
+        bot.fulllogInfo('iirose/newDamaku', session);
         bot.ctx.emit('iirose/newDamaku', session, data);
         break;
       }
@@ -287,7 +289,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId: bot.config.roomId
         };
         const session = bot.session(event);
-
+        bot.fulllogInfo('iirose/switchRoom', session);
         bot.ctx.emit('iirose/switchRoom', session, obj.switchRoom);
         break;
       }
@@ -302,7 +304,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId: bot.config.roomId
         };
         const session = bot.session(event);
-
+        bot.fulllogInfo('iirose/newMusic', session);
         bot.ctx.emit('iirose/newMusic', session, data);
         break;
       }
@@ -316,7 +318,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId: bot.config.roomId
         };
         const session = bot.session(event);
-
+        bot.fulllogInfo('iirose/before-payment', session);
         bot.ctx.emit('iirose/before-payment', session, data);
         break;
       }
@@ -330,7 +332,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId: bot.config.roomId
         };
         const session = bot.session(event);
-
+        bot.fulllogInfo('iirose/before-getUserList', session);
         bot.ctx.emit('iirose/before-getUserList', session, data);
         break;
       }
@@ -344,7 +346,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId: bot.config.roomId
         };
         const session = bot.session(event);
-
+        bot.fulllogInfo('iirose/before-userProfile', session);
         bot.ctx.emit('iirose/before-userProfile', session, data);
         break;
       }
@@ -359,6 +361,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
+        bot.fulllogInfo('iirose/before-bank', session);
         bot.ctx.emit('iirose/before-bank', session, data);
         break;
       }
@@ -373,6 +376,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
+        bot.fulllogInfo('iirose/before-mediaList', session);
         bot.ctx.emit('iirose/before-mediaList', session, data);
         break;
       }
@@ -387,6 +391,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
+        bot.fulllogInfo('iirose/selfMove', session);
         bot.ctx.emit('iirose/selfMove', session, data);
         // 自身移动房间
         break;
@@ -395,8 +400,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
       case 'messageDeleted': {
         const data = obj.messageDeleted;
         if (!data) return;
-
-        bot.logInfo('messageDeleted', data);
 
         let uid = bot.ctx.config.uid;
         if (bot.ctx.config.smStart && comparePassword(bot.ctx.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
@@ -423,7 +426,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
         session.channelId = data.channelId;
         session.selfId = uid;
-
+        bot.fulllogInfo('message-deleted 事件', session);
         bot.dispatch(session);
         break;
       }
@@ -438,7 +441,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
-
+        bot.fulllogInfo('iirose/mailboxMessage', session);
         bot.ctx.emit('iirose/mailboxMessage', session, data);
         break;
       }
@@ -466,7 +469,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
-
+        bot.fulllogInfo('iirose/broadcast', session);
         bot.ctx.emit('iirose/broadcast', session, data);
         break;
       }

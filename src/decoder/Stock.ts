@@ -35,6 +35,7 @@ export const stock = (message: string, bot: IIROSE_Bot) =>
         personalMoney: Number(list[4]),
       };
 
+      bot.fulllogInfo('iirose/stockBackCall', data);
       bot.ctx.emit('iirose/stockBackCall', data);
       return (data);
     }
