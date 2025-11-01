@@ -245,22 +245,24 @@ export class IIROSE_Bot extends Bot<Context>
    * @param timeout 超时时间 (毫秒)
    * @returns 返回一个Promise，该Promise会解析为响应字符串，或在超时/失败时解析为null
    */
-  public requesWsResponse(payload: string, timeout: number = 5000): Promise<string | null>
+  public requesWsResponse(payload: string, timeout?: number): Promise<string | null>
   {
+    const effectiveTimeout = timeout ?? this.config.timeout;
+
     return new Promise((resolve) =>
     {
       IIROSE_WSsend(this, payload);
 
       const timer = setTimeout(() =>
       {
-        // 超时处理：从队列中移除并解析为null
+        // 超时，从队列中移除，null
         const index = this.responseQueue.findIndex(p => p.timer === timer);
         if (index > -1)
         {
           this.responseQueue.splice(index, 1);
         }
         resolve(null);
-      }, timeout);
+      }, effectiveTimeout);
 
       this.responseQueue.push({
         resolver: (data) =>
