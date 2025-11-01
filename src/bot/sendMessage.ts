@@ -414,10 +414,17 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
       case 'a': {
         // 链接
-        this.isMarkdown = true;
-        const text = children.map(c => c.attrs.content).join('');
-        this.outDataOringin += `[${text || attrs.href}](${attrs.href})`;
-        return; // 链接元素特殊处理，不再遍历子节点
+        let url = attrs.href;
+        if (!url && children.length > 0)
+        {
+          url = children.map(c => c.attrs.content).join('');
+        }
+
+        if (url)
+        {
+          this.outDataOringin += `\\${url}`;
+        }
+        return; // 阻止后续对子节点的重复渲染
       }
 
       case 'b':
