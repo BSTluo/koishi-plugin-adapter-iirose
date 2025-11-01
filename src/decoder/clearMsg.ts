@@ -1,4 +1,3 @@
-
 import { h } from 'koishi';
 import { IIROSE_Bot } from '../bot/bot';
 
