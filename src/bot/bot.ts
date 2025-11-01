@@ -17,10 +17,8 @@ export class IIROSE_Bot extends Bot<Context>
   platform: string = 'iirose';
   socket: WebSocket | undefined = undefined;
   public messageIdResolvers: ((messageId: string) => void)[] = [];
-  // 用于存储用户信息的Promise的解析函数队列
-  public userProfileResolvers: {
-    userId: string;
-    resolver: (profile: Universal.User | null) => void;
+  public responseQueue: {
+    resolver: (data: string | null) => void;
     timer: NodeJS.Timeout;
   }[] = [];
 
@@ -241,73 +239,76 @@ export class IIROSE_Bot extends Bot<Context>
     return user;
   }
 
-  async getUser(userId: string, guildId?: string): Promise<Universal.User>
+  /**
+   * 发送一个WebSocket请求并等待对应的响应
+   * @param payload 要发送的数据
+   * @param timeout 超时时间 (毫秒)
+   * @returns 返回一个Promise，该Promise会解析为响应字符串，或在超时/失败时解析为null
+   */
+  public requesWsResponse(payload: string, timeout: number = 5000): Promise<string | null>
   {
-    // 主动发送获取用户信息的请求
-    IIROSE_WSsend(this, `+&${userId.toLowerCase()}`);
-
     return new Promise((resolve) =>
     {
-      const resolver = (profile: Universal.User | null) =>
-      {
-        if (profile)
-        {
-          resolve(profile);
-        } else
-        {
-          // 如果查询失败，返回一个包含错误信息的用户对象
-          resolve({
-            id: userId,
-            name: '用户不存在',
-            avatar: ''
-          });
-        }
-      };
+      IIROSE_WSsend(this, payload);
 
       const timer = setTimeout(() =>
       {
-        // 超时处理：从队列中移除并返回超时错误
-        const index = this.userProfileResolvers.findIndex(p => p.timer === timer);
+        // 超时处理：从队列中移除并解析为null
+        const index = this.responseQueue.findIndex(p => p.timer === timer);
         if (index > -1)
         {
-          this.userProfileResolvers.splice(index, 1);
+          this.responseQueue.splice(index, 1);
         }
-        resolve({
-          id: 'error',
-          name: '获取用户信息超时',
-          avatar: ''
-        });
-      }, 5000); // 5秒超时
+        resolve(null);
+      }, timeout);
 
-      // 将 resolver 和 timer 推入队列
-      this.userProfileResolvers.push({ userId, resolver, timer });
+      this.responseQueue.push({
+        resolver: (data) =>
+        {
+          clearTimeout(timer);
+          resolve(data);
+        },
+        timer,
+      });
     });
   }
 
-  // 处理收到的用户信息回调
-  public handleUserProfile(data: string)
+  /**
+   * 处理一个进入的响应，并将其分发到响应队列中的第一个等待者
+   * @param data 响应数据
+   * @returns 如果消息被处理，则返回true
+   */
+  public handleResponse(data: string): boolean
   {
-    // 取出队列中最老的请求
-    const request = this.userProfileResolvers.shift();
-    if (!request) return; // 如果没有等待的请求，则忽略
-
-    clearTimeout(request.timer);
-
-    if (data === '+')
+    const request = this.responseQueue.shift();
+    if (request)
     {
-      // 查询失败，返回 null
-      request.resolver(null);
-      return;
+      clearTimeout(request.timer);
+      request.resolver(data);
+      return true;
+    }
+    return false;
+  }
+
+  async getUser(userId: string): Promise<Universal.User>
+  {
+    const response = await this.requesWsResponse(`+&${userId.toLowerCase()}`);
+
+    if (!response || response === '+')
+    {
+      return {
+        id: userId,
+        name: '用户不存在',
+        avatar: '',
+      };
     }
 
-    // 查询成功，解析数据
-    const parts = data.substring(1).split('>');
-    const user: Universal.User = {
-      id: request.userId, // 使用请求时的 userId
-      name: parts[3],      // 用户名在第4个字段
-      avatar: parts[1],    // 头像在第2个字段
+    const parts = response.substring(1).split('>');
+    return {
+      id: userId,
+      name: parts[3],
+      avatar: parts[1],
     };
-    request.resolver(user);
   }
 
   async getMessage(channelId: string, messageId: string): Promise<Universal.Message>

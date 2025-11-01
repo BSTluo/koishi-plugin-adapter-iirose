@@ -403,11 +403,14 @@ export class WsClient
         }
       }
 
-      // 处理用户信息回调
-      if (message.startsWith('+'))
+      // 检查是否有等待的响应
+      if (this.bot.responseQueue.length > 0)
       {
-        this.bot.handleUserProfile(message);
-        return; // 用户信息消息不应被继续解码
+        // 尝试处理响应
+        if (this.bot.handleResponse(message))
+        {
+          return; // 如果消息被作为响应处理，则停止进一步解码
+        }
       }
 
       if (!this.firstLogin)
