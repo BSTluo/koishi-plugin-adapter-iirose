@@ -34,42 +34,51 @@ export async function clearMsg(msg: string, bot: IIROSE_Bot)
 
     // 处理 at-by-name (异步)
     // 消耗前后空格，但将空格捕获以便在替换时放回
-    const atNameRegex = /(\s)\[\*([\s\S]+?)\*\](\s)/g;
-    msg = await replaceAsync(msg, atNameRegex, async (raw, space1, name, space2) =>
+    const atNameRegex = /(\s)((?:\[\*[\s\S]+?\*\])+)(\s)/g;
+    msg = await replaceAsync(msg, atNameRegex, async (raw, space1, mentionBlock, space2) =>
     {
+        const name = mentionBlock.slice(2, -2);
+        const isMultiBlock = mentionBlock.lastIndexOf('[*') > 0;
+
         const user = await bot.internal.getUserByName(name);
-        // 如果找到了用户，就进行替换；否则，返回原始字符串（包括空格）
         if (user)
         {
             return `${space1}${h('at', { id: user.id, name }).toString()}${space2}`;
+        }
+        else if (isMultiBlock)
+        {
+            return `${space1}${h('at', { id: 'error', name }).toString()}${space2}`;
         }
         return raw;
     });
 
     // 处理 at-by-id (异步)
-    const atIdRegex = /(\s)\[@([\s\S]+?)@\](\s)/g;
-    msg = await replaceAsync(msg, atIdRegex, async (raw, space1, id, space2) =>
+    const atIdRegex = /(\s)((?:\[@[\s\S]+?@\])+)(\s)/g;
+    msg = await replaceAsync(msg, atIdRegex, async (raw, space1, mentionBlock, space2) =>
     {
+        const id = mentionBlock.slice(2, -2);
+        const isMultiBlock = mentionBlock.lastIndexOf('[@') > 0;
+
         const user = await bot.internal.getUserById(id);
         if (user)
         {
             return `${space1}${h('at', { id, name: user.name }).toString()}${space2}`;
         }
+        else if (isMultiBlock)
+        {
+            return `${space1}${h('at', { id: 'error', name: id }).toString()}${space2}`;
+        }
         return raw;
     });
 
     // 处理 sharp 元素（提及频道）
-    const sharpRegex = /(\s)\[_([\s\S]+?)\](\s)/g;
-    msg = await replaceAsync(msg, sharpRegex, async (raw, space1, channelId, space2) =>
+    const sharpRegex = /(\s)((?:\[_[\s\S]+?_\])+)(\s)/g;
+    msg = await replaceAsync(msg, sharpRegex, async (raw, space1, mentionBlock, space2) =>
     {
-        // 如果找到了频道ID，就进行替换；否则，返回原始字符串（包括空格）
-        if (channelId)
-        {
-            // 移除频道ID末尾的下划线
-            const cleanChannelId = channelId.replace(/_+$/, '');
-            return `${space1}${h('sharp', { id: cleanChannelId }).toString()}${space2}`;
-        }
-        return raw;
+        const channelId = mentionBlock.slice(2, -2);
+        // 移除频道ID末尾的下划线
+        const cleanChannelId = channelId.replace(/_+$/, '');
+        return `${space1}${h('sharp', { id: cleanChannelId }).toString()}${space2}`;
     });
 
     return msg;
