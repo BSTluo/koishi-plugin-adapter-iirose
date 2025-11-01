@@ -1,7 +1,6 @@
 
 import { Context, MessageEncoder, h } from 'koishi';
 import { } from '@koishijs/assets';
-import * as musicMetadata from 'music-metadata';
 import PrivateMessage from '../encoder/messages/PrivateMessage';
 import PublicMessage from '../encoder/messages/PublicMessage';
 import { IIROSE_WSsend } from '../utils/ws';
@@ -17,6 +16,7 @@ async function getMediaMetadata(url: string, ctx: Context)
   {
     const { data, type } = await ctx.http.file(url);
     const buffer = Buffer.from(data);
+    const musicMetadata = await import('music-metadata');
     const metadata = await musicMetadata.parseBuffer(buffer, type, { duration: true });
     const { common, format } = metadata;
 
