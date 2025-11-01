@@ -59,5 +59,19 @@ export async function clearMsg(msg: string, bot: IIROSE_Bot)
         return raw;
     });
 
+    // 处理 sharp 元素（提及频道）
+    const sharpRegex = /(\s)\[_([\s\S]+?)\](\s)/g;
+    msg = await replaceAsync(msg, sharpRegex, async (raw, space1, channelId, space2) =>
+    {
+        // 如果找到了频道ID，就进行替换；否则，返回原始字符串（包括空格）
+        if (channelId)
+        {
+            // 移除频道ID末尾的下划线
+            const cleanChannelId = channelId.replace(/_+$/, '');
+            return `${space1}${h('sharp', { id: cleanChannelId }).toString()}${space2}`;
+        }
+        return raw;
+    });
+
     return msg;
 }
