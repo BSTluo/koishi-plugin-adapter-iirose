@@ -153,7 +153,8 @@ export class Internal
 
   async getUserByName(name: string)
   {
-    const id = this.UserData.name[name];
+    const id = this.bot.sessionCache.findUserIdByName(name);
+    if (!id) return undefined;
     const user = await this.bot.getUser(id);
     return user;
   }
@@ -164,12 +165,6 @@ export class Internal
     return user;
   }
 
-  initUserData()
-  {
-    // 此功能已废弃
-  }
-
-  UserData: Record<string, Record<string, string>> = {};
 }
 
 export interface InternalType
