@@ -1,5 +1,6 @@
 
 import { Universal, User } from "koishi";
+import { readJsonData } from '../utils/utils';
 
 import setMaxUserFunction from '../encoder/admin/setMaxUser';
 import whiteListFunction from '../encoder/admin/whiteList';
@@ -151,12 +152,22 @@ export class Internal
     IIROSE_WSsend(this.bot, data);
   }
 
-  async getUserByName(name: string)
+  async getUserByName(name: string): Promise<Universal.User | undefined>
   {
-    const id = this.bot.sessionCache.findUserIdByName(name);
-    if (!id) return undefined;
-    const user = await this.bot.getUser(id);
-    return user;
+    // 从 userlist.json 中通过用户名查找用户
+    const userlist = await readJsonData(this.bot, 'wsdata/userlist.json');
+    if (!userlist) return undefined;
+
+    const user = userlist.find(u => u.username === name);
+    if (user)
+    {
+      return {
+        id: user.uid,
+        name: user.username,
+        avatar: user.avatar,
+      };
+    }
+    return undefined;
   }
 
   async getUserById(id: string)

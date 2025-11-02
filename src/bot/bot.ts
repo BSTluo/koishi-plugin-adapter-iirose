@@ -206,26 +206,8 @@ export class IIROSE_Bot extends Bot<Context>
 
   async getSelf(): Promise<Universal.User>
   {
-    let user: Universal.User = await this.getUser(this.config.uid);
-    if (user.id == 'error')
-    {
-      if (this.config.smStart && comparePassword(this.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
-      {
-        user = {
-          id: this.config.smUid,
-          name: this.config.smUsername,
-          avatar: 'http://p26-tt.byteimg.com/origin/pgc-image/cabc74beb5794b97b1b300a2b8817e05'
-        };
-      } else
-      {
-        user = {
-          id: this.config.uid,
-          name: this.config.usename,
-          avatar: 'http://p26-tt.byteimg.com/origin/pgc-image/cabc74beb5794b97b1b300a2b8817e05'
-        };
-      }
-    }
-    return user;
+    // 直接调用getUser方法获取自身信息
+    return this.getUser(this.selfId);
   }
 
   /**
