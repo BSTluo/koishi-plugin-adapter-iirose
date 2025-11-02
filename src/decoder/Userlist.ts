@@ -18,6 +18,7 @@ export interface RoomInfo
   online: number;
   description: string;
   users: string[];
+  background?: string;
 }
 
 export const userList = async (message: string, bot: IIROSE_Bot) =>
@@ -31,7 +32,7 @@ export const userList = async (message: string, bot: IIROSE_Bot) =>
     const data = message.substring(3);
     const userList: UserList[] = [];
 
-    // 1. 解析用户列表
+    // 解析用户列表
     data.split('<').forEach((e) =>
     {
       const tmp = e.split('>');
@@ -47,11 +48,11 @@ export const userList = async (message: string, bot: IIROSE_Bot) =>
       }
     });
 
-    // 2. 解析房间信息
+    // 解析房间信息
     const roomList = {};
     const segments = data.split('<');
-    // 匹配一个或多个由下划线连接的、长度至少为10的十六进制字符串
-    const roomIdRegex = /^([a-f0-9]{10,}_?)+$/;
+    // 匹配一个或多个由下划线连接的、长度至少为10的、且包含至少一个字母的十六进制字符串
+    const roomIdRegex = /^(?=.*[a-f])([a-f0-9]{10,}_?)+$/;
 
     for (let i = 1; i < segments.length; i++)
     {
@@ -63,7 +64,26 @@ export const userList = async (message: string, bot: IIROSE_Bot) =>
         const roomDataFields = currentSegment.split('>');
         const idPath = candidateId.split('_');
         const roomName = roomDataFields[1] || '';
-        const description = roomDataFields[6] || ''; // 根据固定顺序，简介在第7个字段
+
+        const rawDescField = roomDataFields[5] || '';
+        let description = '';
+        let background = '';
+
+        if (rawDescField.startsWith('://'))
+        {
+          const firstSpaceIndex = rawDescField.indexOf(' ');
+          if (firstSpaceIndex !== -1)
+          {
+            background = 'https' + rawDescField.substring(0, firstSpaceIndex);
+            description = rawDescField.substring(firstSpaceIndex + 1).split('&&')[0].trim();
+          } else
+          {
+            background = 'https' + rawDescField;
+          }
+        } else
+        {
+          description = rawDescField.split('&&')[0].trim();
+        }
 
         let currentLevel = roomList;
         for (let j = 0; j < idPath.length - 1; j++)
@@ -81,19 +101,20 @@ export const userList = async (message: string, bot: IIROSE_Bot) =>
           id: finalId,
           name: roomName,
           description: description,
+          background: background,
           users: userList.filter(u => u.room === finalId).map(u => u.uid),
           online: userList.filter(u => u.room === finalId).length,
         };
       }
     }
 
-    // 3. 写入 roomlist.json
+    // 写入 roomlist.json
     if (Object.keys(roomList).length > 0)
     {
       await writeWJ(bot, 'roomlist.json', roomList);
     }
 
-    // 4. 返回用户列表
+    // 返回用户列表
     return userList;
   }
 };
