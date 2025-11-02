@@ -1,5 +1,4 @@
 import { h, Universal } from 'koishi';
-import { GetUserListCallback } from './GetUserListCallback';
 import { writeWJ } from '../utils/utils';
 import { comparePassword } from '../utils/password';
 import { MessageType } from '.';
@@ -13,31 +12,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
   {
     switch (key)
     {
-      case 'userlist': {
-        if (!obj.userlist) return;
-        const data: GetUserListCallback[] = obj.userlist;
-
-        let uid = bot.ctx.config.uid;
-        if (bot.ctx.config.smStart && comparePassword(bot.ctx.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
-        {
-          uid = bot.ctx.config.smUid;
-        }
-
-        const event = {
-          selfId: uid,
-          type: 'userlist',
-          platform: 'iirose',
-          timestamp: Date.now()
-        };
-        const session = bot.session(event);
-
-        // 大包触发, 写入文件
-        await writeWJ(bot, 'wsdata/userlist.json', data);
-
-        bot.fulllogInfo('iirose/before-getUserList', session);
-        bot.ctx.emit('iirose/before-getUserList', session, data);
-        break;
-      }
 
       case 'publicMessage': {
         if (!obj.publicMessage) return;
@@ -357,19 +331,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
-      case 'getUserListCallback': {
-        const data = obj.getUserListCallback;
-
-        const event = {
-          type: 'getUserListCallback',
-          platform: 'iirose',
-          guildId: bot.config.roomId
-        };
-        const session = bot.session(event);
-        bot.fulllogInfo('iirose/before-getUserList', session);
-        bot.ctx.emit('iirose/before-getUserList', session, data);
-        break;
-      }
 
 
       case 'bankCallback': {

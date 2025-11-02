@@ -49,6 +49,12 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
             }
         });
 
+        // 写入 userlist.json
+        if (userList.length > 0)
+        {
+            await writeWJ(bot, 'wsdata/userlist.json', userList);
+        }
+
         // 解析房间信息
         const roomList = {};
         const segments = data.split('<');

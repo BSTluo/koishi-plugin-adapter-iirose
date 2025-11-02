@@ -1,7 +1,6 @@
 
 import { Fragment, Session } from 'koishi';
 
-import { GetUserListCallback } from '../decoder/GetUserListCallback';
 import { Stock } from '../decoder/Stock';
 import { MessageType } from '../decoder';
 import { BroadcastMessage } from '../decoder/BroadcastMessage';
@@ -110,7 +109,6 @@ export interface Events
   'iirose/switchRoom'(session: Session, data: MessageType['switchRoom']): void;
   'iirose/newMusic'(session: Session, data: MessageType['music']): void;
   'iirose/before-payment'(session: Session, data: MessageType['paymentCallback']): void;
-  'iirose/before-getUserList'(session: Session, data: GetUserListCallback[]): void;
   'iirose/before-bank'(session: Session, data: MessageType['bankCallback']): void;
   'iirose/before-mediaList'(session: Session, data: MessageType['mediaListCallback']): void;
   'iirose/selfMove'(session: Session, data: MessageType['selfMove']): void;
