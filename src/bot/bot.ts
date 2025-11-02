@@ -194,21 +194,9 @@ export class IIROSE_Bot extends Bot<Context>
       return [];
     }
     const finalChannelId = guildId ? `${channelId}:${guildId}` : channelId;
-
-    // 创建消息编码器并发送消息
     const encoder = new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options);
-    await encoder.send(content);
-
-    // 直接获取生成的消息ID
-    const messageId = encoder.getMessageId();
-
-    if (messageId)
-    {
-      return [messageId];
-    } else
-    {
-      return [];
-    }
+    const messages = await encoder.send(content);
+    return messages.map(m => m.id);
   }
 
   async sendPrivateMessage(userId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
