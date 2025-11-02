@@ -1,5 +1,5 @@
 import { h, Universal } from 'koishi';
-import { writeWJ } from '../utils/utils';
+
 import { comparePassword } from '../utils/password';
 import { MessageType } from '.';
 import { IIROSE_Bot } from '../bot/bot';
