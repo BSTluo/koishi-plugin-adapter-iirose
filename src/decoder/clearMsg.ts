@@ -34,51 +34,60 @@ export async function clearMsg(msg: string, bot: IIROSE_Bot)
 
     // 处理 at-by-name (异步)
     // 消耗前后空格，但将空格捕获以便在替换时放回
-    const atNameRegex = /(\s)((?:\[\*[\s\S]+?\*\])+)(\s)/g;
-    msg = await replaceAsync(msg, atNameRegex, async (raw, space1, mentionBlock, space2) =>
+    // 匹配一个或多个前导空格，以便在消息开头正确处理 at
+    const atNameRegex = /(\s+)((?:\[\*[\s\S]+?\*\])+)(\s)/g;
+    msg = await replaceAsync(msg, atNameRegex, async (raw, space1, mentionBlock, space2, offset, originalString) =>
     {
         const name = mentionBlock.slice(2, -2);
         const isMultiBlock = mentionBlock.lastIndexOf('[*') > 0;
 
         const user = await bot.internal.getUserByName(name);
+        // 如果 at 元素位于消息开头（或只由空格开头），则不保留前面的空格
+        const leadingSpace = (offset === 0 || originalString.substring(0, offset).trim() === '') ? '' : space1;
+
         if (user)
         {
-            return `${space1}${h('at', { id: user.id, name }).toString()}${space2}`;
+            return `${leadingSpace}${h('at', { id: user.id, name }).toString()}${space2}`;
         }
         else if (isMultiBlock)
         {
-            return `${space1}${h('at', { id: 'error', name }).toString()}${space2}`;
+            return `${leadingSpace}${h('at', { id: 'error', name }).toString()}${space2}`;
         }
         return raw;
     });
 
     // 处理 at-by-id (异步)
-    const atIdRegex = /(\s)((?:\[@[\s\S]+?@\])+)(\s)/g;
-    msg = await replaceAsync(msg, atIdRegex, async (raw, space1, mentionBlock, space2) =>
+    const atIdRegex = /(\s+)((?:\[@[\s\S]+?@\])+)(\s)/g;
+    msg = await replaceAsync(msg, atIdRegex, async (raw, space1, mentionBlock, space2, offset, originalString) =>
     {
         const id = mentionBlock.slice(2, -2);
         const isMultiBlock = mentionBlock.lastIndexOf('[@') > 0;
 
         const user = await bot.internal.getUserById(id);
+        // 如果 at 元素位于消息开头（或只由空格开头），则不保留前面的空格
+        const leadingSpace = (offset === 0 || originalString.substring(0, offset).trim() === '') ? '' : space1;
+
         if (user)
         {
-            return `${space1}${h('at', { id, name: user.name }).toString()}${space2}`;
+            return `${leadingSpace}${h('at', { id, name: user.name }).toString()}${space2}`;
         }
         else if (isMultiBlock)
         {
-            return `${space1}${h('at', { id: 'error', name: id }).toString()}${space2}`;
+            return `${leadingSpace}${h('at', { id: 'error', name: id }).toString()}${space2}`;
         }
         return raw;
     });
 
     // 处理 sharp 元素（提及频道）
-    const sharpRegex = /(\s)((?:\[_[\s\S]+?_\])+)(\s)/g;
-    msg = await replaceAsync(msg, sharpRegex, async (raw, space1, mentionBlock, space2) =>
+    const sharpRegex = /(\s+)((?:\[_[\s\S]+?_\])+)(\s)/g;
+    msg = await replaceAsync(msg, sharpRegex, async (raw, space1, mentionBlock, space2, offset, originalString) =>
     {
+        // 如果 sharp 元素位于消息开头（或只由空格开头），则不保留前面的空格
+        const leadingSpace = (offset === 0 || originalString.substring(0, offset).trim() === '') ? '' : space1;
         const channelId = mentionBlock.slice(2, -2);
         // 移除频道ID末尾的下划线
         const cleanChannelId = channelId.replace(/_+$/, '');
-        return `${space1}${h('sharp', { id: cleanChannelId }).toString()}${space2}`;
+        return `${leadingSpace}${h('sharp', { id: cleanChannelId }).toString()}${space2}`;
     });
 
     return msg;
