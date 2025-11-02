@@ -69,16 +69,20 @@ export const userList = async (message: string, bot: IIROSE_Bot) =>
         let description = '';
         let background = '';
 
-        if (rawDescField.startsWith('://'))
+        if (rawDescField.startsWith('s://') || rawDescField.startsWith('://'))
         {
           const firstSpaceIndex = rawDescField.indexOf(' ');
+          const protocol = rawDescField.startsWith('s://') ? 'https' : 'http';
+
           if (firstSpaceIndex !== -1)
           {
-            background = 'https' + rawDescField.substring(0, firstSpaceIndex);
+            const urlPart = rawDescField.substring(rawDescField.startsWith('s://') ? 4 : 3, firstSpaceIndex);
+            background = `${protocol}://${urlPart}`;
             description = rawDescField.substring(firstSpaceIndex + 1).split('&&')[0].trim();
           } else
           {
-            background = 'https' + rawDescField;
+            const urlPart = rawDescField.substring(rawDescField.startsWith('s://') ? 4 : 3);
+            background = `${protocol}://${urlPart}`;
           }
         } else
         {
