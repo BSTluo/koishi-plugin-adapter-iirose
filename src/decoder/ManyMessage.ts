@@ -109,7 +109,10 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
           // PrivateMessage
           if (!isNaN(Number(tmp[8])) && Number(tmp[8]) > -1 && Number(tmp[8]) < 5)
           {
-            if (bot.config.uid == tmp[1]) { return; }
+            if (bot.config.uid == tmp[1])
+            {
+              return;
+            }
             output.push(new ManyMessage({
               type: 'privateMessage',
               timestamp: Number(tmp[0]),
@@ -122,7 +125,10 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
             }));
           } else
           {
-            if (bot.config.uid == tmp[8]) { return; }
+            if (bot.config.uid == tmp[8])
+            {
+              return;
+            }
             const reply = replyMsg(tmp[3]);
             output.push(new ManyMessage({
               type: 'publicMessage',
@@ -139,7 +145,10 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
           }
         } else if (tmp.length === 12)
         {
-          if (bot.config.uid == tmp[8]) { return; }
+          if (bot.config.uid == tmp[8])
+          {
+            return;
+          }
           if (tmp[3] === "'1")
           {
             const msg = {

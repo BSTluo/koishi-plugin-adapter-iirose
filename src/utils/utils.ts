@@ -156,10 +156,14 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
       outData.bot = bot;
       outData.send = (data) =>
       {
-        // eslint-disable-next-line no-prototype-builtins
-        if (data.hasOwnProperty('public')) { bot.sendMessage('public:', data.public.message); }
-        // eslint-disable-next-line no-prototype-builtins
-        if (data.hasOwnProperty('private')) { bot.sendMessage(`private:${data.private.userId}`, data.private.message); }
+        if (data.hasOwnProperty('public'))
+        {
+          bot.sendMessage('public:', data.public.message);
+        }
+        if (data.hasOwnProperty('private'))
+        {
+          bot.sendMessage(`private:${data.private.userId}`, data.private.message);
+        }
       };
 
       return callBack(outData);
