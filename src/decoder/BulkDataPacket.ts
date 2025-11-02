@@ -116,7 +116,7 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
         // 写入 roomlist.json
         if (Object.keys(roomList).length > 0)
         {
-            await writeWJ(bot, 'roomlist.json', roomList);
+            await writeWJ(bot, 'wsdata/roomlist.json', roomList);
         }
 
         // 返回用户列表

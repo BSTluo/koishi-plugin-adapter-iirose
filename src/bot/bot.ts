@@ -6,6 +6,7 @@ import { SessionCache } from './sessionCache';
 import { comparePassword } from '../utils/password';
 import { SendOptions } from '@satorijs/protocol';
 import { IIROSE_WSsend, WsClient } from '../utils/ws';
+import { readJsonData, findRoomInGuild, flattenRooms } from '../utils/utils';
 import kick from '../encoder/admin/kick';
 import mute from '../encoder/admin/mute';
 import { Config } from '../config';
@@ -294,53 +295,117 @@ export class IIROSE_Bot extends Bot<Context>
 
   async getUser(userId: string, guildId?: string): Promise<Universal.User>
   {
-    const response = await this.requestResponse(`+&${userId.toLowerCase()}`);
-
-    if (!response || response === '+')
+    const userlist = await readJsonData(this, 'wsdata/userlist.json');
+    if (!userlist)
     {
-      return {
-        id: userId,
-        name: '用户不存在',
-        avatar: '',
-      };
+      return { id: userId, name: 'Unknown' };
     }
-
-    const parts = response.substring(1).split('>');
+    const user = userlist.find(u => u.uid === userId);
+    if (!user)
+    {
+      return { id: userId, name: 'Unknown' };
+    }
     return {
-      id: userId,
-      name: parts[3],
-      avatar: parts[1],
+      id: user.uid,
+      name: user.username,
+      avatar: user.avatar,
     };
+  }
+
+  async getGuildMember(guildId: string, userId: string): Promise<Universal.GuildMember>
+  {
+    const user = await this.getUser(userId, guildId);
+    //  返回基础用户信息
+    return {
+      ...user,
+      // roles: [],
+    };
+  }
+
+  async getGuildMemberList(guildId: string, next?: string): Promise<Universal.List<Universal.GuildMember>>
+  {
+    const userlist = await readJsonData(this, 'wsdata/userlist.json');
+    if (!userlist) return { data: [] };
+
+    const members = userlist
+      .filter(u => u.room === guildId)
+      .map(u => ({
+        id: u.uid,
+        name: u.username,
+        avatar: u.avatar,
+      }));
+
+    return { data: members };
+  }
+
+  async getGuild(guildId: string): Promise<Universal.Guild>
+  {
+    const roomlist = await readJsonData(this, 'wsdata/roomlist.json');
+    if (!roomlist) return { id: guildId, name: 'Unknown Guild' };
+
+    const guild = findRoomInGuild(roomlist, guildId);
+    if (!guild) return { id: guildId, name: 'Unknown Guild' };
+
+    return {
+      id: guild.id,
+      name: guild.name,
+    };
+  }
+
+  async getGuildList(next?: string): Promise<Universal.List<Universal.Guild>>
+  {
+    // 一次只能在一个房间
+    const currentRoomId = this.config.roomId;
+    const guild = await this.getGuild(currentRoomId);
+    return { data: [guild] };
   }
 
   async getChannel(channelId: string): Promise<Universal.Channel>
   {
-    const rawChannelId = channelId.split(':').pop();
-    const response = await this.requestResponse(`=^v!${rawChannelId}`);
-
-    if (!response || !response.startsWith('i!'))
+    // 区分私聊频道和公共频道
+    if (channelId.startsWith('private:'))
     {
+      const userId = channelId.substring(8);
+      const user = await this.getUser(userId);
       return {
         id: channelId,
-        name: '频道不存在',
-        type: Universal.Channel.Type.TEXT,
+        name: user.name,
+        type: Universal.Channel.Type.DIRECT,
       };
     }
 
-    const subscriberCount = parseInt(response.substring(2), 10);
-    const count = isNaN(subscriberCount) ? 0 : subscriberCount;
+    // 默认处理为公共频道
+    const roomId = channelId.replace(/^public:/, '');
+    const roomlist = await readJsonData(this, 'wsdata/roomlist.json');
+    if (!roomlist) return { id: roomId, name: 'Unknown Channel', type: Universal.Channel.Type.TEXT };
+
+    const room = findRoomInGuild(roomlist, roomId);
+    if (!room) return { id: roomId, name: 'Unknown Channel', type: Universal.Channel.Type.TEXT };
 
     return {
-      id: channelId,
-      name: `频道 ${rawChannelId} (${count}订阅)`,
+      id: room.id,
+      name: room.name,
       type: Universal.Channel.Type.TEXT,
     };
   }
 
   async getChannelList(guildId: string): Promise<Universal.List<Universal.Channel>>
   {
-    const channel = await this.getChannel(guildId);
-    return { data: [channel] };
+    const roomlist = await readJsonData(this, 'wsdata/roomlist.json');
+    if (!roomlist) return { data: [] };
+
+    // 查找对应的社区（Guild）
+    const guildData = findRoomInGuild(roomlist, guildId);
+    if (!guildData) return { data: [] };
+
+    // 将该社区下的所有房间（包括子房间）扁平化
+    const channels = flattenRooms(guildData).map(room => ({
+      id: room.id,
+      name: room.name,
+      type: Universal.Channel.Type.TEXT,
+    }));
+
+    return { data: channels };
   }
 
   async getMessage(channelId: string, messageId: string): Promise<Universal.Message>

@@ -32,7 +32,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         const session = bot.session(event);
 
         // 大包触发, 写入文件
-        await writeWJ(bot, 'userlist.json', data);
+        await writeWJ(bot, 'wsdata/userlist.json', data);
 
         bot.fulllogInfo('iirose/before-getUserList', session);
         bot.ctx.emit('iirose/before-getUserList', session, data);

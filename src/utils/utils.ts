@@ -183,20 +183,120 @@ export const stopEventsServer = (event: (() => boolean)[]) =>
 /**
  * 将数据写入到 wsdata 目录下的指定 JSON 文件中
  * @param bot IIROSE_Bot 实例
- * @param filename 文件名 (例如 'userlist.json')
+ * @param relativePath 文件路径 (例如 'wsdata/userlist.json')
  * @param data 要写入的数据对象
  */
-export const writeWJ = async (bot: IIROSE_Bot, filename: string, data: any): Promise<void> =>
+export const writeWJ = async (bot: IIROSE_Bot, relativePath: string, data: any): Promise<void> =>
 {
   try
   {
-    const wsDataDir = path.join(bot.ctx.baseDir, 'data', 'adapter-iirose', 'wsdata');
-    await fs.mkdir(wsDataDir, { recursive: true });
-    const filePath = path.join(wsDataDir, filename);
+    const instanceDataDir = path.join(bot.ctx.baseDir, 'data', 'adapter-iirose', bot.config.uid.trim());
+    const filePath = path.join(instanceDataDir, relativePath);
+
+    // 确保目标目录存在
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+
     await fs.writeFile(filePath, JSON.stringify(data, null, 2));
-    bot.logInfo(`[iirose] 数据已更新至: ${filePath}`);
+    bot.logInfo(`[iirose-writeWJ] 数据已更新至: ${filePath}`);
   } catch (error)
   {
-    bot.logger.error(`[iirose] 写入 ${filename} 失败:`, error);
+    bot.logger.error(`[iirose-writeWJ] 写入 ${relativePath} 失败:`, error);
   }
+};
+
+/**
+ * 从实例的数据目录中安全地读取和解析JSON文件。
+ * @param bot IIROSE_Bot 实例
+ * @param filename 相对于实例数据目录的文件路径 (e.g., 'wsdata/userlist.json')
+ * @returns 解析后的JSON数据，如果文件不存在或解析失败则返回 null
+ */
+export const readJsonData = async (bot: IIROSE_Bot, filename: string): Promise<any> =>
+{
+  try
+  {
+    const instanceDataDir = path.join(bot.ctx.baseDir, 'data', 'adapter-iirose', bot.config.uid.trim());
+    const filePath = path.join(instanceDataDir, filename);
+    const content = await fs.readFile(filePath, 'utf-8');
+    return JSON.parse(content);
+  } catch (error)
+  {
+    // 如果文件不存在，这是正常情况，不需要报错
+    if (error.code === 'ENOENT')
+    {
+      return null;
+    }
+    // 其他错误（如JSON解析失败）则需要记录
+    bot.logger.error(`[iirose-readJsonData] 读取或解析 ${filename} 失败:`, error);
+    return null;
+  }
+};
+
+/**
+ * 在嵌套的房间数据中递归查找指定的房间。
+ * @param guildData 嵌套的房间数据对象
+ * @param roomId 要查找的房间ID
+ * @returns 找到的房间信息对象，未找到则返回 null
+ */
+export const findRoomInGuild = (guildData: any, roomId: string): any =>
+{
+  if (!guildData || typeof guildData !== 'object')
+  {
+    return null;
+  }
+
+  for (const key in guildData)
+  {
+    const room = guildData[key];
+    if (room && room.id === roomId)
+    {
+      return room;
+    }
+    // 如果当前值是一个对象，就递归进去查找
+    if (typeof room === 'object')
+    {
+      const found = findRoomInGuild(room, roomId);
+      if (found)
+      {
+        return found;
+      }
+    }
+  }
+
+  return null;
+};
+
+/**
+ * 将一个社区（Guild）下的所有层级嵌套的房间扁平化为一个房间列表。
+ * @param guildData 嵌套的房间数据对象
+ * @returns 扁平化后的房间信息数组
+ */
+export const flattenRooms = (guildData: any): any[] =>
+{
+  const allRooms = [];
+
+  function recurse(data: any)
+  {
+    if (!data || typeof data !== 'object')
+    {
+      return;
+    }
+
+    for (const key in data)
+    {
+      const room = data[key];
+      // 检查一个对象是否是房间信息对象（有id和name属性）
+      if (room && room.id && room.name)
+      {
+        allRooms.push(room);
+      }
+      // 如果当前值是一个对象，就递归进去
+      if (typeof room === 'object')
+      {
+        recurse(room);
+      }
+    }
+  }
+
+  recurse(guildData);
+  return allRooms;
 };
