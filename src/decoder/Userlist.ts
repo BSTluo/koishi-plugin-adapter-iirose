@@ -11,6 +11,11 @@ export const userList = (message: string) =>
 {
   if (message.substr(0, 3) === '%*"')
   {
+
+    console.log("========================================");
+    console.log(message);
+    console.log("========================================");
+
     const list: UserList[] = [];
     message.substr(3).split('<').forEach((e, i) =>
     {
