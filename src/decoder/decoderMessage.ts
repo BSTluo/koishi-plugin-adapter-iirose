@@ -209,7 +209,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId = bot.ctx.config.smRoom;
         }
 
-        const createEvent = (type: 'guild-member-added' | 'guild-member-removed' | 'guild-member-updated') =>
+        const createEvent = (type: 'guild-member-added' | 'guild-member-removed') =>
         {
           const session = bot.session({
             type,
@@ -223,20 +223,52 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
               avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
             }
           });
+          bot.fulllogInfo(type, session);
           bot.dispatch(session);
         };
 
-        switch (data.type)
+        if (data.type === 'join')
         {
-          case 'join':
+          // 仅在 'new' (新加入) 或 'reconnect' (重连) 时触发 guild-member-added
+          if (data.joinType === 'new' || data.joinType === 'reconnect')
+          {
             createEvent('guild-member-added');
-            break;
-          case 'leave':
-          case 'move':
-            createEvent('guild-member-removed');
-            break;
-        }
+          }
+        } else if (data.type === 'leave')
+        {
+          createEvent('guild-member-removed');
 
+          // 如果是移动事件, 额外触发 iirose/switchRoom
+          if (data.isMove)
+          {
+            // 构造 SwitchRoom 对象
+            const switchRoomData = {
+              timestamp: Number(data.timestamp),
+              avatar: data.avatar,
+              username: data.username,
+              color: data.color,
+              uid: data.uid,
+              title: data.title,
+              room: data.room,
+              targetRoom: data.targetRoomId
+            };
+
+            const switchRoomEvent = {
+              type: 'switchRoom',
+              platform: 'iirose',
+              guildId: guildId,
+              timestamp: Number(data.timestamp),
+              user: {
+                id: data.uid,
+                name: data.username,
+              },
+              _data: switchRoomData
+            };
+            const switchRoomSession = bot.session(switchRoomEvent);
+            bot.fulllogInfo('iirose/switchRoom', switchRoomSession, switchRoomData);
+            bot.ctx.emit('iirose/switchRoom', switchRoomSession, switchRoomData);
+          }
+        }
         break;
       }
 
@@ -281,18 +313,18 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
-      case 'switchRoom': {
-        // 这玩意真的是机器人能够拥有的吗?
-        const event = {
-          type: 'switchRoom',
-          platform: 'iirose',
-          guildId: bot.config.roomId
-        };
-        const session = bot.session(event);
-        bot.fulllogInfo('iirose/switchRoom', session);
-        bot.ctx.emit('iirose/switchRoom', session, obj.switchRoom);
-        break;
-      }
+      // case 'switchRoom': {
+      //   // 这玩意真的是机器人能够拥有的吗?
+      //   const event = {
+      //     type: 'switchRoom',
+      //     platform: 'iirose',
+      //     guildId: bot.config.roomId
+      //   };
+      //   const session = bot.session(event);
+      //   bot.fulllogInfo('iirose/switchRoom', session);
+      //   bot.ctx.emit('iirose/switchRoom', session, obj.switchRoom);
+      //   break;
+      // }
 
       case 'music': {
         // 音乐

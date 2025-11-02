@@ -29,7 +29,7 @@ export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
   len.privateMessage = privateMessage(msg);
   len.damaku = damaku(msg);
   len.memberUpdate = memberUpdate(msg);
-  len.switchRoom = switchRoom(msg);
+  // len.switchRoom = switchRoom(msg);
   len.music = music(msg);
   len.paymentCallback = paymentCallback(msg);
   len.getUserListCallback = getUserListCallback(msg);

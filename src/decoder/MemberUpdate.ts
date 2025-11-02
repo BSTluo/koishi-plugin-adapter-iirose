@@ -1,13 +1,20 @@
 export interface MemberUpdateData
 {
-    type: 'join' | 'leave' | 'move';
+    type: 'join' | 'leave';
     // 公共字段
     timestamp: string;
     avatar: string;
     username: string;
     uid: string;
-    // 移动事件专用
+    // join 事件专用
+    joinType?: 'new' | 'reconnect';
+    // leave 事件专用
+    isMove?: boolean;
     targetRoomId?: string;
+    // move 事件的额外信息
+    color?: string;
+    title?: string;
+    room?: string;
 }
 
 /**
@@ -26,25 +33,41 @@ export const memberUpdate = (message: string): MemberUpdateData | void =>
     const avatar = parts[1];
     const username = parts[2];
     const uid = parts[8];
+    const lastPart = parts[parts.length - 1];
 
-    // 用户加入（一个新用户进入房间）
-    // 最可靠的加入事件标识符是 parts[3] 为 '1。
+    // 用户加入（一个新用户进入房间或重连）
+    // 标识符: parts[3] === "'1"
+    // e.g. >>15fdcb9b634621'n''' (新加入)
+    // e.g. >>15fdcb9b634621'd''' (重连)
     if (parts[3] === "'1")
     {
-        return {
-            type: 'join',
-            timestamp,
-            avatar,
-            username,
-            uid,
-        };
+        let status = '';
+        // 从后向前遍历，找到最后一个不是 "'" 的字符
+        for (let i = lastPart.length - 1; i >= 0; i--)
+        {
+            if (lastPart[i] !== "'")
+            {
+                status = lastPart[i];
+                break;
+            }
+        }
+
+        if (status === 'n' || status === 'd')
+        {
+            return {
+                type: 'join',
+                timestamp,
+                avatar,
+                username,
+                uid,
+                joinType: status === 'n' ? 'new' : 'reconnect',
+            };
+        }
     }
 
-    const lastPart = parts[parts.length - 1];
-    const secondToLastPart = parts[parts.length - 2];
-
     // 用户离开或刷新
-    // 这些事件由 parts[3] 为 '3 和消息以 >>2 结尾来识别
+    // 标识符: parts[3] === "'3" 且消息以 ">>2" 结尾
+    const secondToLastPart = parts[parts.length - 2];
     if (parts[3] === "'3" && secondToLastPart === '' && lastPart === '2')
     {
         return {
@@ -53,11 +76,13 @@ export const memberUpdate = (message: string): MemberUpdateData | void =>
             avatar,
             username,
             uid,
+            isMove: false
         };
     }
 
     // 用户移动（用户离开当前房间去往另一个房间）
-    // 示例: "1761906832>...>栗子糖>'262b833e3bc5bc>s>...>...>>362b833e3bc5bc"
+    // 标识符: parts[3] 以 "'2" 开头, 结尾为 "3" + targetRoomId
+    // e.g. "1...>'2...>...>...>>3..."
     const moveRoomIdMarker = "'2";
     if (parts[3].startsWith(moveRoomIdMarker))
     {
@@ -70,12 +95,16 @@ export const memberUpdate = (message: string): MemberUpdateData | void =>
             if (targetRoomIdFromPart3 === targetRoomIdFromLastPart)
             {
                 return {
-                    type: 'move',
+                    type: 'leave', // "移动" 本质上是离开当前房间，所以我们下发 leave 事件
                     timestamp,
                     avatar,
                     username,
                     uid,
-                    targetRoomId: targetRoomIdFromPart3,
+                    isMove: true, // 附带 isMove 标志
+                    targetRoomId: targetRoomIdFromPart3, // 和目标房间 ID
+                    color: parts[5],
+                    title: parts[9],
+                    room: parts[10]
                 };
             }
         }

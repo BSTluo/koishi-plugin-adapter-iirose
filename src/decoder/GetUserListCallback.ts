@@ -11,6 +11,9 @@ export const getUserListCallback = (message: string) =>
 {
   if (message.substr(0, 2) === 'u2')
   {
+    console.log("========================================");
+    console.log(message);
+    console.log("========================================");
     const list: GetUserListCallback[] = [];
     message.substr(2).split('<').forEach(e =>
     {
