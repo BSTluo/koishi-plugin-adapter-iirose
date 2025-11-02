@@ -12,6 +12,8 @@ import StockBuy from '../encoder/user/StockBuy';
 import * as EventType from '../bot/event';
 import { IIROSE_Bot } from '../bot/bot';
 import { IIROSE_WSsend } from './ws';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 
 /**
  * 颜色转换函数：将rgba格式转换为十六进制格式
@@ -176,4 +178,25 @@ export const stopEventsServer = (event: (() => boolean)[]) =>
   {
     element();
   });
+};
+
+/**
+ * 将数据写入到 wsdata 目录下的指定 JSON 文件中
+ * @param bot IIROSE_Bot 实例
+ * @param filename 文件名 (例如 'userlist.json')
+ * @param data 要写入的数据对象
+ */
+export const writeWJ = async (bot: IIROSE_Bot, filename: string, data: any): Promise<void> =>
+{
+  try
+  {
+    const wsDataDir = path.join(bot.ctx.baseDir, 'data', 'adapter-iirose', 'wsdata');
+    await fs.mkdir(wsDataDir, { recursive: true });
+    const filePath = path.join(wsDataDir, filename);
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+    bot.logInfo(`[iirose] 数据已更新至: ${filePath}`);
+  } catch (error)
+  {
+    bot.logger.error(`[iirose] 写入 ${filename} 失败:`, error);
+  }
 };

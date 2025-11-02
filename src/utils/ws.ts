@@ -480,7 +480,7 @@ export class WsClient
         }
       }
 
-      const funcObj = decoder(this.bot, message);
+      const funcObj = await decoder(this.bot, message);
       // console.log(funcObj)
       // 将会话上报
 

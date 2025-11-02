@@ -1,6 +1,6 @@
 import { h, Universal } from 'koishi';
-
 import { GetUserListCallback } from './GetUserListCallback';
+import { writeWJ } from '../utils/utils';
 import { comparePassword } from '../utils/password';
 import { MessageType } from '.';
 import { IIROSE_Bot } from '../bot/bot';
@@ -31,9 +31,9 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
         const session = bot.session(event);
 
-        // 大包触发
-        // 这里拿到的是user列表，整个iirose服务器全部的在线用户的avatar、username、color、room、uid
-        // bot.fulllogInfo('iirose/before-getUserList', session, JSON.stringify(data, null, 2));
+        // 大包触发, 写入文件
+        await writeWJ(bot, 'userlist.json', data);
+
         bot.fulllogInfo('iirose/before-getUserList', session);
         bot.ctx.emit('iirose/before-getUserList', session, data);
         break;

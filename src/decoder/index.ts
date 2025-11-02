@@ -19,12 +19,12 @@ import { IIROSE_Bot } from '../bot/bot';
 import { MemberUpdateData, memberUpdate } from './MemberUpdate';
 import { BroadcastMessage, broadcastMessage } from './BroadcastMessage';
 
-export const decoder = (bot: IIROSE_Bot, msg: string): MessageType =>
+export const decoder = async (bot: IIROSE_Bot, msg: string): Promise<MessageType> =>
 {
   const len: any = {};
 
   len.manyMessage = manyMessage(msg, bot);
-  len.userlist = userList(msg);
+  len.userlist = await userList(msg, bot);
   len.publicMessage = publicMessage(msg);
   len.privateMessage = privateMessage(msg);
   len.damaku = damaku(msg);
