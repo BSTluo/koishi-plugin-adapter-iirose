@@ -1,10 +1,12 @@
 import { Context, sleep, Universal } from 'koishi';
+
+import * as zlib from 'node:zlib';
+
 import { getMd5Password, comparePassword, md5 } from './password';
 import { startEventsServer, stopEventsServer } from './utils';
 import { decoderMessage } from '../decoder/decoderMessage';
 import { IIROSE_Bot } from '../bot/bot';
 import { decoder } from '../decoder';
-import * as zlib from 'zlib';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 

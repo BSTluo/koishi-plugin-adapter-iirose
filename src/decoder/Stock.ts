@@ -1,5 +1,4 @@
 import { IIROSE_Bot } from '../bot/bot';
-import { comparePassword } from '../utils/password';
 
 export interface Stock
 {

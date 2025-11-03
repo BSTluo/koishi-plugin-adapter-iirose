@@ -1,9 +1,9 @@
 
 import { Fragment, Session } from 'koishi';
 
+import { BroadcastMessage } from '../decoder/BroadcastMessage';
 import { Stock } from '../decoder/Stock';
 import { MessageType } from '../decoder';
-import { BroadcastMessage } from '../decoder/BroadcastMessage';
 import { IIROSE_Bot } from './bot';
 
 export interface kickData

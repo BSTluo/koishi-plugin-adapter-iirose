@@ -1,22 +1,22 @@
 import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './MailboxMessage';
 import { mediaListCallback, MediaListCallback } from './MediaListCallback';
+import { BroadcastMessage, broadcastMessage } from './BroadcastMessage';
 import { MessageDeleted, MessageDeletedData } from './MessageDeleted';
 import { paymentCallback, PaymentCallback } from './PaymentCallback';
 import { privateMessage, PrivateMessage } from './PrivateMessage';
+import { MemberUpdateData, memberUpdate } from './MemberUpdate';
 import { publicMessage, PublicMessage } from './PublicMessage';
+import { bulkDataPacket, UserList } from './BulkDataPacket';
 import { musicMessage, MusicMessage } from './MusicMessage';
 import { bankCallback, BankCallback } from './BankCallback';
 import { manyMessage, ManyMessage } from './ManyMessage';
 import { switchRoom, SwitchRoom } from './SwitchRoom';
 import { comparePassword } from '../utils/password';
 import { selfMove, SelfMove } from './SelfMove';
-import { bulkDataPacket, UserList } from './BulkDataPacket';
 import { damaku, Damaku } from './Damaku';
+import { IIROSE_Bot } from '../bot/bot';
 import { stock, Stock } from './Stock';
 import { music, Music } from './Music';
-import { IIROSE_Bot } from '../bot/bot';
-import { MemberUpdateData, memberUpdate } from './MemberUpdate';
-import { BroadcastMessage, broadcastMessage } from './BroadcastMessage';
 
 export const decoder = async (bot: IIROSE_Bot, msg: string): Promise<MessageType> =>
 {

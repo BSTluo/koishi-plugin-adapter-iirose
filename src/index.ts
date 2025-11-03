@@ -1,4 +1,4 @@
-import { Context, Logger, sleep } from 'koishi';
+import { Context, sleep } from 'koishi';
 import { IIROSE_Bot } from './bot/bot';
 import * as IIROSE from './bot/event';
 import { Config } from './config';
