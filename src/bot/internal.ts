@@ -1,6 +1,6 @@
 
 import { Universal, User } from "koishi";
-import { readJsonData } from '../utils/utils';
+import { findUserIdByName, readJsonData } from '../utils/utils';
 
 import setMaxUserFunction from '../encoder/admin/setMaxUser';
 import whiteListFunction from '../encoder/admin/whiteList';
@@ -135,27 +135,19 @@ export class Internal
 
   async getUserByName(name: string): Promise<Universal.User | undefined>
   {
-    // 从 userlist.json 中通过用户名查找用户
-    const userlist = await readJsonData(this.bot, 'wsdata/userlist.json');
-    if (!userlist) return undefined;
+    // 使用工具函数通过用户名查找用户ID
+    const userId = await findUserIdByName(this.bot, name);
 
-    const user = userlist.find(u => u.username === name);
-    if (user)
+    // 如果找到了用户ID，则调用现有的 getUser 方法获取完整的用户信息
+    if (userId)
     {
-      return {
-        id: user.uid,
-        name: user.username,
-        avatar: user.avatar,
-      };
+      return this.bot.getUser(userId);
     }
+
+    // 如果未找到，则返回 undefined
     return undefined;
   }
 
-  async getUserById(id: string)
-  {
-    const user = await this.bot.getUser(id);
-    return user;
-  }
 
 }
 
@@ -174,5 +166,4 @@ export interface InternalType
   stockGet(): void;
   payment(uid: string, money: number, message?: string): void;
   getUserByName(name: string): Promise<Universal.User | undefined>;
-  getUserById(id: string): Promise<Universal.User | undefined>;
 }

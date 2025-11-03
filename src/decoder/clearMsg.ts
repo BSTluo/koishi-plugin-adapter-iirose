@@ -63,7 +63,7 @@ export async function clearMsg(msg: string, bot: IIROSE_Bot)
         const id = mentionBlock.slice(2, -2);
         const isMultiBlock = mentionBlock.lastIndexOf('[@') > 0;
 
-        const user = await bot.internal.getUserById(id);
+        const user = await bot.getUser(id);
         // 如果 at 元素位于消息开头（或只由空格开头），则不保留前面的空格
         const leadingSpace = (offset === 0 || originalString.substring(0, offset).trim() === '') ? '' : space1;
 

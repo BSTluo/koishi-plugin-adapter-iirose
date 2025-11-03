@@ -379,7 +379,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
       case 'at': {
         if (attrs.hasOwnProperty('id'))
         {
-          const user = await this.bot.internal.getUserById(attrs.id);
+          const user = await this.bot.getUser(attrs.id);
           const name = user?.name;
           if (name && name !== ("用户数据库初始化ing"))
           {
