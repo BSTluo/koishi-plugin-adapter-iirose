@@ -148,7 +148,23 @@ export class Internal
     return undefined;
   }
 
+  /**
+   * 获取 userlist.json 的内容
+   * @returns userlist.json 的解析后数据
+   */
+  async getUserListFile(): Promise<any>
+  {
+    return await readJsonData(this.bot, 'wsdata/userlist.json');
+  }
 
+  /**
+   * 获取 roomlist.json 的内容
+   * @returns roomlist.json 的解析后数据
+   */
+  async getRoomListFile(): Promise<any>
+  {
+    return await readJsonData(this.bot, 'wsdata/roomlist.json');
+  }
 }
 
 export interface InternalType
@@ -166,4 +182,6 @@ export interface InternalType
   stockGet(): void;
   payment(uid: string, money: number, message?: string): void;
   getUserByName(name: string): Promise<Universal.User | undefined>;
+  getUserListFile(): Promise<any>;
+  getRoomListFile(): Promise<any>;
 }
