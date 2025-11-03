@@ -57,25 +57,6 @@ export class SessionCache
     }
 
     /**
-     * 根据用户名查找用户 ID
-     * @param username 用户名
-     * @returns 匹配的用户 ID，如果找不到则返回 undefined
-     */
-    public findUserIdByName(username: string): string | undefined
-    {
-        // 从最新到最旧进行查找，返回第一个匹配项
-        for (let i = this.sessions.length - 1; i >= 0; i--)
-        {
-            const session = this.sessions[i];
-            if (session.author?.name === username && session.author.userId)
-            {
-                return session.author.userId;
-            }
-        }
-        return undefined;
-    }
-
-    /**
      * 获取所有缓存的 messageId
      * @returns messageId 数组
      */

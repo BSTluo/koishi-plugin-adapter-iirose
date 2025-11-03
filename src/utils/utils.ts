@@ -281,3 +281,33 @@ export const flattenRooms = (guildData: any): any[] =>
   recurse(guildData);
   return allRooms;
 };
+
+/**
+ * 根据用户 ID 从 userlist.json 查找用户名
+ * @param bot IIROSE_Bot 实例
+ * @param userId 用户 ID
+ * @returns 匹配的用户名，如果找不到则返回 undefined
+ */
+export const findUserNameById = async (bot: IIROSE_Bot, userId: string): Promise<string | undefined> =>
+{
+  const userlist = await readJsonData(bot, 'wsdata/userlist.json');
+  if (!userlist) return undefined;
+
+  const user = userlist.find(u => u.uid === userId);
+  return user ? user.username : undefined;
+};
+
+/**
+ * 根据用户名从 userlist.json 查找用户 ID
+ * @param bot IIROSE_Bot 实例
+ * @param username 用户名
+ * @returns 匹配的用户 ID，如果找不到则返回 undefined
+ */
+export const findUserIdByName = async (bot: IIROSE_Bot, username: string): Promise<string | undefined> =>
+{
+  const userlist = await readJsonData(bot, 'wsdata/userlist.json');
+  if (!userlist) return undefined;
+
+  const user = userlist.find(u => u.username === username);
+  return user ? user.uid : undefined;
+};

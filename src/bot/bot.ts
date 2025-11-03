@@ -1,6 +1,6 @@
 import { Context, Bot, Fragment, Universal, Logger, Session } from 'koishi';
 
-import { readJsonData, findRoomInGuild, flattenRooms } from '../utils/utils';
+import { readJsonData, findRoomInGuild, flattenRooms, findUserNameById } from '../utils/utils';
 import { IIROSE_BotMessageEncoder } from './sendMessage';
 import { IIROSE_WSsend, WsClient } from '../utils/ws';
 import { Internal, InternalType } from './internal';
@@ -407,30 +407,50 @@ export class IIROSE_Bot extends Bot<Context>
     return this.sessionCache.getAllMessageIds();
   }
 
-  async kickGuildMember(guildId: string, userName: string, permanent?: boolean): Promise<void>
+  async kickGuildMember(guildId: string, userId: string, permanent?: boolean): Promise<void>
   {
-    await IIROSE_WSsend(this, kick(userName));
-  }
+    // 从 userlist.json 获取用户名
+    const userName = await findUserNameById(this, userId);
 
-  async muteGuildMember(guildId: string, userName: string, duration: number, reason?: string): Promise<void>
-  {
-    let time: string;
-
-    // 永久禁言
-    if ((duration / 1000) > 99999)
+    // 如果成功获取用户名，则执行踢出操作
+    if (userName)
     {
-      time = '&';
+      await IIROSE_WSsend(this, kick(userName));
     } else
     {
-      time = String(duration / 1000);
+      this.loggerWarn(`无法找到用户ID: ${userId} 对应的用户名，无法执行踢出操作。`);
     }
+  }
 
-    if (reason == undefined)
+  async muteGuildMember(guildId: string, userId: string, duration: number, reason?: string): Promise<void>
+  {
+    // 从 userlist.json 获取用户名
+    const userName = await findUserNameById(this, userId);
+
+    // 如果成功获取用户名，则执行禁言操作
+    if (userName)
     {
-      reason = '';
-    }
+      let time: string;
 
-    await IIROSE_WSsend(this, mute('all', userName, time, reason));
+      // 永久禁言
+      if ((duration / 1000) > 99999)
+      {
+        time = '&';
+      } else
+      {
+        time = String(duration / 1000);
+      }
+
+      if (reason == undefined)
+      {
+        reason = '';
+      }
+
+      await IIROSE_WSsend(this, mute('all', userName, time, reason));
+    } else
+    {
+      this.loggerWarn(`无法找到用户ID: ${userId} 对应的用户名，无法执行禁言操作。`);
+    }
   }
 
   async deleteMessage(channelId: string, messageId: string): Promise<void>;
