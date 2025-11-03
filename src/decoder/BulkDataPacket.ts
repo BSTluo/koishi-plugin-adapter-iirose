@@ -27,7 +27,29 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
     {
         await writeWJ(bot, 'wsdata/message.log', message);
 
-        const data = message.substring(3);
+        let rawData = message.substring(3);
+        const userStartMarker = 'r.iirose.com/i/';
+        const markerIndex = rawData.indexOf(userStartMarker);
+
+        // 如果找到了标记，说明前面有股票数据，需要截取
+        // 我们需要回溯到 "http://" 或 "https://" 的开头
+        let data: string;
+        if (markerIndex !== -1)
+        {
+            const httpIndex = rawData.lastIndexOf('http', markerIndex);
+            if (httpIndex !== -1)
+            {
+                data = rawData.substring(httpIndex);
+            } else
+            {
+                // 如果找不到 http，这是一个异常情况，但我们仍然尝试从标记处开始解析
+                data = rawData.substring(markerIndex);
+            }
+        } else
+        {
+            // 如果没有找到标记，我们假定没有股票数据（或者格式已变）
+            data = rawData;
+        }
         const userList: UserList[] = [];
 
         // 解析用户列表
