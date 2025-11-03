@@ -13,6 +13,7 @@ import StockSell from '../encoder/user/StockSell';
 import kickFunction from '../encoder/admin/kick';
 import payment from "../encoder/system/payment";
 import StockBuy from '../encoder/user/StockBuy';
+import StockGet from '../encoder/user/StockGet';
 import { IIROSE_WSsend } from '../utils/ws';
 import * as eventType from './event';
 import { IIROSE_Bot } from "./bot";
@@ -120,6 +121,12 @@ export class Internal
   {
     IIROSE_WSsend(this.bot, StockSell(numberData));
   }
+
+  stockGet()
+  {
+    IIROSE_WSsend(this.bot, StockGet());
+  }
+
   payment(uid: string, money: number, message?: string)
   {
     const data = (message) ? payment(uid, money, message) : payment(uid, money);
@@ -164,6 +171,7 @@ export interface InternalType
   makeMusic(musicOrigin: eventType.musicOrigin): void;
   stockBuy(numberData: number): void;
   stockSell(numberData: number): void;
+  stockGet(): void;
   payment(uid: string, money: number, message?: string): void;
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserById(id: string): Promise<Universal.User | undefined>;

@@ -122,6 +122,9 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
             await writeWJ(bot, 'wsdata/roomlist.json', roomList);
         }
 
+        // 触发一次股价查询
+        bot.internal.stockGet();
+
         // 返回用户列表
         return userList;
     }

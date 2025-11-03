@@ -34,7 +34,6 @@ export class IIROSE_Bot extends Bot<Context>
   private isStarted: boolean = false;
   private disposed: boolean = false;
   private userInfoTimeout: NodeJS.Timeout | null = null;
-  private stockIntervalTimer: NodeJS.Timeout | null = null;
   private lastStockData: Stock | null = null;
   public logger: Logger;
 
@@ -139,8 +138,6 @@ export class IIROSE_Bot extends Bot<Context>
 
       this.isStarted = true;
 
-      this.startStockPolling();
-
     } catch (error)
     {
       // 如果插件正在停用，不记录错误
@@ -177,12 +174,6 @@ export class IIROSE_Bot extends Bot<Context>
     {
       clearTimeout(this.userInfoTimeout);
       this.userInfoTimeout = null;
-    }
-
-    if (this.stockIntervalTimer)
-    {
-      clearInterval(this.stockIntervalTimer);
-      this.stockIntervalTimer = null;
     }
 
     // 立即下线
@@ -504,17 +495,6 @@ export class IIROSE_Bot extends Bot<Context>
   }
 
   internal: InternalType = new Internal(this);
-
-  private startStockPolling()
-  {
-    if (this.config.stockInterval > 0)
-    {
-      this.stockIntervalTimer = setInterval(() =>
-      {
-        IIROSE_WSsend(this, StockGet());
-      }, this.config.stockInterval);
-    }
-  }
 
   public handleStockUpdate(newStockData: Stock)
   {
