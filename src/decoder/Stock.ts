@@ -3,10 +3,10 @@ import { comparePassword } from '../utils/password';
 
 export interface Stock
 {
-  totalStock: number;
-  totalMoney: number;
   unitPrice: number;
+  totalStock: number;
   personalStock: number;
+  totalMoney: number;
   personalMoney: number;
 }
 
@@ -19,10 +19,10 @@ export const stock = (message: string, bot: IIROSE_Bot) =>
     {
 
       const data: Stock = {
-        totalStock: Number(list[0]),
-        totalMoney: Number(Number(list[1]).toFixed(4)),
         unitPrice: Number(Number(list[2]).toFixed(4)),
+        totalStock: Number(list[0]),
         personalStock: Number(list[3]),
+        totalMoney: Number(Number(list[1]).toFixed(4)),
         personalMoney: Number(list[4]),
       };
 
