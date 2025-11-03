@@ -25,10 +25,7 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
 {
     if (message.startsWith('%*"'))
     {
-        //  超级大包的打印！必须手动取消注释，以确定要打印！！！！
-        // console.log("========================================");
-        // console.log(message);
-        // console.log("========================================");
+        await writeWJ(bot, 'wsdata/message.log', message);
 
         const data = message.substring(3);
         const userList: UserList[] = [];
