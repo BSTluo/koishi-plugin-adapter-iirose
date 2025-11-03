@@ -13,9 +13,7 @@ import StockSell from '../encoder/user/StockSell';
 import kickFunction from '../encoder/admin/kick';
 import payment from "../encoder/system/payment";
 import StockBuy from '../encoder/user/StockBuy';
-import StockGet from '../encoder/user/StockGet';
 import { IIROSE_WSsend } from '../utils/ws';
-import { Stock } from '../decoder/Stock';
 import * as eventType from './event';
 import { IIROSE_Bot } from "./bot";
 
@@ -122,30 +120,6 @@ export class Internal
   {
     IIROSE_WSsend(this.bot, StockSell(numberData));
   }
-  stockGet(callBack: eventType.StockGet)
-  {
-    IIROSE_WSsend(this.bot, StockGet());
-    this.bot.ctx.once('iirose/stockBackCall', (stockData: Stock) =>
-    {
-      const outData: eventType.StockSession = stockData;
-      outData.bot = this.bot;
-      outData.send = (data) =>
-      {
-        if (data.hasOwnProperty('public'))
-        {
-          this.bot.sendMessage('public:', data.public.message);
-        }
-
-        if (data.hasOwnProperty('private'))
-        {
-          this.bot.sendMessage(`private:${data.private.userId}`, data.private.message);
-        }
-      };
-
-      return callBack(outData);
-    });
-  }
-
   payment(uid: string, money: number, message?: string)
   {
     const data = (message) ? payment(uid, money, message) : payment(uid, money);
@@ -190,7 +164,6 @@ export interface InternalType
   makeMusic(musicOrigin: eventType.musicOrigin): void;
   stockBuy(numberData: number): void;
   stockSell(numberData: number): void;
-  stockGet(callBack: eventType.StockGet): void;
   payment(uid: string, money: number, message?: string): void;
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserById(id: string): Promise<Universal.User | undefined>;

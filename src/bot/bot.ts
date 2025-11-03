@@ -10,6 +10,8 @@ import { readJsonData, findRoomInGuild, flattenRooms } from '../utils/utils';
 import kick from '../encoder/admin/kick';
 import mute from '../encoder/admin/mute';
 import { Config } from '../config';
+import { Stock } from '../decoder/Stock';
+import StockGet from '../encoder/user/StockGet';
 
 export class IIROSE_Bot extends Bot<Context>
 {
@@ -32,6 +34,8 @@ export class IIROSE_Bot extends Bot<Context>
   private isStarted: boolean = false;
   private disposed: boolean = false;
   private userInfoTimeout: NodeJS.Timeout | null = null;
+  private stockIntervalTimer: NodeJS.Timeout | null = null;
+  private lastStockData: Stock | null = null;
   public logger: Logger;
 
   constructor(public ctx: Context, config: Config)
@@ -135,6 +139,8 @@ export class IIROSE_Bot extends Bot<Context>
 
       this.isStarted = true;
 
+      this.startStockPolling();
+
     } catch (error)
     {
       // 如果插件正在停用，不记录错误
@@ -171,6 +177,12 @@ export class IIROSE_Bot extends Bot<Context>
     {
       clearTimeout(this.userInfoTimeout);
       this.userInfoTimeout = null;
+    }
+
+    if (this.stockIntervalTimer)
+    {
+      clearInterval(this.stockIntervalTimer);
+      this.stockIntervalTimer = null;
     }
 
     // 立即下线
@@ -492,4 +504,25 @@ export class IIROSE_Bot extends Bot<Context>
   }
 
   internal: InternalType = new Internal(this);
+
+  private startStockPolling()
+  {
+    if (this.config.stockInterval > 0)
+    {
+      this.stockIntervalTimer = setInterval(() =>
+      {
+        IIROSE_WSsend(this, StockGet());
+      }, this.config.stockInterval);
+    }
+  }
+
+  public handleStockUpdate(newStockData: Stock)
+  {
+    if (JSON.stringify(this.lastStockData) !== JSON.stringify(newStockData))
+    {
+      this.lastStockData = newStockData;
+      this.logInfo('iirose/stock-update', newStockData);
+      this.ctx.emit('iirose/stock-update', newStockData);
+    }
+  }
 }

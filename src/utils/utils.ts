@@ -7,7 +7,6 @@ import mediaCard from '../encoder/messages/media_card';
 import mediaData from '../encoder/messages/media_data';
 import StockSell from '../encoder/user/StockSell';
 import kickFunction from '../encoder/admin/kick';
-import StockGet from '../encoder/user/StockGet';
 import StockBuy from '../encoder/user/StockBuy';
 import * as EventType from '../bot/event';
 import { IIROSE_Bot } from '../bot/bot';
@@ -147,28 +146,6 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
     IIROSE_WSsend(bot, StockSell(numberData));
   }));
 
-  event.push(bot.ctx.on('iirose/stockGet', (callBack: EventType.StockGet) =>
-  {
-    IIROSE_WSsend(bot, StockGet());
-    bot.ctx.once('iirose/stockBackCall', (stockData: EventType.StockSession) =>
-    {
-      const outData: EventType.StockSession = stockData;
-      outData.bot = bot;
-      outData.send = (data) =>
-      {
-        if (data.hasOwnProperty('public'))
-        {
-          bot.sendMessage('public:', data.public.message);
-        }
-        if (data.hasOwnProperty('private'))
-        {
-          bot.sendMessage(`private:${data.private.userId}`, data.private.message);
-        }
-      };
-
-      return callBack(outData);
-    });
-  }));
   // 发音频视频的果然还是直接sendMessage.ts里面改好...
   // system那边真的有东西有用吗
   // user也是！！

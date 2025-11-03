@@ -124,6 +124,5 @@ export interface Events
   'iirose/makeMusic'(musicOrigin: musicOrigin): void;
   'iirose/stockSell'(numberData: number): void;
   'iirose/stockBuy'(numberData: number): void;
-  'iirose/stockGet'(callBack: StockGet): void;
-  'iirose/stockBackCall'(stockData: StockSession): void;
+  'iirose/stock-update'(stockData: Stock): void;
 }

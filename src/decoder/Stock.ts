@@ -3,7 +3,6 @@ import { comparePassword } from '../utils/password';
 
 export interface Stock
 {
-  userId: string;
   totalStock: number;
   totalMoney: number;
   unitPrice: number;
@@ -19,15 +18,7 @@ export const stock = (message: string, bot: IIROSE_Bot) =>
     if (list.length === 5)
     {
 
-      let uid = bot.ctx.config.uid;
-
-      if (bot.config.smStart && comparePassword(bot.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
-      {
-        uid = bot.ctx.config.smUid;
-      }
-
       const data: Stock = {
-        userId: uid,
         totalStock: Number(list[0]),
         totalMoney: Number(Number(list[1]).toFixed(4)),
         unitPrice: Number(Number(list[2]).toFixed(4)),
@@ -35,8 +26,7 @@ export const stock = (message: string, bot: IIROSE_Bot) =>
         personalMoney: Number(list[4]),
       };
 
-      bot.fulllogInfo('iirose/stockBackCall', data);
-      bot.ctx.emit('iirose/stockBackCall', data);
+      bot.handleStockUpdate(data);
       return (data);
     }
     return null;

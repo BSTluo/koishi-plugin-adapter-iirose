@@ -19,6 +19,7 @@ export interface Config
   maxRetries: number;
   deleteMessageDelay: number;
   sessionCacheSize: number;
+  stockInterval: number;
 
   // 可选
   smStart?: boolean;
@@ -76,6 +77,11 @@ export const Config: Schema<Config> = Schema.intersect([
     timeout: Schema.number().min(1 * 1000).max(20 * 1000).default(5 * 1000).description('websocket超时的判定时限 (单位：毫秒)'),
     maxRetries: Schema.number().min(1).max(100).default(5).description('连接失败时的最大重试次数。达到后不再重试。'),
   }).description('连接设置'),
+
+  Schema.object({
+    stockInterval: Schema.number().min(10 * 1000).default(60 * 1000).description('股票信息轮询间隔 (单位：毫秒)<br>不建议设置过低，可能会导致ip被短暂封禁')
+  }).description('功能设置'),
+
   Schema.union([
     Schema.object({
       password: Schema.const('ec3a4ac482b483ac02d26e440aa0a948').required(),
