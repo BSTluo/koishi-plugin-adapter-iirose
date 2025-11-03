@@ -217,7 +217,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           // 如果是移动事件, 额外触发 iirose/switchRoom
           if (data.isMove)
           {
-            // 构造 SwitchRoom 对象
             const switchRoomData = {
               timestamp: Number(data.timestamp),
               avatar: data.avatar,
@@ -288,19 +287,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         bot.ctx.emit('iirose/newDamaku', session, data);
         break;
       }
-
-      // case 'switchRoom': {
-      //   // 这玩意真的是机器人能够拥有的吗?
-      //   const event = {
-      //     type: 'switchRoom',
-      //     platform: 'iirose',
-      //     guildId: bot.config.roomId
-      //   };
-      //   const session = bot.session(event);
-      //   bot.fulllogInfo('iirose/switchRoom', session);
-      //   bot.ctx.emit('iirose/switchRoom', session, obj.switchRoom);
-      //   break;
-      // }
 
       case 'music': {
         // 音乐
