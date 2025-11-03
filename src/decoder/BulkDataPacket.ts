@@ -25,7 +25,10 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
 {
     if (message.startsWith('%*"'))
     {
-        await writeWJ(bot, 'wsdata/message.log', message);
+        if (bot.config.debugMode)
+        {
+            await writeWJ(bot, 'wsdata/message.log', message);
+        }
 
         let rawData = message.substring(3);
         const userStartMarker = 'r.iirose.com/i/';
