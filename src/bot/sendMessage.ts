@@ -83,11 +83,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
     this.resetState();
   }
 
-  async sendData(message: string): Promise<void>
-  {
-    await IIROSE_WSsend(this.bot, message);
-  }
-
   // 获取消息ID
   getMessageId(): string
   {
