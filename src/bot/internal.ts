@@ -17,6 +17,8 @@ import StockGet from '../encoder/user/StockGet';
 import { IIROSE_WSsend } from '../utils/ws';
 import Like from '../encoder/system/Like';
 import Dislike from '../encoder/system/Dislike';
+import Follow from '../encoder/system/Follow';
+import Unfollow from '../encoder/system/Unfollow';
 import * as eventType from './event';
 import { IIROSE_Bot } from "./bot";
 
@@ -157,6 +159,24 @@ export class Internal
     IIROSE_WSsend(this.bot, data);
   }
 
+  /**
+   * 关注用户
+   * @param uid 用户uid
+   */
+  followUser(uid: string)
+  {
+    IIROSE_WSsend(this.bot, Follow(uid));
+  }
+
+  /**
+   * 取消关注用户
+   * @param uid 用户uid
+   */
+  unfollowUser(uid: string)
+  {
+    IIROSE_WSsend(this.bot, Unfollow(uid));
+  }
+
   async getUserByName(name: string): Promise<Universal.User | undefined>
   {
     // 使用工具函数通过用户名查找用户ID
@@ -207,6 +227,8 @@ export interface InternalType
   payment(uid: string, money: number, message?: string): void;
   sendLike(uid: string, message?: string): void;
   sendDislike(uid: string, message?: string): void;
+  followUser(uid: string): void;
+  unfollowUser(uid: string): void;
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserListFile(): Promise<any>;
   getRoomListFile(): Promise<any>;
