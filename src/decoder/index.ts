@@ -1,20 +1,20 @@
-import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './decoders/MailboxMessage';
-import { mediaListCallback, MediaListCallback } from './decoders/MediaListCallback';
-import { BroadcastMessage, broadcastMessage } from './decoders/BroadcastMessage';
-import { MessageDeleted, MessageDeletedData } from './decoders/MessageDeleted';
-import { paymentCallback, PaymentCallback } from './decoders/PaymentCallback';
-import { privateMessage, PrivateMessage } from './decoders/PrivateMessage';
-import { MemberUpdateData, memberUpdate } from './decoders/MemberUpdate';
-import { publicMessage, PublicMessage } from './decoders/PublicMessage';
-import { bulkDataPacket, UserList } from './decoders/BulkDataPacket';
-import { musicMessage, MusicMessage } from './decoders/MusicMessage';
-import { bankCallback, BankCallback } from './decoders/BankCallback';
-import { manyMessage, ManyMessage } from './decoders/ManyMessage';
-import { switchRoom, SwitchRoom } from './decoders/SwitchRoom';
-import { selfMove, SelfMove } from './decoders/SelfMove';
+import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './messages/MailboxMessage';
+import { mediaListCallback, MediaListCallback } from './messages/MediaListCallback';
+import { BroadcastMessage, broadcastMessage } from './messages/BroadcastMessage';
+import { MessageDeleted, MessageDeletedData } from './messages/MessageDeleted';
+import { paymentCallback, PaymentCallback } from './messages/PaymentCallback';
+import { privateMessage, PrivateMessage } from './messages/PrivateMessage';
+import { MemberUpdateData, memberUpdate } from './messages/MemberUpdate';
+import { publicMessage, PublicMessage } from './messages/PublicMessage';
+import { bulkDataPacket, UserList } from './messages/BulkDataPacket';
+import { musicMessage, MusicMessage } from './messages/MusicMessage';
+import { bankCallback, BankCallback } from './messages/BankCallback';
+import { manyMessage, ManyMessage } from './messages/ManyMessage';
+import { switchRoom, SwitchRoom } from './messages/SwitchRoom';
+import { selfMove, SelfMove } from './messages/SelfMove';
 import { comparePassword } from '../utils/password';
-import { music, Music } from './decoders/Music';
-import { stock, Stock } from './decoders/Stock';
+import { music, Music } from './messages/Music';
+import { stock, Stock } from './messages/Stock';
 import { IIROSE_Bot } from '../bot/bot';
 
 export const decoder = async (bot: IIROSE_Bot, msg: string): Promise<MessageType> =>

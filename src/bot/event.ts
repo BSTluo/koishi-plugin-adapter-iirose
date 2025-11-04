@@ -1,8 +1,8 @@
 
 import { Fragment, Session } from 'koishi';
 
-import { BroadcastMessage } from '../decoder/decoders/BroadcastMessage';
-import { Stock } from '../decoder/decoders/Stock';
+import { BroadcastMessage } from '../decoder/messages/BroadcastMessage';
+import { Stock } from '../decoder/messages/Stock';
 import { MessageType } from '../decoder';
 import { IIROSE_Bot } from './bot';
 

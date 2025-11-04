@@ -9,7 +9,7 @@ import { SendOptions } from '@satorijs/protocol';
 import { SessionCache } from '../utils/sessionCache';
 import kick from '../encoder/admin/kick';
 import mute from '../encoder/admin/mute';
-import { Stock } from '../decoder/decoders/Stock';
+import { Stock } from '../decoder/messages/Stock';
 import { Config } from '../config';
 
 export class IIROSE_Bot extends Bot<Context>
