@@ -8,7 +8,6 @@ import PublicMessage from '../encoder/messages/PublicMessage';
 import { clearMsg } from '../decoder/clearMsg';
 import { IIROSE_WSsend } from '../utils/ws';
 import { rgbaToHex } from '../utils/utils';
-import Like from '../encoder/system/Like';
 import { musicOrigin } from './event';
 import { IIROSE_Bot } from './bot';
 
@@ -529,12 +528,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
       case 'br': {
         this.outDataOringin += '\n';
-        break;
-      }
-
-      case 'like': {
-        // 点赞事件
-        await IIROSE_WSsend(this.bot, Like(attrs.uid, attrs.message));
         break;
       }
 

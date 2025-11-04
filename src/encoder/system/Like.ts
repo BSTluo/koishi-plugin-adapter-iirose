@@ -1,4 +1,10 @@
 export default (uid: string, message: string = '') =>
 {
-  return `+*${uid} ${message}`;
+  // 点赞功能
+  let data = `+*${uid}`;
+  if (message)
+  {
+    data += ` ${message}`;
+  }
+  return data;
 };

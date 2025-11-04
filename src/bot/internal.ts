@@ -15,6 +15,7 @@ import payment from "../encoder/system/payment";
 import StockBuy from '../encoder/user/StockBuy';
 import StockGet from '../encoder/user/StockGet';
 import { IIROSE_WSsend } from '../utils/ws';
+import Like from '../encoder/system/Like';
 import * as eventType from './event';
 import { IIROSE_Bot } from "./bot";
 
@@ -133,6 +134,17 @@ export class Internal
     IIROSE_WSsend(this.bot, data);
   }
 
+  /**
+   * 点赞用户
+   * @param uid 用户uid
+   * @param message 附带消息
+   */
+  sendLike(uid: string, message?: string)
+  {
+    const data = (message) ? Like(uid, message) : Like(uid);
+    IIROSE_WSsend(this.bot, data);
+  }
+
   async getUserByName(name: string): Promise<Universal.User | undefined>
   {
     // 使用工具函数通过用户名查找用户ID
@@ -181,6 +193,7 @@ export interface InternalType
   stockSell(numberData: number): void;
   stockGet(): void;
   payment(uid: string, money: number, message?: string): void;
+  sendLike(uid: string, message?: string): void;
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserListFile(): Promise<any>;
   getRoomListFile(): Promise<any>;
