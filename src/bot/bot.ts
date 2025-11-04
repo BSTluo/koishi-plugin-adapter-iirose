@@ -24,6 +24,8 @@ export class IIROSE_Bot extends Bot<Context>
     timer: NodeJS.Timeout;
   }[] = [];
 
+  public responseListeners = new Map<string, (data: string) => void>();
+
   static inject = ['assets'];
 
   public wsClient: WsClient;
@@ -263,6 +265,36 @@ export class IIROSE_Bot extends Bot<Context>
       return true;
     }
     return false;
+  }
+
+  /**
+   * 发送一个WebSocket消息并等待一个具有特定前缀的响应
+   * @param payload 要发送的数据
+   * @param responsePrefix 期望的响应前缀
+   * @param timeout 超时时间 (毫秒)
+   * @returns 返回一个Promise，该Promise会解析为响应字符串，或在超时时解析为null
+   */
+  public sendAndWaitForResponse(payload: string, responsePrefix: string, timeout?: number): Promise<string | null>
+  {
+    const effectiveTimeout = timeout ?? this.config.timeout;
+
+    return new Promise((resolve) =>
+    {
+      const timer = setTimeout(() =>
+      {
+        this.responseListeners.delete(responsePrefix);
+        resolve(null); // 超时，解析为 null
+      }, effectiveTimeout);
+
+      this.responseListeners.set(responsePrefix, (data: string) =>
+      {
+        clearTimeout(timer);
+        this.responseListeners.delete(responsePrefix); // clean up after resolving
+        resolve(data);
+      });
+
+      IIROSE_WSsend(this, payload);
+    });
   }
 
   async getUser(userId: string, guildId?: string): Promise<Universal.User>

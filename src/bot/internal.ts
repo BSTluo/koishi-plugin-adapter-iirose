@@ -182,9 +182,9 @@ export class Internal
    * 获取用户资料
    * @param uid 用户uid
    */
-  getUserProfile(uid: string)
+  async getUserProfile(uid: string): Promise<string | null>
   {
-    IIROSE_WSsend(this.bot, UserProfile(uid));
+    return this.bot.sendAndWaitForResponse(UserProfile(uid), ':*');
   }
 
   async getUserByName(name: string): Promise<Universal.User | undefined>
@@ -239,7 +239,7 @@ export interface InternalType
   sendDislike(uid: string, message?: string): void;
   followUser(uid: string): void;
   unfollowUser(uid: string): void;
-  getUserProfile(uid: string): void;
+  getUserProfile(uid: string): Promise<string | null>;
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserListFile(): Promise<any>;
   getRoomListFile(): Promise<any>;
