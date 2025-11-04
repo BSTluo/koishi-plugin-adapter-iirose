@@ -401,6 +401,61 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
+      case 'musicMessage': {
+        const data = obj.musicMessage;
+        if (!data) return;
+
+        let uid = bot.ctx.config.uid;
+        let guildId = bot.ctx.config.roomId;
+        if (bot.ctx.config.smStart && comparePassword(bot.ctx.config.smPassword, 'ec3a4ac482b483ac02d26e440aa0a948d309c822'))
+        {
+          uid = bot.ctx.config.smUid;
+          guildId = bot.ctx.config.smRoom;
+        }
+
+        const musicData = {
+          type: 'iirose:music',
+          name: data.musicName,
+          singer: data.musicSinger,
+          pic: data.musicPic,
+          color: data.musicColor
+        };
+
+        const elements = h('json', { data: JSON.stringify(musicData) });
+        const content = elements.toString();
+
+        const event = {
+          type: 'message',
+          platform: 'iirose',
+          selfId: uid,
+          timestamp: Number(data.timestamp),
+          user: {
+            id: data.uid,
+            name: data.username,
+            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
+          },
+          message: {
+            id: String(data.messageId),
+            messageId: String(data.messageId),
+            content,
+            elements: [elements],
+          },
+          guild: {
+            id: guildId
+          },
+          channel: {
+            id: `public:${guildId}`,
+            type: 0
+          },
+        };
+
+        const session = bot.session(event);
+
+        bot.sessionCache.add(session);
+        bot.dispatch(session);
+        break;
+      }
+
       default: {
         break;
       }
