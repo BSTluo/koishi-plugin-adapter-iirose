@@ -39,9 +39,9 @@ export class PrivateMessage
 
 export const privateMessage = (message: string) =>
 {
-  if (message.substr(0, 2) === '""')
+  if (message.substring(0, 2) === '""')
   {
-    const item = message.substr(2).split('<');
+    const item = message.substring(2).split('<');
 
     for (const msg of item)
     {

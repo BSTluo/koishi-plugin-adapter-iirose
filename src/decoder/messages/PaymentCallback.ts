@@ -5,11 +5,11 @@ export interface PaymentCallback
 
 export const paymentCallback = (message: string) =>
 {
-  if (message.substr(0, 2) === '|$')
+  if (message.substring(0, 2) === '|$')
   {
     // paymentCallback
     return {
-      money: Number(message.substr(2)),
+      money: Number(message.substring(2)),
     };
   }
 };

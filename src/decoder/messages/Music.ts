@@ -12,9 +12,9 @@ export interface Music
 
 export const music = (message: string) =>
 {
-  if (message.substr(0, 2) === '&1')
+  if (message.substring(0, 2) === '&1')
   {
-    const tmp = message.substr(2).split('>');
+    const tmp = message.substring(2).split('>');
 
     if (tmp.length >= 9 && tmp[8] === '')
     {
@@ -23,7 +23,7 @@ export const music = (message: string) =>
         link: `http${tmp[0].split(' ')[1]}`,
         duration: Number(tmp[1]),
         title: tmp[2],
-        singer: tmp[3].substr(2),
+        singer: tmp[3].substring(2),
         owner: tmp[4],
         pic: `http${tmp[6]}`,
       };

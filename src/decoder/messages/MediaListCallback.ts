@@ -14,17 +14,17 @@ export interface MediaListCallback
 
 export const mediaListCallback = (message: string) =>
 {
-  if (message.substr(0, 1) === '~')
+  if (message.substring(0, 1) === '~')
   {
-    const result: MediaListCallback[] = message.substr(1).split('<').map((e, i) =>
+    const result: MediaListCallback[] = message.substring(1).split('<').map((e, i) =>
     {
       const tmp = e.split('>');
       return {
         id: `${i}_${tmp[0]}`,
         length: Number(tmp[0]),
         title: decode(tmp[1]),
-        color: tmp[2].substr(0, 6),
-        name: tmp[2].substr(6),
+        color: tmp[2].substring(0, 6),
+        name: tmp[2].substring(6),
         type: Number(tmp[3]),
         avatar: tmp[4],
         cover: `http${tmp[5]}`,

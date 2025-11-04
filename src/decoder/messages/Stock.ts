@@ -11,9 +11,9 @@ export interface Stock
 
 export const stock = (message: string, bot: IIROSE_Bot) =>
 {
-  if (message.substr(0, 1) === '>')
+  if (message.substring(0, 1) === '>')
   {
-    const list = message.substr(1).split('>')[0].split('"');
+    const list = message.substring(1).split('>')[0].split('"');
     if (list.length === 5)
     {
 

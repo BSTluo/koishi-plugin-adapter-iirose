@@ -9,9 +9,9 @@ export interface BankCallback
 
 export const bankCallback = (message: string) =>
 {
-  if (message.substr(0, 2) === '>$')
+  if (message.substring(0, 2) === '>$')
   {
-    const tmp = message.substr(2).split('"');
+    const tmp = message.substring(2).split('"');
     const data: BankCallback = {
       total: Number(tmp[0]),
       income: Number(tmp[1]),
