@@ -346,6 +346,46 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         break;
       }
 
+      case 'image':
+      case 'img': {
+        let url = attrs.src;
+
+        // 如果是 https 协议，直接使用
+        if (url.startsWith('https'))
+        {
+          this.ensureNewlineBefore();
+          this.outDataOringin += `[${url}#e]`;
+          this.outDataOringin += '\n';
+          break;
+        }
+        // 使用 assets 服务转存非 https 协议的资源
+        try
+        {
+          const imgElement = `${h.image(url)}`;
+          const transformedContent = await this.bot.ctx.assets.transform(imgElement);
+
+          // 从转存后的内容中提取 URL
+          const urlMatch = transformedContent.match(/src="([^"]+)"/);
+          if (urlMatch && urlMatch[1])
+          {
+            const transformedUrl = this.unescapeHtml(urlMatch[1]);
+            this.ensureNewlineBefore();
+            this.outDataOringin += `[${transformedUrl}#e]`;
+            this.outDataOringin += '\n';
+          } else
+          {
+            throw new Error('无法从转存结果中提取图片 URL');
+          }
+        } catch (error)
+        {
+          this.ensureNewlineBefore();
+          this.outDataOringin += '[图片转存异常]';
+          this.outDataOringin += '\n';
+          this.bot.loggerError(error);
+        }
+        break;
+      }
+
       case 'quote': {
         let id = attrs.id;
         if (!id)
@@ -513,46 +553,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
       case 'iirose:markdown':
       case 'markdown': {
         this.isMarkdown = true;
-        break;
-      }
-
-      case 'image':
-      case 'img': {
-        let url = attrs.src;
-
-        // 如果是 https 协议，直接使用
-        if (url.startsWith('https'))
-        {
-          this.ensureNewlineBefore();
-          this.outDataOringin += `[${url}#e]`;
-          this.outDataOringin += '\n';
-          break;
-        }
-        // 使用 assets 服务转存非 https 协议的资源
-        try
-        {
-          const imgElement = `${h.image(url)}`;
-          const transformedContent = await this.bot.ctx.assets.transform(imgElement);
-
-          // 从转存后的内容中提取 URL
-          const urlMatch = transformedContent.match(/src="([^"]+)"/);
-          if (urlMatch && urlMatch[1])
-          {
-            const transformedUrl = this.unescapeHtml(urlMatch[1]);
-            this.ensureNewlineBefore();
-            this.outDataOringin += `[${transformedUrl}#e]`;
-            this.outDataOringin += '\n';
-          } else
-          {
-            throw new Error('无法从转存结果中提取图片 URL');
-          }
-        } catch (error)
-        {
-          this.ensureNewlineBefore();
-          this.outDataOringin += '[图片转存异常]';
-          this.outDataOringin += '\n';
-          this.bot.loggerError(error);
-        }
         break;
       }
 

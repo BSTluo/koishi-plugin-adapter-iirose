@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-adapter-iirose",
   "description": "[IIROSE-蔷薇花园](https://iirose.com/)适配器",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -20,11 +20,11 @@
   "bugs": {
     "url": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/issues/new/choose"
   },
-  "homepage": "https://github.com/BSTluo/koishi-plugin-adapter-iirose",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BSTluo/koishi-plugin-adapter-iirose.git"
   },
+  "homepage": "https://github.com/BSTluo/koishi-plugin-adapter-iirose",
   "keywords": [
     "koishi",
     "bot",
@@ -37,16 +37,16 @@
     "preview": true,
     "hidden": false,
     "description": {
-      "en": "[IIROSE](https://iirose.com/) Adapter",
-      "zh": "[IIROSE-蔷薇花园](https://iirose.com/)适配器",
       "zh-TW": "[IIROSE-薔薇花園](https://iirose.com/)適配器",
+      "zh": "[IIROSE-蔷薇花园](https://iirose.com/)适配器",
       "ja": "[IIROSE](https://iirose.com/) アダプター",
-      "ko": "[IIROSE](https://iirose.com/) 어댑터",
-      "ru": "[IIROSE](https://iirose.com/) Адаптер",
-      "de": "[IIROSE](https://iirose.com/) Adapter",
       "fr": "[IIROSE](https://iirose.com/) Adaptateur",
       "es": "[IIROSE](https://iirose.com/) Adaptador",
-      "pt": "[IIROSE](https://iirose.com/) Adaptador"
+      "pt": "[IIROSE](https://iirose.com/) Adaptador",
+      "ru": "[IIROSE](https://iirose.com/) Адаптер",
+      "en": "[IIROSE](https://iirose.com/) Adapter",
+      "de": "[IIROSE](https://iirose.com/) Adapter",
+      "ko": "[IIROSE](https://iirose.com/) 어댑터"
     }
   },
   "dependencies": {
