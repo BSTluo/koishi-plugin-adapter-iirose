@@ -12,6 +12,7 @@ import { IIROSE_Bot } from '../bot/bot';
 import { IIROSE_WSsend } from './ws';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { Context } from 'koishi';
 
 /**
  * 颜色转换函数：将rgba格式转换为十六进制格式
@@ -299,3 +300,38 @@ export const findUserIdByName = async (bot: IIROSE_Bot, username: string): Promi
   const user = userlist.find(u => u.username === username);
   return user ? user.uid : undefined;
 };
+
+export async function getMediaMetadata(url: string, ctx: Context)
+{
+  try
+  {
+    const { data, type } = await ctx.http.file(url);
+    const buffer = Buffer.from(data);
+    const musicMetadata = await import('music-metadata');
+    const metadata = await musicMetadata.parseBuffer(buffer, type, { duration: true });
+    const { common, format } = metadata;
+
+    return {
+      title: common.title || ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我歌曲名字欸'][Math.floor(Math.random() * 7)],
+      artist: common.artist || ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我音乐家的名字欸'][Math.floor(Math.random() * 7)],
+      album: common.album || ['群星', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我专辑的名字欸'][Math.floor(Math.random() * 7)],
+      duration: format.duration || 0,
+      bitrate: format.bitrate || 0,
+      picture: common.picture?.[0] ? {
+        format: common.picture[0].format,
+        data: Buffer.from(common.picture[0].data).toString('base64') // 如果你想用作封面图
+      } : 'https://www.loliapi.com/acg/'
+    };
+  } catch (error)
+  {
+    ctx.logger('iirose').warn(`获取媒体元数据失败: ${url}`, error);
+    return {
+      title: ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我歌曲名字欸'][Math.floor(Math.random() * 7)],
+      artist: ['未知', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我音乐家的名字欸'][Math.floor(Math.random() * 7)],
+      album: ['群星', '佚名', '欸~', '无名', '不敢相信自己的小耳朵', '欸~~', '插件么有给我专辑的名字欸'][Math.floor(Math.random() * 7)],
+      duration: 0,
+      bitrate: 0,
+      picture: 'https://www.loliapi.com/acg/'
+    };
+  }
+}
