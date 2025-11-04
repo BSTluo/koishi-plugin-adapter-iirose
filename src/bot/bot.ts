@@ -24,7 +24,7 @@ export class IIROSE_Bot extends Bot<Context>
     timer: NodeJS.Timeout;
   }[] = [];
 
-  public responseListeners = new Map<string, (data: string) => void>();
+  public responseListeners = new Map<string, { listener: (data: string) => void, stopPropagation: boolean; }>();
 
   static inject = ['assets'];
 
@@ -271,10 +271,11 @@ export class IIROSE_Bot extends Bot<Context>
    * 发送一个WebSocket消息并等待一个具有特定前缀的响应
    * @param payload 要发送的数据
    * @param responsePrefix 期望的响应前缀
+   * @param stopPropagation 是否在匹配到响应后停止消息的进一步传播，默认为 true
    * @param timeout 超时时间 (毫秒)
    * @returns 返回一个Promise，该Promise会解析为响应字符串，或在超时时解析为null
    */
-  public sendAndWaitForResponse(payload: string, responsePrefix: string, timeout?: number): Promise<string | null>
+  public sendAndWaitForResponse(payload: string, responsePrefix: string, stopPropagation: boolean = true, timeout?: number): Promise<string | null>
   {
     const effectiveTimeout = timeout ?? this.config.timeout;
 
@@ -286,11 +287,14 @@ export class IIROSE_Bot extends Bot<Context>
         resolve(null); // 超时，解析为 null
       }, effectiveTimeout);
 
-      this.responseListeners.set(responsePrefix, (data: string) =>
-      {
-        clearTimeout(timer);
-        this.responseListeners.delete(responsePrefix); // clean up after resolving
-        resolve(data);
+      this.responseListeners.set(responsePrefix, {
+        listener: (data: string) =>
+        {
+          clearTimeout(timer);
+          this.responseListeners.delete(responsePrefix); // clean up after resolving
+          resolve(data);
+        },
+        stopPropagation: stopPropagation
       });
 
       IIROSE_WSsend(this, payload);

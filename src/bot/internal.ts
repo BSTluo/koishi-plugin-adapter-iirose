@@ -127,9 +127,9 @@ export class Internal
     IIROSE_WSsend(this.bot, StockSell(numberData));
   }
 
-  stockGet()
+  async stockGet(): Promise<string | null>
   {
-    IIROSE_WSsend(this.bot, StockGet());
+    return this.bot.sendAndWaitForResponse(StockGet(), '>', true);
   }
 
   payment(uid: string, money: number, message?: string)
@@ -184,7 +184,7 @@ export class Internal
    */
   async getUserProfile(uid: string): Promise<string | null>
   {
-    return this.bot.sendAndWaitForResponse(UserProfile(uid), ':*');
+    return this.bot.sendAndWaitForResponse(UserProfile(uid), ':*', true);
   }
 
   async getUserByName(name: string): Promise<Universal.User | undefined>
@@ -233,7 +233,7 @@ export interface InternalType
   makeMusic(musicOrigin: eventType.musicOrigin): void;
   stockBuy(numberData: number): void;
   stockSell(numberData: number): void;
-  stockGet(): void;
+  stockGet(): Promise<string | null>;
   payment(uid: string, money: number, message?: string): void;
   sendLike(uid: string, message?: string): void;
   sendDislike(uid: string, message?: string): void;

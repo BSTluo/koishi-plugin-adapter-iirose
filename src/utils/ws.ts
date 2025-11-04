@@ -375,12 +375,15 @@ export class WsClient
       this.bot.fulllogInfo(`[WS接收]`, message);
 
       // 检查是否有等待特定响应的监听器
-      for (const [prefix, listener] of this.bot.responseListeners.entries())
+      for (const [prefix, handler] of this.bot.responseListeners.entries())
       {
         if (message.startsWith(prefix))
         {
-          listener(message);
-          return; // 消息已被作为响应处理，停止进一步解码
+          handler.listener(message);
+          if (handler.stopPropagation)
+          {
+            return; // 消息已被作为响应处理，停止进一步解码
+          }
         }
       }
 
