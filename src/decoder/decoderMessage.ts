@@ -257,7 +257,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId: bot.config.roomId
         };
         const session = bot.session(event);
-        bot.fulllogInfo('iirose/newMusic', session);
+        bot.fulllogInfo('iirose/newMusic', session, data);
         bot.ctx.emit('iirose/newMusic', session, data);
         break;
       }
@@ -271,7 +271,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId: bot.config.roomId
         };
         const session = bot.session(event);
-        bot.fulllogInfo('iirose/before-payment', session);
+        bot.fulllogInfo('iirose/before-payment', session, data);
         bot.ctx.emit('iirose/before-payment', session, data);
         break;
       }
@@ -288,7 +288,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
-        bot.fulllogInfo('iirose/before-bank', session);
+        bot.fulllogInfo('iirose/before-bank', session, data);
         bot.ctx.emit('iirose/before-bank', session, data);
         break;
       }
@@ -303,7 +303,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
-        bot.fulllogInfo('iirose/before-mediaList', session);
+        bot.fulllogInfo('iirose/before-mediaList', session, data);
         bot.ctx.emit('iirose/before-mediaList', session, data);
         break;
       }
@@ -318,7 +318,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
-        bot.fulllogInfo('iirose/selfMove', session);
+        bot.fulllogInfo('iirose/selfMove', session, data);
         bot.ctx.emit('iirose/selfMove', session, data);
         // 自身移动房间
         break;
@@ -368,7 +368,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
-        bot.fulllogInfo('iirose/mailboxMessage', session);
+        bot.fulllogInfo('iirose/mailboxMessage', session, data);
         bot.ctx.emit('iirose/mailboxMessage', session, data);
         break;
       }
@@ -396,7 +396,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         };
 
         const session = bot.session(event);
-        bot.fulllogInfo('iirose/broadcast', session);
+        bot.fulllogInfo('iirose/broadcast', session, data);
         bot.ctx.emit('iirose/broadcast', session, data);
         break;
       }
