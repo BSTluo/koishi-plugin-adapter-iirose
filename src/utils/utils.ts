@@ -1,3 +1,5 @@
+import { Context, h } from 'koishi';
+
 import setMaxUserFunction from '../encoder/admin/setMaxUser';
 import whiteListFunction from '../encoder/admin/whiteList';
 import cutAllFunction from '../encoder/admin/media_clear';
@@ -7,12 +9,13 @@ import mediaData from '../encoder/messages/media_data';
 import StockSell from '../encoder/user/StockSell';
 import kickFunction from '../encoder/admin/kick';
 import StockBuy from '../encoder/user/StockBuy';
+import { clearMsg } from '../decoder/clearMsg';
 import * as EventType from '../bot/event';
 import { IIROSE_Bot } from '../bot/bot';
 import { IIROSE_WSsend } from './ws';
+
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { Context } from 'koishi';
 
 /**
  * 颜色转换函数：将rgba格式转换为十六进制格式
@@ -334,4 +337,95 @@ export async function getMediaMetadata(url: string, ctx: Context)
       picture: 'https://www.loliapi.com/acg/'
     };
   }
+}
+
+/**
+ * @description 缓存发出的消息
+ * @param bot bot实例
+ * @param channelId 频道id
+ * @param messageId 消息id
+ * @param content 消息内容
+ */
+export async function cacheSentMessage(bot: IIROSE_Bot, channelId: string, messageId: string, content: string): Promise<void>
+{
+  if (!bot.sessionCache) return;
+
+  // 缓存前也需要对消息进行处理
+  const processedContent = await clearMsg(content, bot);
+
+  const event: any = {
+    type: 'message',
+    platform: 'iirose',
+    selfId: bot.selfId,
+    timestamp: Date.now(),
+    user: {
+      id: bot.user.id,
+      name: bot.user.name,
+      avatar: bot.user.avatar,
+    },
+    message: {
+      id: messageId,
+      messageId: messageId,
+      content: processedContent,
+      elements: h.parse(processedContent),
+    },
+    channel: {
+      id: channelId,
+      type: channelId.startsWith('public:') ? 0 : 1,
+    },
+  };
+
+  if (channelId.startsWith('public:'))
+  {
+    event.guild = { id: channelId.substring(7) };
+  }
+
+  const session = bot.session(event);
+  bot.sessionCache.add(session);
+}
+
+
+/**
+ * 转义特殊字符，目前发现仅适用于media_card
+ * @param text
+ * @returns
+ */
+export function escapeSpecialCharacters(text: string | null): string | null
+{
+  if (text === null)
+  {
+    return text;
+  }
+  return text
+    .replace(/"/g, '"')
+    .replace(/&/g, '&')
+    .replace(/</g, '<')
+    .replace(/>/g, '>');
+}
+
+/**
+ * HTML反转义函数，用于处理assets转换后的URL中的转义字符
+ * @param text 需要反转义的文本
+ * @returns 反转义后的文本
+ */
+export function unescapeHtml(text: string): string
+{
+  return text
+    .replace(/&/g, '&')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
+    .replace(/"/g, '"');
+}
+
+/**
+ * 确保在添加内容前有换行符
+ * 用于图文消息里的图片和文字之间的换行
+ */
+export function ensureNewlineBefore(text: string): string
+{
+  if (text.length > 0 && !text.endsWith('\n'))
+  {
+    return text + '\n';
+  }
+  return text;
 }

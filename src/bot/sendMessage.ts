@@ -3,12 +3,10 @@ import { Context, MessageEncoder, h } from 'koishi';
 
 import { } from '@koishijs/assets';
 
+import { cacheSentMessage, ensureNewlineBefore, getMediaMetadata, rgbaToHex, unescapeHtml } from '../utils/utils';
 import PrivateMessage from '../encoder/messages/PrivateMessage';
 import PublicMessage from '../encoder/messages/PublicMessage';
-import { clearMsg } from '../decoder/clearMsg';
 import { IIROSE_WSsend } from '../utils/ws';
-import { getMediaMetadata, rgbaToHex } from '../utils/utils';
-import { musicOrigin } from './event';
 import { IIROSE_Bot } from './bot';
 
 export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot>
@@ -77,7 +75,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
     if (this.currentMessageId)
     {
       this.results.push({ id: this.currentMessageId });
-      await this.cacheSentMessage(this.currentMessageId, this.outDataOringin);
+      await cacheSentMessage(this.bot, this.channelId, this.currentMessageId, this.outDataOringin);
     }
 
     this.resetState();
@@ -87,93 +85,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
   getMessageId(): string
   {
     return this.currentMessageId;
-  }
-  /**
-   * @description 缓存发出的消息
-   * @param messageId 消息id
-   * @param content 消息内容
-   */
-  private async cacheSentMessage(messageId: string, content: string): Promise<void>
-  {
-    if (!this.bot.sessionCache) return;
-
-    // 缓存前也需要对消息进行处理
-    const processedContent = await clearMsg(content, this.bot);
-
-    const event: any = {
-      type: 'message',
-      platform: 'iirose',
-      selfId: this.bot.selfId,
-      timestamp: Date.now(),
-      user: {
-        id: this.bot.user.id,
-        name: this.bot.user.name,
-        avatar: this.bot.user.avatar,
-      },
-      message: {
-        id: messageId,
-        messageId: messageId,
-        content: processedContent,
-        elements: h.parse(processedContent),
-      },
-      channel: {
-        id: this.channelId,
-        type: this.channelId.startsWith('public:') ? 0 : 1,
-      },
-    };
-
-    if (this.channelId.startsWith('public:'))
-    {
-      event.guild = { id: this.channelId.substring(7) };
-    }
-
-    const session = this.bot.session(event);
-    this.bot.sessionCache.add(session);
-  }
-
-
-  /**
-   * 转义特殊字符，目前发现仅适用于media_card
-   * @param text 
-   * @returns 
-   */
-  escapeSpecialCharacters(text: string | null): string | null
-  {
-    if (text === null)
-    {
-      return text;
-    }
-    return text
-      .replace(/"/g, '&quot;')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
-
-  /**
-   * HTML反转义函数，用于处理assets转换后的URL中的转义字符
-   * @param text 需要反转义的文本
-   * @returns 反转义后的文本
-   */
-  private unescapeHtml(text: string): string
-  {
-    return text
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"');
-  }
-
-  /**
-   * 确保在添加内容前有换行符
-   * 用于图文消息里的图片和文字之间的换行
-   */
-  private ensureNewlineBefore(): void
-  {
-    if (this.outDataOringin.length > 0 && !this.outDataOringin.endsWith('\n'))
-    {
-      this.outDataOringin += '\n';
-    }
   }
 
   async visit(element: h): Promise<void>
@@ -200,14 +111,14 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
             const urlMatch = transformedContent.match(/src="([^"]+)"/);
             if (urlMatch && urlMatch[1])
             {
-              url = this.unescapeHtml(urlMatch[1]);
+              url = unescapeHtml(urlMatch[1]);
             } else
             {
               throw new Error('无法从转存结果中提取视频 URL');
             }
           } catch (error)
           {
-            this.ensureNewlineBefore();
+            this.outDataOringin = ensureNewlineBefore(this.outDataOringin);
             this.outDataOringin += '[视频转存异常]';
             this.outDataOringin += '\n';
             this.bot.loggerError(error);
@@ -216,7 +127,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         }
 
         // 直接发送视频链接
-        this.ensureNewlineBefore();
+        this.outDataOringin = ensureNewlineBefore(this.outDataOringin);
         this.outDataOringin += `[${url}]`;
         this.outDataOringin += '\n';
 
@@ -261,7 +172,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
             const urlMatch = transformedContent.match(/src="([^"]+)"/);
             if (urlMatch && urlMatch[1])
             {
-              url = this.unescapeHtml(urlMatch[1]);
+              url = unescapeHtml(urlMatch[1]);
             } else
             {
               throw new Error('无法从转存结果中提取音频 URL');
@@ -308,7 +219,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           if (audioMessageId)
           {
             this.results.push({ id: audioMessageId });
-            await this.cacheSentMessage(audioMessageId, url);
+            await cacheSentMessage(this.bot, this.channelId, audioMessageId, url);
           }
         }
         break;
@@ -321,7 +232,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         // 如果是 https 协议，直接使用
         if (url.startsWith('https'))
         {
-          this.ensureNewlineBefore();
+          this.outDataOringin = ensureNewlineBefore(this.outDataOringin);
           this.outDataOringin += `[${url}#e]`;
           this.outDataOringin += '\n';
           break;
@@ -336,8 +247,8 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           const urlMatch = transformedContent.match(/src="([^"]+)"/);
           if (urlMatch && urlMatch[1])
           {
-            const transformedUrl = this.unescapeHtml(urlMatch[1]);
-            this.ensureNewlineBefore();
+            const transformedUrl = unescapeHtml(urlMatch[1]);
+            this.outDataOringin = ensureNewlineBefore(this.outDataOringin);
             this.outDataOringin += `[${transformedUrl}#e]`;
             this.outDataOringin += '\n';
           } else
@@ -346,7 +257,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           }
         } catch (error)
         {
-          this.ensureNewlineBefore();
+          this.outDataOringin = ensureNewlineBefore(this.outDataOringin);
           this.outDataOringin += '[图片转存异常]';
           this.outDataOringin += '\n';
           this.bot.loggerError(error);
