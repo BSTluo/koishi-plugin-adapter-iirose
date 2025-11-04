@@ -3,7 +3,8 @@ import { Context, MessageEncoder, h } from 'koishi';
 
 import { } from '@koishijs/assets';
 
-import { cacheSentMessage, ensureNewlineBefore, getMediaMetadata, rgbaToHex, unescapeHtml } from '../utils/utils';
+import { cacheSentMessage, ensureNewlineBefore, getMediaMetadata, rgbaToHex } from '../utils/utils';
+import { decode as unescapeHtml } from '../utils/entities';
 import PrivateMessage from '../encoder/messages/PrivateMessage';
 import PublicMessage from '../encoder/messages/PublicMessage';
 import { IIROSE_WSsend } from '../utils/ws';

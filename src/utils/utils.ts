@@ -385,37 +385,6 @@ export async function cacheSentMessage(bot: IIROSE_Bot, channelId: string, messa
 }
 
 
-/**
- * 转义特殊字符，目前发现仅适用于media_card
- * @param text
- * @returns
- */
-export function escapeSpecialCharacters(text: string | null): string | null
-{
-  if (text === null)
-  {
-    return text;
-  }
-  return text
-    .replace(/"/g, '"')
-    .replace(/&/g, '&')
-    .replace(/</g, '<')
-    .replace(/>/g, '>');
-}
-
-/**
- * HTML反转义函数，用于处理assets转换后的URL中的转义字符
- * @param text 需要反转义的文本
- * @returns 反转义后的文本
- */
-export function unescapeHtml(text: string): string
-{
-  return text
-    .replace(/&/g, '&')
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
-    .replace(/"/g, '"');
-}
 
 /**
  * 确保在添加内容前有换行符
