@@ -372,10 +372,7 @@ export class WsClient
         message = Buffer.from(array).toString("utf8");
       }
 
-      if (message.length < 500)
-      {
-        this.bot.fulllogInfo(`[WS接收]`, message);
-      }
+      this.bot.fulllogInfo(`[WS接收]`, message);
 
       const currentUsername = this.bot.config.smStart
         ? this.bot.config.smUsername

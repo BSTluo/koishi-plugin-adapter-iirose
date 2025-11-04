@@ -19,6 +19,7 @@ import Like from '../encoder/system/Like';
 import Dislike from '../encoder/system/Dislike';
 import Follow from '../encoder/system/Follow';
 import Unfollow from '../encoder/system/Unfollow';
+import UserProfile from '../encoder/user/UserProfile';
 import * as eventType from './event';
 import { IIROSE_Bot } from "./bot";
 
@@ -177,6 +178,15 @@ export class Internal
     IIROSE_WSsend(this.bot, Unfollow(uid));
   }
 
+  /**
+   * 获取用户资料
+   * @param uid 用户uid
+   */
+  getUserProfile(uid: string)
+  {
+    IIROSE_WSsend(this.bot, UserProfile(uid));
+  }
+
   async getUserByName(name: string): Promise<Universal.User | undefined>
   {
     // 使用工具函数通过用户名查找用户ID
@@ -229,6 +239,7 @@ export interface InternalType
   sendDislike(uid: string, message?: string): void;
   followUser(uid: string): void;
   unfollowUser(uid: string): void;
+  getUserProfile(uid: string): void;
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserListFile(): Promise<any>;
   getRoomListFile(): Promise<any>;

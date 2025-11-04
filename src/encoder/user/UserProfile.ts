@@ -1,4 +1,5 @@
-export default (username: string) =>
+export default (uid: string) =>
 {
-  return `+-${username}`;
+  // 获取用户资料
+  return `:*${uid}`;
 };
