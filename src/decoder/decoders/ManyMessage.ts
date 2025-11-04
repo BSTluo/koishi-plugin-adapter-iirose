@@ -1,5 +1,5 @@
-import { decode } from '../utils/entities';
-import { IIROSE_Bot } from '../bot/bot';
+import { decode } from '../../utils/entities';
+import { IIROSE_Bot } from '../../bot/bot';
 
 export interface replyMessage
 {

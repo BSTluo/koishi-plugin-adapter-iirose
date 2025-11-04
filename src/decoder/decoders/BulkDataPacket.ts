@@ -1,7 +1,7 @@
 import { h } from 'koishi';
-import { IIROSE_Bot } from '../bot/bot';
-import { writeWJ } from '../utils/utils';
-import StockGet from '../encoder/user/StockGet';
+import { IIROSE_Bot } from '../../bot/bot';
+import { writeWJ } from '../../utils/utils';
+import StockGet from '../../encoder/user/StockGet';
 
 export interface UserList
 {

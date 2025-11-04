@@ -1,21 +1,21 @@
-import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './MailboxMessage';
-import { mediaListCallback, MediaListCallback } from './MediaListCallback';
-import { BroadcastMessage, broadcastMessage } from './BroadcastMessage';
-import { MessageDeleted, MessageDeletedData } from './MessageDeleted';
-import { paymentCallback, PaymentCallback } from './PaymentCallback';
-import { privateMessage, PrivateMessage } from './PrivateMessage';
-import { MemberUpdateData, memberUpdate } from './MemberUpdate';
-import { publicMessage, PublicMessage } from './PublicMessage';
-import { bulkDataPacket, UserList } from './BulkDataPacket';
-import { musicMessage, MusicMessage } from './MusicMessage';
-import { bankCallback, BankCallback } from './BankCallback';
-import { manyMessage, ManyMessage } from './ManyMessage';
-import { switchRoom, SwitchRoom } from './SwitchRoom';
+import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './decoders/MailboxMessage';
+import { mediaListCallback, MediaListCallback } from './decoders/MediaListCallback';
+import { BroadcastMessage, broadcastMessage } from './decoders/BroadcastMessage';
+import { MessageDeleted, MessageDeletedData } from './decoders/MessageDeleted';
+import { paymentCallback, PaymentCallback } from './decoders/PaymentCallback';
+import { privateMessage, PrivateMessage } from './decoders/PrivateMessage';
+import { MemberUpdateData, memberUpdate } from './decoders/MemberUpdate';
+import { publicMessage, PublicMessage } from './decoders/PublicMessage';
+import { bulkDataPacket, UserList } from './decoders/BulkDataPacket';
+import { musicMessage, MusicMessage } from './decoders/MusicMessage';
+import { bankCallback, BankCallback } from './decoders/BankCallback';
+import { manyMessage, ManyMessage } from './decoders/ManyMessage';
+import { switchRoom, SwitchRoom } from './decoders/SwitchRoom';
+import { selfMove, SelfMove } from './decoders/SelfMove';
 import { comparePassword } from '../utils/password';
-import { selfMove, SelfMove } from './SelfMove';
+import { music, Music } from './decoders/Music';
+import { stock, Stock } from './decoders/Stock';
 import { IIROSE_Bot } from '../bot/bot';
-import { stock, Stock } from './Stock';
-import { music, Music } from './Music';
 
 export const decoder = async (bot: IIROSE_Bot, msg: string): Promise<MessageType> =>
 {
