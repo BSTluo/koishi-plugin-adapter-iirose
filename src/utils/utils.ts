@@ -2,7 +2,6 @@ import setMaxUserFunction from '../encoder/admin/setMaxUser';
 import whiteListFunction from '../encoder/admin/whiteList';
 import cutAllFunction from '../encoder/admin/media_clear';
 import cutOneFunction from '../encoder/admin/media_cut';
-import damakuFunction from '../encoder/messages/damaku';
 import mediaCard from '../encoder/messages/media_card';
 import mediaData from '../encoder/messages/media_data';
 import StockSell from '../encoder/user/StockSell';
@@ -115,17 +114,6 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
 
     // eslint-disable-next-line max-len, no-prototype-builtins
     (whiteList.hasOwnProperty('intro')) ? IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time));
-  }));
-
-  event.push(bot.ctx.on('iirose/damaku', (damaku: EventType.damaku) =>
-  {
-    /* 示例data
-    data: {
-      message: 弹幕内容,
-      color: 16进制颜色代码（不带#）
-    }
-    */
-    IIROSE_WSsend(bot, damakuFunction(damaku.message, damaku.color));
   }));
 
   event.push(bot.ctx.on('iirose/makeMusic', (musicOrigin: EventType.musicOrigin) =>

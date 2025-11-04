@@ -247,47 +247,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
-      case 'damaku': {
-        const data = obj.damaku;
-        if (!data) return;
-
-        let uid = bot.ctx.config.uid;
-        let guildId = bot.ctx.config.roomId;
-        if (bot.ctx.config.smStart && bot.ctx.config.smPassword === 'ec3a4ac482b483ac02d26e440aa0a948d309c822')
-        {
-          uid = bot.ctx.config.smUid;
-          guildId = bot.ctx.config.smRoom;
-        }
-
-        const event = {
-          type: 'damaku',
-          userId: data.username,
-          username: data.username,
-          timestamp: Date.now(),
-          author: {
-            userId: data.username,
-            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`,
-            username: data.username,
-          },
-          platform: 'iirose',
-          guildId: guildId,
-          selfId: uid,
-          user: {
-            id: data.username,
-            name: data.username
-          },
-          message: {
-            id: `${data.username}damaku`,
-            content: data.message,
-          },
-        };
-
-        const session = bot.session(event);
-        bot.fulllogInfo('iirose/newDamaku', session);
-        bot.ctx.emit('iirose/newDamaku', session, data);
-        break;
-      }
-
       case 'music': {
         // 音乐
         const data = obj.music;

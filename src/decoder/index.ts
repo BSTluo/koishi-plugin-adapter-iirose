@@ -13,7 +13,6 @@ import { manyMessage, ManyMessage } from './ManyMessage';
 import { switchRoom, SwitchRoom } from './SwitchRoom';
 import { comparePassword } from '../utils/password';
 import { selfMove, SelfMove } from './SelfMove';
-import { damaku, Damaku } from './Damaku';
 import { IIROSE_Bot } from '../bot/bot';
 import { stock, Stock } from './Stock';
 import { music, Music } from './Music';
@@ -26,7 +25,6 @@ export const decoder = async (bot: IIROSE_Bot, msg: string): Promise<MessageType
   len.userlist = await bulkDataPacket(msg, bot);
   len.publicMessage = publicMessage(msg);
   len.privateMessage = privateMessage(msg);
-  len.damaku = damaku(msg);
   len.memberUpdate = memberUpdate(msg);
   // len.switchRoom = switchRoom(msg);
   len.music = music(msg);
@@ -76,7 +74,6 @@ export interface MessageType
   userlist?: UserList[];
   publicMessage?: PublicMessage;
   privateMessage?: PrivateMessage;
-  damaku?: Damaku;
   memberUpdate?: MemberUpdateData;
   switchRoom?: SwitchRoom;
   music?: Music;

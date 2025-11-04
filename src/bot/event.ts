@@ -28,7 +28,7 @@ export interface whiteList
   intro?: string;
 }
 
-export interface damaku
+export interface broadcast
 {
   message: string;
   color: string;
@@ -105,7 +105,6 @@ export interface StockSession extends Stock
 export interface Events
 {
   'iirose/member-update'(session: Session, data: MessageType['memberUpdate']): void;
-  'iirose/newDamaku'(session: Session, data: MessageType['damaku']): void;
   'iirose/switchRoom'(session: Session, data: MessageType['switchRoom']): void;
   'iirose/newMusic'(session: Session, data: MessageType['music']): void;
   'iirose/before-payment'(session: Session, data: MessageType['paymentCallback']): void;
@@ -119,7 +118,6 @@ export interface Events
   'iirose/cut-all'(): void;
   'iirose/setMaxUser'(setMaxUser: setMaxUser): void;
   'iirose/whiteList'(whiteList: whiteList): void;
-  'iirose/damaku'(damaku: damaku): void;
   'iirose/moveRoom'(move: move): void;
   'iirose/makeMusic'(musicOrigin: musicOrigin): void;
   'iirose/stockSell'(numberData: number): void;

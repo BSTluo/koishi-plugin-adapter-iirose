@@ -5,7 +5,7 @@ import { findUserIdByName, readJsonData } from '../utils/utils';
 import setMaxUserFunction from '../encoder/admin/setMaxUser';
 import whiteListFunction from '../encoder/admin/whiteList';
 import cutAllFunction from '../encoder/admin/media_clear';
-import damakuFunction from '../encoder/messages/damaku';
+import broadcastFunction from '../encoder/messages/broadcast';
 import cutOneFunction from '../encoder/admin/media_cut';
 import mediaCard from '../encoder/messages/media_card';
 import mediaData from '../encoder/messages/media_data';
@@ -105,9 +105,9 @@ export class Internal
     (whiteList.hasOwnProperty('intro')) ? IIROSE_WSsend(this.bot, whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : IIROSE_WSsend(this.bot, whiteListFunction(whiteList.username, whiteList.time));
   }
 
-  damaku(damaku: eventType.damaku)
+  broadcast(broadcast: eventType.broadcast)
   {
-    IIROSE_WSsend(this.bot, damakuFunction(damaku.message, damaku.color));
+    IIROSE_WSsend(this.bot, broadcastFunction(broadcast.message, broadcast.color));
   }
 
   makeMusic(musicOrigin: eventType.musicOrigin)
@@ -229,7 +229,7 @@ export interface InternalType
   cutAll(): void;
   setMaxUser(setMaxUser: eventType.setMaxUser): void;
   whiteList(whiteList: eventType.whiteList): void;
-  damaku(damaku: eventType.damaku): void;
+  broadcast(broadcast: eventType.broadcast): void;
   makeMusic(musicOrigin: eventType.musicOrigin): void;
   stockBuy(numberData: number): void;
   stockSell(numberData: number): void;
