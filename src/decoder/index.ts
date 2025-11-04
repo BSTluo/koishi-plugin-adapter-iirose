@@ -58,14 +58,7 @@ export const decoder = async (bot: IIROSE_Bot, msg: string): Promise<MessageType
           uid = bot.ctx.config.smUid;
         }
 
-        if (len[key].uid !== uid)
-        {
-          newObj[key] = len[key];
-        } else if (key === 'musicMessage')
-        {
-          // 即使是自己发出的音乐卡片消息，也进行处理
-          newObj[key] = len[key];
-        }
+        if (len[key].uid !== uid) { newObj[key] = len[key]; }
       } else
       {
         newObj[key] = len[key];
