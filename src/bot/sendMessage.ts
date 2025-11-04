@@ -222,7 +222,37 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
     switch (type)
     {
       case 'video': {
-        const url = attrs.link || attrs.url || attrs.src;
+        let url = attrs.link || attrs.url || attrs.src;
+
+        // 如果是 https 协议，直接使用
+        if (url.startsWith('https'))
+        {
+          // 直接使用 https URL
+        } else
+        {
+          // 使用 assets 服务转存非 https 协议的资源
+          try
+          {
+            const videoElement = `${h.video(url)}`;
+            const transformedContent = await this.bot.ctx.assets.transform(videoElement);
+
+            // 从转存后的内容中提取 URL
+            const urlMatch = transformedContent.match(/src="([^"]+)"/);
+            if (urlMatch && urlMatch[1])
+            {
+              url = this.unescapeHtml(urlMatch[1]);
+            } else
+            {
+              throw new Error('无法从转存结果中提取视频 URL');
+            }
+          } catch (error)
+          {
+            this.outDataOringin += '[视频转存异常]';
+            this.bot.loggerError(error);
+            break;
+          }
+        }
+
         const metadata = await getMediaMetadata(url, this.bot.ctx);
 
         const obj: musicOrigin = {
@@ -356,7 +386,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
             const locales = this.bot.ctx.i18n.fallback([]);
             try
             {
-              const text = this.bot.ctx.i18n.text(locales, [path], attrs || {});
+              const text = this.bot.ctx.i18n.render(locales, [path], attrs || {});
               if (text && typeof text === 'string')
               {
                 this.outDataOringin += text;

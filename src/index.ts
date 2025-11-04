@@ -9,7 +9,7 @@ import { join } from 'node:path';
 export const name = 'adapter-iirose';
 
 export const inject = {
-  required: ['http', 'logger', 'database'],
+  required: ['http', 'logger', 'i18n', 'database'],
   optional: ['assets']
 };
 
