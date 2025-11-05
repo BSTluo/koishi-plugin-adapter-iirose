@@ -1,118 +1,111 @@
 import { decode } from '../../utils/entities';
+import { parseAvatar } from '../../utils/utils';
 
-export interface RoomNotice
-{
-  notice: string;
-  background: string;
-  timestamp: number;
-}
-
-export interface Follower
-{
-  username: string;
-  avatar: string;
-  gender: string;
-  background: string;
-  timestamp: number;
-  color: string;
-}
-
-export interface Like
-{
-  username: string;
-  avatar: string;
-  gender: string;
-  background: string;
-  timestamp: number;
-  color: string;
-  message: string;
-}
-
-export interface Payment
-{
-  username: string;
-  avatar: string;
-  gender: string;
-  background: string;
-  timestamp: number;
-  color: string;
-  message: string;
-  money: number;
-}
+export type MailboxMessageData =
+  | {
+    type: 'roomNotice';
+    notice: string;
+    background: string;
+    timestamp: number;
+  }
+  | {
+    type: 'follower';
+    username: string;
+    avatar: string;
+    gender: string;
+    background: string;
+    timestamp: number;
+    color: string;
+  }
+  | {
+    type: 'like';
+    username: string;
+    avatar: string;
+    gender: string;
+    background: string;
+    timestamp: number;
+    color: string;
+    message: string;
+  }
+  | {
+    type: 'payment';
+    username: string;
+    avatar: string;
+    gender: string;
+    background: string;
+    timestamp: number;
+    color: string;
+    message: string;
+    money: number;
+  };
 
 /**
  * 解析邮箱消息 (包括房间公告, 关注, 点赞, 支付等)
  * @param message 消息
- * @returns {any}
+ * @returns {MailboxMessageData | null}
  */
-export const mailboxMessage = (message: string) =>
+export const mailboxMessage = (message: string): MailboxMessageData | null =>
 {
-  if (/^@/.test(message))
+  if (!message.startsWith('@')) return null;
+
+  const parts = message.slice(2).split('<');
+  for (const part of parts)
   {
-    let parser = false;
-
-    message.slice(2).split('<').forEach(e =>
+    const tmp = part.split('>');
+    if (tmp.length === 3)
     {
-      const tmp = e.split('>');
-      if (tmp.length === 3)
+      // roomNotice
+      return {
+        type: 'roomNotice',
+        notice: decode(tmp[0]),
+        background: tmp[1],
+        timestamp: Number(tmp[2]),
+      };
+    }
+    if (tmp.length === 7)
+    {
+      if (/^'\^/.test(tmp[3]))
       {
-        parser = true;
-        // roomNotice
-
+        // follower
         return {
-          notice: decode(tmp[0]),
-          background: tmp[1],
-          timestamp: Number(tmp[2]),
+          type: 'follower',
+          username: decode(tmp[0]),
+          avatar: parseAvatar(tmp[1]),
+          gender: tmp[2],
+          background: tmp[4],
+          timestamp: Number(tmp[5]),
+          color: tmp[6],
+        };
+      } else if (/^'\*/.test(tmp[3]))
+      {
+        // like
+        return {
+          type: 'like',
+          username: decode(tmp[0]),
+          avatar: parseAvatar(tmp[1]),
+          gender: tmp[2],
+          background: tmp[4],
+          timestamp: Number(tmp[5]),
+          color: tmp[6],
+          message: decode(tmp[3].substring(3)),
+        };
+      } else if (/^'\$/.test(tmp[3]))
+      {
+        // payment
+        return {
+          type: 'payment',
+          username: decode(tmp[0]),
+          avatar: parseAvatar(tmp[1]),
+          gender: tmp[2],
+          money: parseInt(tmp[3].split(' ')[0].substring(2)),
+          message: decode(tmp[3].split(' ')[1] || ''),
+          background: tmp[4],
+          timestamp: Number(tmp[5]),
+          color: tmp[6],
         };
       }
-      if (tmp.length === 7)
-      {
-        if (/^'\^/.test(tmp[3]))
-        {
-          parser = true;
-          const data = {
-            username: decode(tmp[0]),
-            avatar: tmp[1],
-            gender: tmp[2],
-            background: tmp[4],
-            timestamp: Number(tmp[5]),
-            color: tmp[6],
-          };
-          // follower
-          return data;
-        } else if (/^'\*/.test(tmp[3]))
-        {
-          parser = true;
-          const data = {
-            username: decode(tmp[0]),
-            avatar: tmp[1],
-            gender: tmp[2],
-            background: tmp[4],
-            timestamp: Number(tmp[5]),
-            color: tmp[6],
-            message: decode(tmp[3].substring(3)),
-          };
-          // like
-          return data;
-        } else if (/^'\$/.test(tmp[3]))
-        {
-          parser = true;
-          const data = {
-            username: decode(tmp[0]),
-            avatar: tmp[1],
-            gender: tmp[2],
-            money: parseInt(tmp[3].split(' ')[0].substring(2)),
-            message: decode(tmp[3].split(' ')[1] || ''),
-            background: tmp[4],
-            timestamp: Number(tmp[5]),
-            color: tmp[6],
-          };
-          // payment
-          return data;
-        }
-      }
-    });
-
-    return parser;
+    }
   }
+
+  return null;
 };

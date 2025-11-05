@@ -1,4 +1,4 @@
-import { Follower, Like, mailboxMessage, Payment, RoomNotice } from './messages/MailboxMessage';
+import { mailboxMessage, MailboxMessageData } from './messages/MailboxMessage';
 import { mediaListCallback, MediaListCallback } from './messages/MediaListCallback';
 import { BroadcastMessage, broadcastMessage } from './messages/BroadcastMessage';
 import { MessageDeleted, MessageDeletedData } from './messages/MessageDeleted';
@@ -81,7 +81,7 @@ export interface MessageType
   bankCallback?: BankCallback;
   mediaListCallback?: MediaListCallback;
   selfMove?: SelfMove;
-  mailboxMessage?: Follower | Like | RoomNotice | Payment;
+  mailboxMessage?: MailboxMessageData;
   musicMessage?: MusicMessage;
   stock?: Stock;
   messageDeleted?: MessageDeletedData;

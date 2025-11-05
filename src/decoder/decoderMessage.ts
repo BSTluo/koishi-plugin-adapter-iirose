@@ -343,16 +343,32 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
       case 'mailboxMessage': {
         const data = obj.mailboxMessage;
+        if (!data) break;
 
-        const event = {
-          type: 'mailboxMessage',
+        const session = bot.session({
+          type: `iirose/${data.type}`,
           platform: 'iirose',
-          guildId: bot.config.roomId
-        };
+          guild: { id: bot.config.roomId },
+          _data: data,
+        });
 
-        const session = bot.session(event);
-        bot.fulllogInfo('iirose/mailboxMessage', session, data);
-        bot.ctx.emit('iirose/mailboxMessage', session, data);
+        bot.fulllogInfo(`iirose/${data.type}`, session, data);
+
+        switch (data.type)
+        {
+          case 'roomNotice':
+            bot.ctx.emit('iirose/roomNotice', session, data);
+            break;
+          case 'follower':
+            bot.ctx.emit('iirose/follower', session, data);
+            break;
+          case 'like':
+            bot.ctx.emit('iirose/like', session, data);
+            break;
+          case 'payment':
+            bot.ctx.emit('iirose/payment', session, data);
+            break;
+        }
         break;
       }
 

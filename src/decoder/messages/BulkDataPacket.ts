@@ -1,6 +1,6 @@
 import { h } from 'koishi';
 import { IIROSE_Bot } from '../../bot/bot';
-import { writeWJ } from '../../utils/utils';
+import { parseAvatar, writeWJ } from '../../utils/utils';
 import { stockGet } from '../../encoder/system/stock';
 import { bankGet } from '../../encoder/system/bank';
 
@@ -70,7 +70,7 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
             if (tmp.length >= 9)
             {
                 userList.push({
-                    avatar: tmp[0].startsWith('http') ? tmp[0] : `http://s.iirose.com/images/icon/${tmp[0]}.jpg`,
+                    avatar: parseAvatar(tmp[0]),
                     username: h.unescape(tmp[2]),
                     color: tmp[3],
                     room: tmp[4],

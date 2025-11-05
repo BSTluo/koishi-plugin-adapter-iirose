@@ -56,6 +56,21 @@ export function generateMessageId(): string
   return Math.random().toString().substring(2, 14);
 }
 
+/**
+ * 解析用户头像URL
+ * @param avatar 原始头像字符串
+ * @returns {string} 完整的头像URL
+ */
+export const parseAvatar = (avatar: string): string =>
+{
+  if (!avatar) return '';
+  if (avatar.startsWith('http'))
+  {
+    return avatar;
+  }
+  return `http://s.iirose.com/images/icon/${avatar}.jpg`;
+};
+
 export const startEventsServer = (bot: IIROSE_Bot) =>
 {
   let event: (() => boolean)[] = [];

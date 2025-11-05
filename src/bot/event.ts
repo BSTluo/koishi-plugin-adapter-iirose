@@ -1,6 +1,6 @@
 
 import { Fragment, Session } from 'koishi';
-
+import { MailboxMessageData } from '../decoder/messages/MailboxMessage';
 import { BroadcastMessage } from '../decoder/messages/BroadcastMessage';
 import { Stock } from '../decoder/messages/Stock';
 import { BankCallback } from '../decoder/messages/BankCallback';
@@ -112,7 +112,10 @@ export interface Events
   'iirose/before-bank'(session: Session, data: MessageType['bankCallback']): void;
   'iirose/before-mediaList'(session: Session, data: MessageType['mediaListCallback']): void;
   'iirose/selfMove'(session: Session, data: MessageType['selfMove']): void;
-  'iirose/mailboxMessage'(session: Session, data: MessageType['mailboxMessage']): void;
+  'iirose/roomNotice'(session: Session, data: Extract<MailboxMessageData, { type: 'roomNotice'; }>): void;
+  'iirose/follower'(session: Session, data: Extract<MailboxMessageData, { type: 'follower'; }>): void;
+  'iirose/like'(session: Session, data: Extract<MailboxMessageData, { type: 'like'; }>): void;
+  'iirose/payment'(session: Session, data: Extract<MailboxMessageData, { type: 'payment'; }>): void;
   'iirose/broadcast'(session: Session, data: BroadcastMessage): void;
   'iirose/kick'(kickData: kickData): void;
   'iirose/cut-one'(cutOne: cutOne): void;
