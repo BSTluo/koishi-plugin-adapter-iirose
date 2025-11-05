@@ -383,8 +383,6 @@ export async function cacheSentMessage(bot: IIROSE_Bot, channelId: string, messa
   bot.sessionCache.add(session);
 }
 
-
-
 /**
  * 确保在添加内容前有换行符
  * 用于图文消息里的图片和文字之间的换行

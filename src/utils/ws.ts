@@ -555,7 +555,6 @@ export class WsClient
 
         this.bot.user = await this.bot.getSelf();
 
-
         await decoderMessage(funcObj, this.bot);
       } else
       {

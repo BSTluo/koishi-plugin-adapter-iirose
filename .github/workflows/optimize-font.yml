@@ -55,7 +55,6 @@ jobs:
           import re
           import requests
 
-
           def extract_text_from_html(html_path):
               """从HTML文件中提取所有文本内容"""
               with open(html_path, 'r', encoding='utf-8') as f:
@@ -76,11 +75,9 @@ jobs:
               
               return all_text
 
-
           def get_unique_characters(text):
               """获取文本中的唯一字符"""
               return list(set(text))
-
 
           def subset_font(input_font_path, output_font_path, characters):
               """根据指定字符子集化字体"""
@@ -137,7 +134,6 @@ jobs:
                   print(f"字体处理错误: {e}")
                   return False
 
-
           def main():
               # 定义路径
               html_path = "data/usage.html"
@@ -188,7 +184,6 @@ jobs:
               except Exception as e:
                   print(f"字体裁剪过程中出错: {e}")
                   return 1
-
 
           if __name__ == "__main__":
               sys.exit(main())

@@ -78,7 +78,6 @@ export class Internal
     }
   }
 
-
   kick(kickData: eventType.kickData)
   {
     IIROSE_WSsend(this.bot, kickFunction(kickData.username));
