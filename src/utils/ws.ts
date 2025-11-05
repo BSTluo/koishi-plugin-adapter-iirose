@@ -1047,18 +1047,18 @@ export async function IIROSE_WSsend(bot: IIROSE_Bot, data: string): Promise<void
       }
 
       const buffer = Buffer.from(data);
-      const unintArray: any = Uint8Array.from(buffer);
+      const uintArray: Uint8Array = Uint8Array.from(buffer);
 
-      if (unintArray.length > 256)
+      if (uintArray.length > 256)
       {
         const deflatedData = zlib.gzipSync(data);
-        const deflatedArray: any = new Uint8Array(deflatedData.length + 1);
+        const deflatedArray: Uint8Array = new Uint8Array(deflatedData.length + 1);
         deflatedArray[0] = 1;
         deflatedArray.set(deflatedData, 1);
         bot.socket.send(deflatedArray);
       } else
       {
-        bot.socket.send(unintArray);
+        bot.socket.send(uintArray);
       }
     } catch (error)
     {
