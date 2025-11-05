@@ -15,7 +15,7 @@
 {
     'use strict';
 
-    console.log("■■■ IIROSE Websocket ■■■ 脚本已加载。使用 pako.js 进行 zlib 解压。正在尝试 Hook WebSocket...");
+    console.log("■■■ IIROSE Websocket ■■■ 脚本已加载。正在尝试 Hook WebSocket...");
 
     const loggerGlobal = unsafeWindow.IIROSE_WS_LOGGER = unsafeWindow.IIROSE_WS_LOGGER || {};
 
@@ -43,9 +43,9 @@
             callback(text);
         } catch (e)
         {
-            console.error("■■■ IIROSE Websocket ■■■ 处理消息数据时出错:", e);
+            console.error("■■■ IIROSE Websocket ■■■ 处理消息数据时出错:\n", e);
             const hexString = Array.from(view).map(b => b.toString(16).padStart(2, '0')).join(' ');
-            callback(`■■■ IIROSE Websocket ■■■ 解码消息失败。原始数据 (十六进制): ${hexString}`);
+            callback(`■■■ IIROSE Websocket ■■■ 解码消息失败。原始数据 (十六进制): \n${hexString}`);
         }
     }
 
@@ -60,7 +60,7 @@
             };
             reader.onerror = function ()
             {
-                callback(`■■■ IIROSE Websocket ■■■ 读取 Blob 时出错: ${reader.error}`);
+                callback(`■■■ IIROSE Websocket ■■■ 读取 Blob 时出错: \n${reader.error}`);
             };
             reader.readAsArrayBuffer(data);
         } else if (data instanceof ArrayBuffer)
@@ -136,7 +136,7 @@
                 {
                     readData(args[0], (text) =>
                     {
-                        console.log("■■■ IIROSE Websocket ■■■ 发送:", text);
+                        console.log("■■■ IIROSE Websocket ■■■ 发送:\n", text);
                     });
                 });
                 unsafeWindow.socket.__iirose_ws_send_hooked__ = true;
@@ -148,27 +148,27 @@
                 {
                     readData(event.data, (text) =>
                     {
-                        console.log("■■■ IIROSE Websocket ■■■ 收到消息:", text);
+                        console.log("■■■ IIROSE Websocket ■■■ 收到消息:\n", text);
                     });
                 } else
                 {
-                    console.log("■■■ IIROSE Websocket ■■■ 收到消息 (原始事件):", event);
+                    console.log("■■■ IIROSE Websocket ■■■ 收到消息 (原始事件):\n", event);
                 }
             });
 
             safelyHookEventHandler(unsafeWindow.socket, 'onopen', (event) =>
             {
-                console.log("■■■ IIROSE Websocket ■■■ 连接打开:", event);
+                console.log("■■■ IIROSE Websocket ■■■ 连接打开:\n", event);
             });
 
             safelyHookEventHandler(unsafeWindow.socket, 'onclose', (event) =>
             {
-                console.log("■■■ IIROSE Websocket ■■■ 连接关闭:", event);
+                console.log("■■■ IIROSE Websocket ■■■ 连接关闭:\n", event);
             });
 
             safelyHookEventHandler(unsafeWindow.socket, 'onerror', (event) =>
             {
-                console.log("■■■ IIROSE Websocket ■■■ 发生错误:", event);
+                console.log("■■■ IIROSE Websocket ■■■ 发生错误:\n", event);
             });
 
             loggerGlobal.rawSocket = unsafeWindow.socket;
@@ -218,7 +218,7 @@
             console.warn("■■■ IIROSE Websocket ■■■ WebSocket 未打开 (readyState: " + (loggerGlobal.rawSocket ? loggerGlobal.rawSocket.readyState : 'N/A') + ")。消息可能不会被发送。");
         }
 
-        console.log(`■■■ IIROSE Websocket ■■■ 手动发送: "${message}"`);
+        console.log(`■■■ IIROSE Websocket ■■■ 手动发送: \n${message}`);
         loggerGlobal.originalSend(message);
     };
 
@@ -234,6 +234,6 @@
     {
         console.log("■■■ IIROSE Websocket ■■■ 控制台命令 'send(message)' 已在当前框架中可用。");
     }
-    console.log("■■■ IIROSE Websocket ■■■ 示例: send('+&5fa230278719d')");
+    console.log("■■■ IIROSE Websocket ■■■ 示例: send(\">#\")");
 
 })();
