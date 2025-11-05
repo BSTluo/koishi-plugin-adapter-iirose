@@ -40,9 +40,9 @@ export interface Config
 export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
     usename: Schema.string().required().description('BOT的用户名<br>`不带[**]的部分`'),
-    uid: Schema.string().required().description('BOT的唯一标识<br>`不带[@@]的部分`').pattern(/[a-z0-9]{13}/),
+    uid: Schema.string().required().description('BOT的唯一标识<br>`不带[@@]的部分`<br>必须是`数字、小写字母`的组合').pattern(/[a-z0-9]{13}/),
     password: Schema.string().required().role('secret').description('BOT的登录密码'),
-    roomId: Schema.string().required().description('BOT的初始房间地址<br>`不带[__]的部分`').pattern(/([a-z0-9]{13})/),
+    roomId: Schema.string().required().description('BOT的初始房间地址<br>`不带[__]的部分`<br>必须是`数字、小写字母`的组合').pattern(/([a-z0-9]{13})/),
     roomPassword: Schema.string().default(null).description('BOT的初始房间地址的 房间密码 (一般不需要写)'),
   }).description('基础设置'),
 
@@ -105,7 +105,7 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('调试功能'),
 
   Schema.object({
-    oldRoomId: Schema.string().default(null).description('仅内部使用'),
+    oldRoomId: Schema.string().default(null).description('仅内部使用').hidden(),
     debugMode: Schema.boolean().default(false).description('是否 开启调试模式<br>提issue时，请务必开启此项，附上复现问题的日志'),
     fullDebugMode: Schema.boolean().default(false).description('是否 开启详细调试模式<br>慎重开启'),
   }).description('开发调试选项'),
