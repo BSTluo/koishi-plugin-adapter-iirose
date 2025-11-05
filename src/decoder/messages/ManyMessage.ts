@@ -163,7 +163,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
             };
             // JoinRoom
             output.push(new ManyMessage(msg));
-          } else if (tmp[3].substr(0, 2) === "'2")
+          } else if (tmp[3].substring(0, 2) === "'2")
           {
             const msg = {
               type: 'switchRoom',
@@ -174,7 +174,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
               uid: tmp[8],
               title: tmp[9] === "'108" ? '花瓣' : tmp[9],
               room: tmp[10],
-              targetRoom: tmp[3].substr(2),
+              targetRoom: tmp[3].substring(2),
             };
             // SwitchRoom
             output.push(new ManyMessage(msg));

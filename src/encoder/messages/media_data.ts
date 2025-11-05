@@ -45,13 +45,13 @@ export default (
   }
 
   const data = JSON.stringify({
-    s: url.substr(4),
+    s: url.substring(4),
     d: duration,
-    c: cover.substr(4),
+    c: cover.substring(4),
     n: title,
     r: signer,
     b: `${typeMap[t]}`,
-    o: link.substr(4),
+    o: link.substring(4),
     l: lyrics
   });
 

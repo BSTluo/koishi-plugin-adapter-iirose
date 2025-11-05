@@ -85,7 +85,7 @@ export const mailboxMessage = (message: string) =>
             background: tmp[4],
             timestamp: Number(tmp[5]),
             color: tmp[6],
-            message: decode(tmp[3].substr(3)),
+            message: decode(tmp[3].substring(3)),
           };
           // like
           return data;
@@ -96,7 +96,7 @@ export const mailboxMessage = (message: string) =>
             username: decode(tmp[0]),
             avatar: tmp[1],
             gender: tmp[2],
-            money: parseInt(tmp[3].split(' ')[0].substr(2)),
+            money: parseInt(tmp[3].split(' ')[0].substring(2)),
             message: decode(tmp[3].split(' ')[1] || ''),
             background: tmp[4],
             timestamp: Number(tmp[5]),

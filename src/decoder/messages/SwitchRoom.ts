@@ -17,7 +17,7 @@ export const switchRoom = (message: string) =>
   {
     if (/\d+/.test(tmp[0]))
     {
-      if (tmp[3].substr(0, 2) === "'2")
+      if (tmp[3].substring(0, 2) === "'2")
       {
         const msg = {
           timestamp: Number(tmp[0]),
@@ -27,7 +27,7 @@ export const switchRoom = (message: string) =>
           uid: tmp[8],
           title: tmp[9] === "'108" ? '花瓣' : tmp[9],
           room: tmp[10],
-          targetRoom: tmp[3].substr(2),
+          targetRoom: tmp[3].substring(2),
         };
 
         // SwitchRoom
