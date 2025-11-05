@@ -1,5 +1,5 @@
 /**
- * A map of characters to their corresponding HTML entities for encoding.
+ * 用于编码的字符到其对应HTML实体的映射。
  */
 const entityMap: { [key: string]: string; } = {
   "&": "&amp;",
@@ -11,14 +11,14 @@ const entityMap: { [key: string]: string; } = {
 };
 
 /**
- * A regular expression to find characters that need to be encoded.
+ * 用于查找需要编码的字符的正则表达式。
  */
 const encodeRegex = /[&<>"'/]/g;
 
 /**
- * Encodes a string to its HTML entity representation.
- * @param str The string to encode.
- * @returns The encoded string.
+ * 将字符串编码为其HTML实体表示。
+ * @param str 要编码的字符串。
+ * @returns 编码后的字符串。
  */
 export function encode(str: string): string
 {
@@ -27,7 +27,7 @@ export function encode(str: string): string
 }
 
 /**
- * A map of HTML entities to their corresponding characters for decoding.
+ * 用于解码的HTML实体到其对应字符的映射。
  */
 const decodeEntityMap: { [key: string]: string; } = {
   "&amp;": "&",
@@ -39,14 +39,14 @@ const decodeEntityMap: { [key: string]: string; } = {
 };
 
 /**
- * A regular expression to find HTML entities that need to be decoded.
+ * 用于查找需要解码的HTML实体的正则表达式。
  */
 const decodeRegex = /&amp;|&lt;|&gt;|&quot;|&#39;|&#x2F;/g;
 
 /**
- * Decodes an HTML entity string to its original representation.
- * @param str The string to decode.
- * @returns The decoded string.
+ * 将HTML实体字符串解码为其原始表示。
+ * @param str 要解码的字符串。
+ * @returns 解码后的字符串。
  */
 export function decode(str: string): string
 {
