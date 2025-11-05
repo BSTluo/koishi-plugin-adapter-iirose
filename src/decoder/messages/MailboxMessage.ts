@@ -40,6 +40,11 @@ export interface Payment
   money: number;
 }
 
+/**
+ * 解析邮箱消息 (包括房间公告, 关注, 点赞, 支付等)
+ * @param message 消息
+ * @returns {any}
+ */
 export const mailboxMessage = (message: string) =>
 {
   if (/^@/.test(message))

@@ -47,6 +47,11 @@ export class PublicMessage
   }
 }
 
+/**
+ * 解析消息中的回复部分
+ * @param msg 消息字符串
+ * @returns {[string, replyMessage[] | null]} 返回一个元组，包含处理后的消息和回复数组
+ */
 export const replyMsg = (msg: string): [string, replyMessage[] | null] =>
 {
   // 判断是否为引用消息
@@ -81,6 +86,11 @@ export const replyMsg = (msg: string): [string, replyMessage[] | null] =>
   return [newMsg, replies.length > 0 ? replies : null];
 };
 
+/**
+ * 解析公屏消息
+ * @param input 消息
+ * @returns {PublicMessage | null}
+ */
 export const publicMessage = (input: string) =>
 {
   if (input.substring(0, 1) !== '"') return null;

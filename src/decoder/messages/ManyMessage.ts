@@ -50,6 +50,11 @@ export class ManyMessage
   }
 }
 
+/**
+ * 解析消息中的回复部分
+ * @param msg 消息字符串
+ * @returns {replyMessage[] | null}
+ */
 const replyMsg = (msg: string): replyMessage[] | null =>
 {
   if (msg.includes(' (_hr) '))
@@ -86,6 +91,12 @@ const replyMsg = (msg: string): replyMessage[] | null =>
   return null;
 };
 
+/**
+ * 解析包含多条消息的包
+ * @param input 消息
+ * @param bot bot实例
+ * @returns {ManyMessage[] | null}
+ */
 export const manyMessage = (input: string, bot: IIROSE_Bot) =>
 {
   if (input.substring(0, 1) !== '"') return null;

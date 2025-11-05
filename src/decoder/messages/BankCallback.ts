@@ -9,6 +9,12 @@ export interface BankCallback
   balance: number;
 }
 
+/**
+ * 解析银行回调信息
+ * @param message 消息
+ * @param bot bot实例
+ * @returns {BankCallback | undefined}
+ */
 export const bankCallback = (message: string, bot: IIROSE_Bot) =>
 {
   if (message.substring(0, 2) === '>$')

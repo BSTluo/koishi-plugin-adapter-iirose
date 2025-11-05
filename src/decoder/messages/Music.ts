@@ -10,6 +10,11 @@ export interface Music
   lyrics?: string; // 歌词
 }
 
+/**
+ * 解析音乐消息
+ * @param message 消息
+ * @returns {Music | undefined}
+ */
 export const music = (message: string) =>
 {
   if (message.substring(0, 2) === '&1')

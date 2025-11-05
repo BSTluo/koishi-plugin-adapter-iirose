@@ -12,6 +12,11 @@ export interface SystemMessage
 
 }
 
+/**
+ * 解析用户加入房间的系统消息
+ * @param message 消息
+ * @returns {SystemMessage | undefined}
+ */
 export const joinRoom = (message: string) =>
 {
   const tmp = message.split('>');

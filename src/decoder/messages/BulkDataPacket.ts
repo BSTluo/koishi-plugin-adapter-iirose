@@ -23,6 +23,12 @@ export interface RoomInfo
     background?: string;
 }
 
+/**
+ * 解析包含大量数据的包 (如用户列表、房间列表)
+ * @param message 消息
+ * @param bot bot实例
+ * @returns {Promise<UserList[] | undefined>}
+ */
 export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
 {
     if (message.startsWith('%*"'))

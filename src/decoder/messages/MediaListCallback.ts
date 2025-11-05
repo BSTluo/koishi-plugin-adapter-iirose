@@ -12,6 +12,11 @@ export interface MediaListCallback
   cover: string;
 }
 
+/**
+ * 解析媒体列表回调
+ * @param message 消息
+ * @returns {MediaListCallback[] | undefined}
+ */
 export const mediaListCallback = (message: string) =>
 {
   if (message.substring(0, 1) === '~')

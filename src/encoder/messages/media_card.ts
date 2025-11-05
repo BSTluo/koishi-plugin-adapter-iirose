@@ -3,6 +3,18 @@ import PublicMessage from './PublicMessage';
 import { musicOrigin } from '../../bot/event';
 import { encode } from '../../utils/entities';
 
+/**
+ * 构建媒体卡片消息
+ * @param type 媒体类型, 'music' 或 'video'
+ * @param title 标题
+ * @param singer 艺术家
+ * @param cover 封面URL
+ * @param color 颜色
+ * @param duration 时长 (秒)
+ * @param BitRate 比特率 (可选, 默认 320)
+ * @param origin 来源平台 (可选)
+ * @returns {any}
+ */
 export default (
   type: 'music' | 'video',
   title: string,
@@ -14,6 +26,11 @@ export default (
   origin?: musicOrigin['origin']
 ) =>
 {
+  /**
+   * 解析比特率
+   * @param bitrate 比特率
+   * @returns {string | number}
+   */
   function parseBitrate(bitrate: number)
   {
     switch (bitrate)
@@ -29,6 +46,11 @@ export default (
     }
   }
 
+  /**
+   * 将时长(秒)转换为文本格式
+   * @param duration 时长(秒)
+   * @returns {string}
+   */
   function durationToText(duration: number)
   {
     const secondsInMinute = 60;
@@ -187,6 +209,11 @@ export default (
   return PublicMessage(data, color);
 };
 
+/**
+ * 将秒数格式化为 mm:ss
+ * @param seconds 秒数
+ * @returns {string}
+ */
 function formatSeconds(seconds: number): string
 {
   const minutes: number = Math.floor(seconds / 60);

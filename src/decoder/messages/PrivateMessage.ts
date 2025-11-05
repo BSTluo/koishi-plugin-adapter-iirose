@@ -37,6 +37,11 @@ export class PrivateMessage
   }
 }
 
+/**
+ * 解析私聊消息
+ * @param message 消息
+ * @returns {PrivateMessage | null}
+ */
 export const privateMessage = (message: string) =>
 {
   if (message.substring(0, 2) === '""')

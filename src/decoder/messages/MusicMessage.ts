@@ -38,6 +38,11 @@ export interface MusicMessage
   musicColor: string;
 }
 
+/**
+ * 解析消息中的回复部分
+ * @param msg 消息字符串
+ * @returns {replyMessage[] | null}
+ */
 const replyMsg = (msg: string): replyMessage[] | null =>
 {
   if (msg.includes(' (_hr) '))
@@ -74,6 +79,11 @@ const replyMsg = (msg: string): replyMessage[] | null =>
   return null;
 };
 
+/**
+ * 从解析后的数据中分析出音乐消息
+ * @param input 解析后的数据
+ * @returns {MusicMessage}
+ */
 export const musicMessageAnalyze = (input: data): MusicMessage =>
 {
   const { timestamp, avatar, username, message, color, uid, title, messageId } = input;
@@ -94,6 +104,11 @@ export const musicMessageAnalyze = (input: data): MusicMessage =>
   };
 };
 
+/**
+ * 解析音乐卡片消息
+ * @param input 消息
+ * @returns {MusicMessage | null}
+ */
 export const musicMessage = (input: string) =>
 {
   if (input.substring(0, 1) !== '"') return null;

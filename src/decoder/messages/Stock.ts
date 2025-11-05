@@ -9,6 +9,12 @@ export interface Stock
   personalMoney: number;
 }
 
+/**
+ * 解析股票信息
+ * @param message 消息
+ * @param bot bot实例
+ * @returns {Stock | null}
+ */
 export const stock = (message: string, bot: IIROSE_Bot) =>
 {
   if (message.substring(0, 1) === '>')

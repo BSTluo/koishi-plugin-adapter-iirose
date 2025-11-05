@@ -1,5 +1,18 @@
 import { musicOrigin } from "../../bot/event";
 
+/**
+ * 构建媒体数据消息
+ * @param type 媒体类型, 'music' 或 'video'
+ * @param title 标题
+ * @param signer 艺术家
+ * @param cover 封面URL
+ * @param link 来源链接
+ * @param url 媒体URL
+ * @param duration 时长 (秒)
+ * @param lyrics 歌词 (可选)
+ * @param origin 来源平台 (可选)
+ * @returns {string}
+ */
 export default (
   type: 'music' | 'video',
   title: string,

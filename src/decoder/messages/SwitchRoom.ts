@@ -10,6 +10,11 @@ export interface SwitchRoom
   targetRoom: string;
 }
 
+/**
+ * 解析用户切换房间的消息
+ * @param message 消息
+ * @returns {SwitchRoom | undefined}
+ */
 export const switchRoom = (message: string) =>
 {
   const tmp = message.split('>');

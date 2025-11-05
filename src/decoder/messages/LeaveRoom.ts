@@ -11,6 +11,11 @@ export interface SystemMessage
   room: string;
 }
 
+/**
+ * 解析用户离开房间的系统消息
+ * @param message 消息
+ * @returns {SystemMessage | undefined}
+ */
 export const leaveRoom = (message: string) =>
 {
   const tmp = message.split('>');

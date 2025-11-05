@@ -14,6 +14,11 @@ export interface BroadcastMessage
     messageId: string;
 }
 
+/**
+ * 解析广播消息
+ * @param msg 消息
+ * @returns {BroadcastMessage | undefined}
+ */
 export const broadcastMessage = (msg: string): BroadcastMessage | undefined =>
 {
     // 检查消息是否以 "=" 开头
