@@ -4,7 +4,9 @@ import { IIROSE_Bot } from '../bot/bot';
 export async function clearMsg(msg: string, bot: IIROSE_Bot)
 {
     // 处理 markdown 元素：移除开头的 `\\\\\\*\n` 前缀
-    msg = msg.replace(/^\\\\\\\*\n/, '');
+    // 处理 markdown 元素：移除开头的 `&#092;&#092;&#092;*\n` (即 \\\*\n) 前缀
+    // IIROSE 发送的原始消息中，反斜杠被编码为 HTML 实体
+    msg = msg.replace(/^(?:&#092;){3}\*\n\s*/, '');
 
     // 处理 a 元素：移除开头的反斜杠
     msg = msg.replace(/\\(https*:\/\/[\s\S]+)/g, '$1');
@@ -30,6 +32,22 @@ export async function clearMsg(msg: string, bot: IIROSE_Bot)
     {
         const cleanUrl = match.replace(/#e$/, '');
         return h.image(cleanUrl).toString();
+    });
+
+    // 处理音频 (同步)
+    const audioUrlRegex = /((?:https?:\/\/[\s\S]+?)\.weba)/g;
+    msg = msg.replace(audioUrlRegex, (match) =>
+    {
+        // 将 .weba 结尾的链接转换为 audio 元素
+        return h.audio(match).toString();
+    });
+
+    // 处理视频 (同步)
+    const videoUrlRegex = /\[((?:https?:\/\/[\s\S]+?)\.(?:mp4|webm|ogg))\]/g;
+    msg = msg.replace(videoUrlRegex, (match, url) =>
+    {
+        // 将 [url.mp4] 格式转换为 video 元素
+        return h.video(url).toString();
     });
 
     // 处理 at-by-name (异步)

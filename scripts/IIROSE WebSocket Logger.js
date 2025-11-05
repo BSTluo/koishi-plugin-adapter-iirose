@@ -136,7 +136,10 @@
                 {
                     readData(args[0], (text) =>
                     {
-                        console.log("■■■ IIROSE Websocket ■■■ 发送:\n", text);
+                        if (text.length > 0)
+                        {
+                            console.log("■■■ IIROSE Websocket ■■■ 发送:\n", text);
+                        }
                     });
                 });
                 unsafeWindow.socket.__iirose_ws_send_hooked__ = true;
@@ -148,7 +151,10 @@
                 {
                     readData(event.data, (text) =>
                     {
-                        console.log("■■■ IIROSE Websocket ■■■ 收到消息:\n", text);
+                        if (text.length > 0)
+                        {
+                            console.log("■■■ IIROSE Websocket ■■■ 收到消息:\n", text);
+                        }
                     });
                 } else
                 {

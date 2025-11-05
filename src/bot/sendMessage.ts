@@ -97,9 +97,9 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         let url = attrs.link || attrs.url || attrs.src;
 
         // 如果是 https 协议，直接使用
-        if (url.startsWith('https'))
+        if (url.startsWith('http'))
         {
-          // 直接使用 https URL
+          // 直接使用 
         } else
         {
           // 使用 assets 服务转存非 https 协议的资源
@@ -158,9 +158,9 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         let url = attrs.link || attrs.url || attrs.src;
 
         // 如果是 https 协议，直接使用
-        if (url.startsWith('https'))
+        if (url.startsWith('http'))
         {
-          // 直接使用 https URL
+          // 直接使用 
         } else
         {
           // 使用 assets 服务转存非 https 协议的资源
@@ -231,7 +231,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         let url = attrs.src;
 
         // 如果是 https 协议，直接使用
-        if (url.startsWith('https'))
+        if (url.startsWith('http'))
         {
           this.outDataOringin = ensureNewlineBefore(this.outDataOringin);
           this.outDataOringin += `[${url}#e]`;
