@@ -1,3 +1,5 @@
+import { decode } from '../../utils/entities';
+
 export interface Music
 {
   url: string;
@@ -27,8 +29,8 @@ export const music = (message: string) =>
         url: `http${tmp[0].split(' ')[0]}`,
         link: `http${tmp[0].split(' ')[1]}`,
         duration: Number(tmp[1]),
-        title: tmp[2],
-        singer: tmp[3].substring(2),
+        title: decode(tmp[2]),
+        singer: decode(tmp[3].substring(2)),
         owner: tmp[4],
         pic: `http${tmp[6]}`,
       };
