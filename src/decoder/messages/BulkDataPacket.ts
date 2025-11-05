@@ -2,6 +2,7 @@ import { h } from 'koishi';
 import { IIROSE_Bot } from '../../bot/bot';
 import { writeWJ } from '../../utils/utils';
 import StockGet from '../../encoder/user/StockGet';
+import { bankGet } from '../../encoder/system/bank';
 
 export interface UserList
 {
@@ -150,6 +151,9 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
 
         // 触发一次股价查询
         bot.sendAndWaitForResponse(StockGet(), '>', false);
+
+        // 触发一次银行信息查询
+        bot.sendAndWaitForResponse(bankGet(), '>$', false);
 
         // 返回用户列表
         return userList;

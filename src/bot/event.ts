@@ -3,6 +3,7 @@ import { Fragment, Session } from 'koishi';
 
 import { BroadcastMessage } from '../decoder/messages/BroadcastMessage';
 import { Stock } from '../decoder/messages/Stock';
+import { BankCallback } from '../decoder/messages/BankCallback';
 import { MessageType } from '../decoder';
 import { IIROSE_Bot } from './bot';
 
@@ -123,4 +124,5 @@ export interface Events
   'iirose/stockSell'(numberData: number): void;
   'iirose/stockBuy'(numberData: number): void;
   'iirose/stock-update'(stockData: Stock): void;
+  'iirose/bank-update'(bankData: BankCallback): void;
 }

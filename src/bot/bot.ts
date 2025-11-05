@@ -10,6 +10,7 @@ import { SessionCache } from '../utils/sessionCache';
 import kick from '../encoder/admin/kick';
 import mute from '../encoder/admin/mute';
 import { Stock } from '../decoder/messages/Stock';
+import { BankCallback } from '../decoder/messages/BankCallback';
 import { Config } from '../config';
 
 export class IIROSE_Bot extends Bot<Context>
@@ -36,6 +37,7 @@ export class IIROSE_Bot extends Bot<Context>
   private disposed: boolean = false;
   private userInfoTimeout: NodeJS.Timeout | null = null;
   private lastStockData: Stock | null = null;
+  private lastBankData: BankCallback | null = null;
   public logger: Logger;
 
   constructor(public ctx: Context, config: Config)
@@ -558,6 +560,16 @@ export class IIROSE_Bot extends Bot<Context>
       this.lastStockData = newStockData;
       this.logInfo('iirose/stock-update', newStockData);
       this.ctx.emit('iirose/stock-update', newStockData);
+    }
+  }
+
+  public handleBankUpdate(newBankData: BankCallback)
+  {
+    if (JSON.stringify(this.lastBankData) !== JSON.stringify(newBankData))
+    {
+      this.lastBankData = newBankData;
+      this.logInfo('iirose/bank-update', newBankData);
+      this.ctx.emit('iirose/bank-update', newBankData);
     }
   }
 }

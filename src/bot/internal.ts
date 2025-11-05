@@ -14,6 +14,7 @@ import kickFunction from '../encoder/admin/kick';
 import payment from "../encoder/system/payment";
 import StockBuy from '../encoder/user/StockBuy';
 import StockGet from '../encoder/user/StockGet';
+import { bankGet, bankDeposit, bankWithdraw } from '../encoder/system/bank';
 import { IIROSE_WSsend } from '../utils/ws';
 import Like from '../encoder/system/Like';
 import Dislike from '../encoder/system/Dislike';
@@ -132,6 +133,21 @@ export class Internal
     return this.bot.sendAndWaitForResponse(StockGet(), '>', true);
   }
 
+  async bankGet(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(bankGet(), '>$', true);
+  }
+
+  bankDeposit(amount: number)
+  {
+    IIROSE_WSsend(this.bot, bankDeposit(amount));
+  }
+
+  bankWithdraw(amount: number)
+  {
+    IIROSE_WSsend(this.bot, bankWithdraw(amount));
+  }
+
   payment(uid: string, money: number, message?: string)
   {
     const data = (message) ? payment(uid, money, message) : payment(uid, money);
@@ -234,6 +250,9 @@ export interface InternalType
   stockBuy(numberData: number): void;
   stockSell(numberData: number): void;
   stockGet(): Promise<string | null>;
+  bankGet(): Promise<string | null>;
+  bankDeposit(amount: number): void;
+  bankWithdraw(amount: number): void;
   payment(uid: string, money: number, message?: string): void;
   sendLike(uid: string, message?: string): void;
   sendDislike(uid: string, message?: string): void;

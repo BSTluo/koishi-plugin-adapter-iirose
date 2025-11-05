@@ -1,3 +1,5 @@
+import { IIROSE_Bot } from '../../bot/bot';
+
 export interface BankCallback
 {
   total: number;
@@ -7,7 +9,7 @@ export interface BankCallback
   balance: number;
 }
 
-export const bankCallback = (message: string) =>
+export const bankCallback = (message: string, bot: IIROSE_Bot) =>
 {
   if (message.substring(0, 2) === '>$')
   {
@@ -20,6 +22,7 @@ export const bankCallback = (message: string) =>
       balance: Number(tmp[4]),
     };
 
+    bot.handleBankUpdate(data);
     // BankCallback
     return data;
   }

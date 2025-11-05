@@ -452,7 +452,7 @@ export class WsClient
           return;
         } else if (message.startsWith(`%*"4`))
         {
-          this.bot.loggerError(`登录失败：今日可尝试登录次数达到上限，用户名：${this.loginObj.n}`);
+          this.bot.loggerError(`登录失败：今日可尝试登录次数达到上限，用户名：${this.loginObj.n}。请尝试更换网络后重新登陆。`);
           this.bot.status = Universal.Status.OFFLINE;
           await this.bot.stop();
           await sleep(1000);
