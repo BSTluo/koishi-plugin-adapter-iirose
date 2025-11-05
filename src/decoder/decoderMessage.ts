@@ -276,8 +276,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
-
-
       case 'bankCallback': {
         const data = obj.bankCallback;
 
