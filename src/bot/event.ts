@@ -1,4 +1,3 @@
-
 import { Fragment, Session } from 'koishi';
 import { MailboxMessageData } from '../decoder/messages/MailboxMessage';
 import { BroadcastMessage } from '../decoder/messages/BroadcastMessage';
@@ -115,6 +114,7 @@ export interface Events
   'iirose/roomNotice'(session: Session, data: Extract<MailboxMessageData, { type: 'roomNotice'; }>): void;
   'iirose/follower'(session: Session, data: Extract<MailboxMessageData, { type: 'follower'; }>): void;
   'iirose/like'(session: Session, data: Extract<MailboxMessageData, { type: 'like'; }>): void;
+  'iirose/dislike'(session: Session, data: Extract<MailboxMessageData, { type: 'dislike'; }>): void;
   'iirose/payment'(session: Session, data: Extract<MailboxMessageData, { type: 'payment'; }>): void;
   'iirose/broadcast'(session: Session, data: BroadcastMessage): void;
   'iirose/kick'(kickData: kickData): void;

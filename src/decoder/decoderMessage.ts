@@ -365,6 +365,9 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           case 'like':
             bot.ctx.emit('iirose/like', session, data);
             break;
+          case 'dislike':
+            bot.ctx.emit('iirose/dislike', session, data);
+            break;
           case 'payment':
             bot.ctx.emit('iirose/payment', session, data);
             break;

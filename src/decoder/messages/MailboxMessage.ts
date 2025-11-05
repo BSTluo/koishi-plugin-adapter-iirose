@@ -37,6 +37,16 @@ export type MailboxMessageData =
     color: string;
     message: string;
     money: number;
+  }
+  | {
+    type: 'dislike';
+    username: string;
+    avatar: string;
+    gender: string;
+    background: string;
+    timestamp: number;
+    color: string;
+    message: string;
   };
 
 /**
@@ -87,7 +97,20 @@ export const mailboxMessage = (message: string): MailboxMessageData | null =>
           background: tmp[4],
           timestamp: Number(tmp[5]),
           color: tmp[6],
-          message: decode(tmp[3].substring(3)),
+          message: decode(tmp[3].substring(2)),
+        };
+      } else if (/^'h/.test(tmp[3]))
+      {
+        // dislike
+        return {
+          type: 'dislike',
+          username: decode(tmp[0]),
+          avatar: parseAvatar(tmp[1]),
+          gender: tmp[2],
+          background: tmp[4],
+          timestamp: Number(tmp[5]),
+          color: tmp[6],
+          message: decode(tmp[3].substring(2)),
         };
       } else if (/^'\$/.test(tmp[3]))
       {
@@ -97,7 +120,7 @@ export const mailboxMessage = (message: string): MailboxMessageData | null =>
           username: decode(tmp[0]),
           avatar: parseAvatar(tmp[1]),
           gender: tmp[2],
-          money: parseInt(tmp[3].split(' ')[0].substring(2)),
+          money: parseInt(tmp[3].split(' ')[0].substring(1)),
           message: decode(tmp[3].split(' ')[1] || ''),
           background: tmp[4],
           timestamp: Number(tmp[5]),
