@@ -1,4 +1,3 @@
-
 import { Universal, User } from "koishi";
 import { findUserIdByName, readJsonData } from '../utils/utils';
 
@@ -9,16 +8,18 @@ import broadcastFunction from '../encoder/messages/broadcast';
 import cutOneFunction from '../encoder/admin/media/media_cut';
 import mediaCard from '../encoder/messages/media_card';
 import mediaData from '../encoder/messages/media_data';
-import { stockGet, stockBuy, stockSell } from '../encoder/system/stock';
+import { stockGet, stockBuy, stockSell } from '../encoder/system/consume/stock';
 import kickFunction from '../encoder/admin/manage/kick';
 import payment from "../encoder/user/payment";
-import { bankGet, bankDeposit, bankWithdraw } from '../encoder/system/bank';
+import { bankGet, bankDeposit, bankWithdraw } from '../encoder/system/consume/bank';
 import { IIROSE_WSsend } from '../utils/ws';
 import Like from '../encoder/user/like/Like';
 import Dislike from '../encoder/user/like/Dislike';
 import Follow from '../encoder/user/follow/Follow';
 import Unfollow from '../encoder/user/follow/Unfollow';
 import UserProfile from '../encoder/system/UserProfile';
+import subscribeRoomFunction from '../encoder/system/room/subscribeRoom';
+import unsubscribeRoomFunction from '../encoder/system/room/unsubscribeRoom';
 import * as eventType from './event';
 import { IIROSE_Bot } from "./bot";
 
@@ -232,6 +233,24 @@ export class Internal
   {
     return await readJsonData(this.bot, 'wsdata/roomlist.json');
   }
+
+  /**
+   * 订阅房间
+   * @param roomId 房间ID
+   */
+  subscribeRoom(roomId: string)
+  {
+    IIROSE_WSsend(this.bot, subscribeRoomFunction(roomId));
+  }
+
+  /**
+   * 取消订阅房间
+   * @param roomId 房间ID
+   */
+  unsubscribeRoom(roomId: string)
+  {
+    IIROSE_WSsend(this.bot, unsubscribeRoomFunction(roomId));
+  }
 }
 
 export interface InternalType
@@ -259,4 +278,6 @@ export interface InternalType
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserListFile(): Promise<any>;
   getRoomListFile(): Promise<any>;
+  subscribeRoom(roomId: string): void;
+  unsubscribeRoom(roomId: string): void;
 }
