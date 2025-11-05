@@ -6,9 +6,8 @@ import cutAllFunction from '../encoder/admin/media/media_clear';
 import cutOneFunction from '../encoder/admin/media/media_cut';
 import mediaCard from '../encoder/messages/media_card';
 import mediaData from '../encoder/messages/media_data';
-import StockSell from '../encoder/system/StockSell';
+import { stockBuy, stockSell } from '../encoder/system/stock';
 import kickFunction from '../encoder/admin/manage/kick';
-import StockBuy from '../encoder/system/StockBuy';
 import { clearMsg } from '../decoder/clearMsg';
 import * as EventType from '../bot/event';
 import { IIROSE_Bot } from '../bot/bot';
@@ -130,12 +129,12 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
 
   event.push(bot.ctx.on('iirose/stockBuy', (numberData: number) =>
   {
-    IIROSE_WSsend(bot, StockBuy(numberData));
+    IIROSE_WSsend(bot, stockBuy(numberData));
   }));
 
   event.push(bot.ctx.on('iirose/stockSell', (numberData: number) =>
   {
-    IIROSE_WSsend(bot, StockSell(numberData));
+    IIROSE_WSsend(bot, stockSell(numberData));
   }));
 
   // 发音频视频的果然还是直接sendMessage.ts里面改好...

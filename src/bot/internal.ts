@@ -9,11 +9,9 @@ import broadcastFunction from '../encoder/messages/broadcast';
 import cutOneFunction from '../encoder/admin/media/media_cut';
 import mediaCard from '../encoder/messages/media_card';
 import mediaData from '../encoder/messages/media_data';
-import StockSell from '../encoder/system/StockSell';
+import { stockGet, stockBuy, stockSell } from '../encoder/system/stock';
 import kickFunction from '../encoder/admin/manage/kick';
 import payment from "../encoder/user/payment";
-import StockBuy from '../encoder/system/StockBuy';
-import StockGet from '../encoder/system/StockGet';
 import { bankGet, bankDeposit, bankWithdraw } from '../encoder/system/bank';
 import { IIROSE_WSsend } from '../utils/ws';
 import Like from '../encoder/user/like/Like';
@@ -121,16 +119,16 @@ export class Internal
 
   stockBuy(numberData: number)
   {
-    IIROSE_WSsend(this.bot, StockBuy(numberData));
+    IIROSE_WSsend(this.bot, stockBuy(numberData));
   }
   stockSell(numberData: number)
   {
-    IIROSE_WSsend(this.bot, StockSell(numberData));
+    IIROSE_WSsend(this.bot, stockSell(numberData));
   }
 
   async stockGet(): Promise<string | null>
   {
-    return this.bot.sendAndWaitForResponse(StockGet(), '>', true);
+    return this.bot.sendAndWaitForResponse(stockGet(), '>', true);
   }
 
   async bankGet(): Promise<string | null>

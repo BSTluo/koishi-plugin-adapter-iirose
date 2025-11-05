@@ -1,7 +1,7 @@
 import { h } from 'koishi';
 import { IIROSE_Bot } from '../../bot/bot';
 import { writeWJ } from '../../utils/utils';
-import StockGet from '../../encoder/system/StockGet';
+import { stockGet } from '../../encoder/system/stock';
 import { bankGet } from '../../encoder/system/bank';
 
 export interface UserList
@@ -156,7 +156,7 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
         }
 
         // 触发一次股价查询
-        bot.sendAndWaitForResponse(StockGet(), '>', false);
+        bot.sendAndWaitForResponse(stockGet(), '>', false);
 
         // 触发一次银行信息查询
         bot.sendAndWaitForResponse(bankGet(), '>$', false);
