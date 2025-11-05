@@ -20,6 +20,7 @@ import Unfollow from '../encoder/user/follow/Unfollow';
 import UserProfile from '../encoder/system/UserProfile';
 import subscribeRoomFunction from '../encoder/system/room/subscribeRoom';
 import unsubscribeRoomFunction from '../encoder/system/room/unsubscribeRoom';
+import { gradeUser, cancelGradeUser } from '../encoder/user/grade';
 import * as eventType from './event';
 import { IIROSE_Bot } from "./bot";
 
@@ -193,6 +194,25 @@ export class Internal
   }
 
   /**
+   * 为用户打分
+   * @param uid 用户uid
+   * @param score 分数
+   */
+  async gradeUser(uid: string, score: number): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(gradeUser(uid, score), '|_', true);
+  }
+
+  /**
+   * 取消为用户打分
+   * @param uid 用户uid
+   */
+  async cancelGradeUser(uid: string): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(cancelGradeUser(uid), '|_', true);
+  }
+
+  /**
    * 获取用户资料
    * @param uid 用户uid
    */
@@ -274,6 +294,8 @@ export interface InternalType
   sendDislike(uid: string, message?: string): void;
   followUser(uid: string): void;
   unfollowUser(uid: string): void;
+  gradeUser(uid: string, score: number): Promise<string | null>;
+  cancelGradeUser(uid: string): Promise<string | null>;
   getUserProfile(uid: string): Promise<string | null>;
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserListFile(): Promise<any>;
