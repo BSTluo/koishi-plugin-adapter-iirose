@@ -1,14 +1,14 @@
 import { Context, h } from 'koishi';
 
-import setMaxUserFunction from '../encoder/admin/setMaxUser';
-import whiteListFunction from '../encoder/admin/whiteList';
-import cutAllFunction from '../encoder/admin/media_clear';
-import cutOneFunction from '../encoder/admin/media_cut';
+import setMaxUserFunction from '../encoder/admin/manage/setMaxUser';
+import whiteListFunction from '../encoder/admin/manage/whiteList';
+import cutAllFunction from '../encoder/admin/media/media_clear';
+import cutOneFunction from '../encoder/admin/media/media_cut';
 import mediaCard from '../encoder/messages/media_card';
 import mediaData from '../encoder/messages/media_data';
-import StockSell from '../encoder/user/StockSell';
-import kickFunction from '../encoder/admin/kick';
-import StockBuy from '../encoder/user/StockBuy';
+import StockSell from '../encoder/system/StockSell';
+import kickFunction from '../encoder/admin/manage/kick';
+import StockBuy from '../encoder/system/StockBuy';
 import { clearMsg } from '../decoder/clearMsg';
 import * as EventType from '../bot/event';
 import { IIROSE_Bot } from '../bot/bot';
