@@ -1013,6 +1013,7 @@ export class WsClient
   }
 
 }
+
 // WebSocket发送锁，确保消息发送时序正确
 let wsSendLock = Promise.resolve();
 
