@@ -21,6 +21,7 @@ import UserProfile from '../encoder/system/UserProfile';
 import subscribeRoomFunction from '../encoder/system/room/subscribeRoom';
 import unsubscribeRoomFunction from '../encoder/system/room/unsubscribeRoom';
 import { gradeUser, cancelGradeUser } from '../encoder/user/grade';
+import { getFollowAndFansPacket, parseFollowAndFans, FollowList } from '../encoder/user/follow/followList';
 import * as eventType from './event';
 import { IIROSE_Bot } from "./bot";
 
@@ -271,6 +272,20 @@ export class Internal
   {
     IIROSE_WSsend(this.bot, unsubscribeRoomFunction(roomId));
   }
+
+  /**
+   * 获取用户关注和粉丝列表
+   * @param uid 用户uid
+   */
+  async getFollowList(uid: string): Promise<FollowList | null>
+  {
+    const response = await this.bot.sendAndWaitForResponse(getFollowAndFansPacket(uid), '|^', true);
+    if (response)
+    {
+      return parseFollowAndFans(response);
+    }
+    return null;
+  }
 }
 
 export interface InternalType
@@ -302,4 +317,5 @@ export interface InternalType
   getRoomListFile(): Promise<any>;
   subscribeRoom(roomId: string): void;
   unsubscribeRoom(roomId: string): void;
+  getFollowList(uid: string): Promise<FollowList | null>;
 }
