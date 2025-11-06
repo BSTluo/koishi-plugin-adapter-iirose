@@ -215,10 +215,16 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
         const handleRefresh = (uid: string) =>
         {
+          // 清理可能存在的两种计时器
           if (bot.userLeaveTimers.has(uid))
           {
             clearTimeout(bot.userLeaveTimers.get(uid));
             bot.userLeaveTimers.delete(uid);
+          }
+          if (bot.userJoinTimers.has(uid))
+          {
+            clearTimeout(bot.userJoinTimers.get(uid));
+            bot.userJoinTimers.delete(uid);
           }
           createEvent('iirose/guild-member-refresh');
         };
@@ -227,27 +233,43 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         {
           if (bot.userLeaveTimers.has(data.uid))
           {
+            // 正常刷新：先leave后join，检测到离开计时器
             handleRefresh(data.uid);
           } else
           {
-            if (data.joinType === 'new' || data.joinType === 'reconnect')
+            // 可能是新加入，也可能是乱序的刷新（join先于leave到达）
+            // 启动一个短暂的“等待窗口”
+            const joinTimer = setTimeout(() =>
             {
-              createEvent('guild-member-added');
-            }
+              if (data.joinType === 'new' || data.joinType === 'reconnect')
+              {
+                createEvent('guild-member-added');
+              }
+              bot.userJoinTimers.delete(data.uid);
+            }, 1000); // 等待1秒
+            bot.userJoinTimers.set(data.uid, joinTimer);
           }
         } else if (data.type === 'leave')
         {
-          createEvent('guild-member-removed');
-
-          if (!data.isMove)
+          if (bot.userJoinTimers.has(data.uid))
           {
-            const timer = setTimeout(() =>
+            // 乱序刷新：先join后leave，在“等待窗口”内收到了leave事件
+            handleRefresh(data.uid);
+          } else
+          {
+            // 正常离开
+            createEvent('guild-member-removed');
+            if (!data.isMove)
             {
-              bot.userLeaveTimers.delete(data.uid);
-            }, bot.config.refreshTimeout);
-            bot.userLeaveTimers.set(data.uid, timer);
+              const leaveTimer = setTimeout(() =>
+              {
+                bot.userLeaveTimers.delete(data.uid);
+              }, bot.config.refreshTimeout);
+              bot.userLeaveTimers.set(data.uid, leaveTimer);
+            }
           }
 
+          // 移动事件的额外处理
           if (data.isMove)
           {
             const switchRoomData = {
@@ -278,6 +300,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           }
         } else if (data.type === 'refresh')
         {
+          // 直接收到了刷新事件（例如通过<符号分割的复合消息）
           handleRefresh(data.uid);
         }
         break;
