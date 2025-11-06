@@ -21,6 +21,7 @@ export interface RoomInfo
     description: string;
     users: string[];
     background?: string;
+    rooms?: string[];
 }
 
 /**
@@ -29,8 +30,9 @@ export interface RoomInfo
  * @param bot bot实例
  * @returns {Promise<UserList[] | undefined>}
  */
-export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
+export const bulkDataPacket = async (message: string, bot: IIROSE_Bot): Promise<UserList[] | undefined> =>
 {
+    // 检查消息是否为大包数据
     if (message.startsWith('%*"'))
     {
         if (bot.config.debugMode)
@@ -38,74 +40,49 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
             await writeWJ(bot, 'wsdata/message.log', message);
         }
 
-        let rawData = message.substring(3);
-        const userStartMarker = 'r.iirose.com/i/';
-        const markerIndex = rawData.indexOf(userStartMarker);
+        // 移除起始标记 %*"
+        const rawData = message.substring(3);
 
-        // 如果找到了标记，说明前面有股票数据，需要截取
-        // 我们需要回溯到 "http://" 或 "https://" 的开头
-        let data: string;
-        if (markerIndex !== -1)
-        {
-            const httpIndex = rawData.lastIndexOf('http', markerIndex);
-            if (httpIndex !== -1)
-            {
-                data = rawData.substring(httpIndex);
-            } else
-            {
-                // 如果找不到 http，这是一个异常情况，但我们仍然尝试从标记处开始解析
-                data = rawData.substring(markerIndex);
-            }
-        } else
-        {
-            // 如果没有找到标记，我们假定没有股票数据（或者格式已变）
-            data = rawData;
+        // 使用 " 作为最高层级分隔符，将数据分割成主要部分
+        // 根据观察，parts[0]是用户和房间列表，parts[1]是其他用户列表, parts[2]是加载页数据
+        const parts = rawData.split('"');
+        if (parts.length < 2)
+        { // 保守检查，至少要有用户/房间列表
+            bot.logger.warn('收到的批量数据包格式不符合预期。');
+            return;
         }
+
+        const userAndRoomDataRaw = parts[0];
+
         const userList: UserList[] = [];
-
-        // 解析用户列表
-        data.split('<').forEach((e) =>
-        {
-            const tmp = e.split('>');
-            if (tmp.length >= 9)
-            {
-                userList.push({
-                    avatar: parseAvatar(tmp[0]),
-                    username: h.unescape(tmp[2]),
-                    color: tmp[3],
-                    room: tmp[4],
-                    uid: tmp[8],
-                });
-            }
-        });
-
-        // 写入 userlist.json
-        if (userList.length > 0)
-        {
-            await writeWJ(bot, 'wsdata/userlist.json', userList);
-        }
-
-        // 解析房间信息
         const roomList = {};
-        const segments = data.split('<');
-        // 匹配一个或多个由下划线连接的、长度至少为10的、且包含至少一个字母的十六进制字符串
+
+        // 用户和房间数据都由 '<' 分隔
+        const segments = userAndRoomDataRaw.split('<');
+
+        // 房间ID的正则表达式
         const roomIdRegex = /^(?=.*[a-f])([a-f0-9]{10,}_?)+$/;
 
-        for (let i = 1; i < segments.length; i++)
+        for (const segment of segments)
         {
-            const currentSegment = segments[i];
-            const candidateId = currentSegment.split('>')[0];
+            if (!segment.trim()) continue; // 跳过空的片段
 
+            const fields = segment.split('>');
+            const candidateId = fields[0];
+
+            // 通过特征区分是用户还是房间
+            // 房间ID是特定的长十六进制字符串
             if (roomIdRegex.test(candidateId))
             {
-                const roomDataFields = currentSegment.split('>');
+                // 解析频道
                 const idPath = candidateId.split('_');
-                const roomName = roomDataFields[1] || '';
+                const roomName = fields[1] || '';
 
-                const rawDescField = roomDataFields[5] || '';
+                const rawDescField = fields[5] || '';
                 let description = '';
                 let background = '';
 
+                // 解析背景和简介
                 if (rawDescField.startsWith('s://') || rawDescField.startsWith('://'))
                 {
                     const firstSpaceIndex = rawDescField.indexOf(' ');
@@ -126,30 +103,101 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot) =>
                     description = rawDescField.split('&&')[0].trim();
                 }
 
+                // 构建层级房间结构
                 let currentLevel = roomList;
                 for (let j = 0; j < idPath.length - 1; j++)
                 {
                     const idPart = idPath[j];
                     if (!currentLevel[idPart])
                     {
+                        // 如果父房间不存在，则创建一个占位符
                         currentLevel[idPart] = {};
                     }
                     currentLevel = currentLevel[idPart];
                 }
 
                 const finalId = idPath[idPath.length - 1];
+
+                // 如果父级是一个房间对象 (currentLevel)，则将子房间ID添加到其 `rooms` 列表中
+                if (idPath.length > 1)
+                {
+                    const parent = currentLevel as RoomInfo; // 此时的 currentLevel 是父级容器
+                    if (!parent.rooms)
+                    {
+                        parent.rooms = [];
+                    }
+                    if (!parent.rooms.includes(finalId))
+                    {
+                        parent.rooms.push(finalId);
+                    }
+                }
+
+                // 创建或更新当前房间对象
+                // 使用 ...currentLevel[finalId] 是为了保留可能已经存在的 rooms 字段
                 currentLevel[finalId] = {
+                    ...currentLevel[finalId],
                     id: finalId,
                     name: roomName,
                     description: description,
                     background: background,
-                    users: userList.filter(u => u.room === finalId).map(u => u.uid),
-                    online: userList.filter(u => u.room === finalId).length,
+                    users: [], // 先置空，后续统一填充
+                    online: 0, // 先置空，后续统一计算
                 };
+            }
+            // 用户数据字段较多 (>=9)
+            else if (fields.length >= 9)
+            {
+                // 解析用户
+                userList.push({
+                    avatar: parseAvatar(fields[0]),
+                    username: h.unescape(fields[2]),
+                    color: fields[3],
+                    room: fields[4],
+                    uid: fields[8],
+                });
             }
         }
 
-        // 写入 roomlist.json
+        // 后处理：将用户关联到房间
+        if (Object.keys(roomList).length > 0)
+        {
+            // 创建一个从房间ID到房间对象的映射，方便查找
+            const roomMap = new Map<string, RoomInfo>();
+            function collectRooms(level: object)
+            {
+                for (const key in level)
+                {
+                    const item = level[key];
+                    if (item.id && item.name)
+                    { // 判断是房间对象
+                        roomMap.set(item.id, item);
+                    } else if (typeof item === 'object' && item !== null)
+                    { // 判断是嵌套的层级
+                        collectRooms(item);
+                    }
+                }
+            }
+            collectRooms(roomList);
+
+            // 遍历用户列表，更新房间的在线人数和用户列表
+            for (const user of userList)
+            {
+                if (user.room && roomMap.has(user.room))
+                {
+                    const room = roomMap.get(user.room);
+                    room.users.push(user.uid);
+                    room.online++;
+                }
+            }
+        }
+
+        // 缓存用户列表
+        if (userList.length > 0)
+        {
+            await writeWJ(bot, 'wsdata/userlist.json', userList);
+        }
+
+        // 缓存房间列表
         if (Object.keys(roomList).length > 0)
         {
             await writeWJ(bot, 'wsdata/roomlist.json', roomList);
