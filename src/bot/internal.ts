@@ -1,50 +1,51 @@
+import { IIROSE_Bot } from './bot';
+import * as eventType from './event';
 import { Universal, User } from "koishi";
-import { findUserIdByName, readJsonData } from '../utils/utils';
-
-import setMaxUserFunction from '../encoder/admin/manage/setMaxUser';
-import whiteListFunction from '../encoder/admin/manage/whiteList';
-import cutAllFunction from '../encoder/admin/media/media_clear';
-import broadcastFunction from '../encoder/messages/broadcast';
-import cutOneFunction from '../encoder/admin/media/media_cut';
-import mediaCard from '../encoder/messages/media_card';
-import mediaData from '../encoder/messages/media_data';
-import { stockGet, stockBuy, stockSell } from '../encoder/system/consume/stock';
-import kickFunction from '../encoder/admin/manage/kick';
-import payment from "../encoder/user/payment";
-import { bankGet, bankDeposit, bankWithdraw } from '../encoder/system/consume/bank';
 import { IIROSE_WSsend } from '../utils/ws';
 import Like from '../encoder/user/like/Like';
-import Dislike from '../encoder/user/like/Dislike';
+import payment from "../encoder/user/payment";
 import Follow from '../encoder/user/follow/Follow';
+import Dislike from '../encoder/user/like/Dislike';
 import Unfollow from '../encoder/user/follow/Unfollow';
-import UserProfile from '../encoder/system/UserProfile';
-import subscribeRoomFunction from '../encoder/system/room/subscribeRoom';
-import unsubscribeRoomFunction from '../encoder/system/room/unsubscribeRoom';
-import { gradeUser, cancelGradeUser } from '../encoder/user/grade';
-import { getFollowAndFansPacket, parseFollowAndFans, FollowList } from '../encoder/user/follow/followList';
-import * as eventType from './event';
-import { IIROSE_Bot } from './bot';
-import getSelfInfoFunction from '../encoder/user/profile/getSelfInfo';
-import updateSelfInfoFunction, { ProfileData } from '../encoder/user/profile/updateSelfInfo';
-import getMusicListFunction from '../encoder/system/media/getMusicList';
-import getForumFunction from '../encoder/system/forum/getForum';
-import getTasksFunction from '../encoder/system/tasks/getTasks';
-import getMomentsFunction from '../encoder/user/moments/getMoments';
-import getLeaderboardFunction from '../encoder/system/leaderboard/getLeaderboard';
-import getStoreFunction from '../encoder/system/store/getStore';
-import getSellerCenterFunction from '../encoder/system/store/getSellerCenter';
-import addToCartFunction from '../encoder/system/store/personal/addToCart';
-import removeFromCartFunction from '../encoder/system/store/personal/removeFromCart';
-import getPendingPaymentOrdersFunction from '../encoder/system/store/personal/orders/getPendingPaymentOrders';
-import getPendingReceiptOrdersFunction from '../encoder/system/store/personal/orders/getPendingReceiptOrders';
-import getPendingConfirmationOrdersFunction from '../encoder/system/store/personal/orders/getPendingConfirmationOrders';
-import getPendingReviewOrdersFunction from '../encoder/system/store/personal/orders/getPendingReviewOrders';
-import getCompletedOrdersFunction from '../encoder/system/store/personal/orders/getCompletedOrders';
-import getAfterSaleOrdersFunction from '../encoder/system/store/personal/orders/getAfterSaleOrders';
-import getFavoritesFunction from '../encoder/system/store/personal/getFavorites';
-import getFollowedStoresFunction from '../encoder/system/store/personal/getFollowedStores';
+import mediaCard from '../encoder/messages/media_card';
+import mediaData from '../encoder/messages/media_data';
+import kickFunction from '../encoder/admin/manage/kick';
 import getBalanceFunction from '../encoder/user/getBalance';
 import summonDiceFunction from '../encoder/system/summonDice';
+import cutOneFunction from '../encoder/admin/media/media_cut';
+import broadcastFunction from '../encoder/messages/broadcast';
+import { findUserIdByName, readJsonData } from '../utils/utils';
+import getTasksFunction from '../encoder/system/tasks/getTasks';
+import getForumFunction from '../encoder/system/forum/getForum';
+import getStoreFunction from '../encoder/system/store/getStore';
+import cutAllFunction from '../encoder/admin/media/media_clear';
+import whiteListFunction from '../encoder/admin/manage/whiteList';
+import { gradeUser, cancelGradeUser } from '../encoder/user/grade';
+import getMomentsFunction from '../encoder/user/moments/getMoments';
+import setMaxUserFunction from '../encoder/admin/manage/setMaxUser';
+import getSelfInfoFunction from '../encoder/user/profile/getSelfInfo';
+import getMusicListFunction from '../encoder/system/media/getMusicList';
+import subscribeRoomFunction from '../encoder/system/room/subscribeRoom';
+import addToCartFunction from '../encoder/system/store/personal/addToCart';
+import unsubscribeRoomFunction from '../encoder/system/room/unsubscribeRoom';
+import getSellerCenterFunction from '../encoder/system/store/getSellerCenter';
+import { stockGet, stockBuy, stockSell } from '../encoder/system/consume/stock';
+import getFavoritesFunction from '../encoder/system/store/personal/getFavorites';
+import getLeaderboardFunction from '../encoder/system/leaderboard/getLeaderboard';
+import { bankGet, bankDeposit, bankWithdraw } from '../encoder/system/consume/bank';
+import removeFromCartFunction from '../encoder/system/store/personal/removeFromCart';
+import getUserMomentsByUidFunction from '../encoder/user/moments/getUserMomentsByUid';
+import getUserProfileByNameFunction from '../encoder/user/profile/getUserProfileByName';
+import getFollowedStoresFunction from '../encoder/system/store/personal/getFollowedStores';
+import updateSelfInfoFunction, { ProfileData } from '../encoder/user/profile/updateSelfInfo';
+import { parseUserProfileByName, UserProfileByName } from '../decoder/messages/UserProfileByName';
+import getCompletedOrdersFunction from '../encoder/system/store/personal/orders/getCompletedOrders';
+import getAfterSaleOrdersFunction from '../encoder/system/store/personal/orders/getAfterSaleOrders';
+import { getFollowAndFansPacket, parseFollowAndFans, FollowList } from '../encoder/user/follow/followList';
+import getPendingReviewOrdersFunction from '../encoder/system/store/personal/orders/getPendingReviewOrders';
+import getPendingReceiptOrdersFunction from '../encoder/system/store/personal/orders/getPendingReceiptOrders';
+import getPendingPaymentOrdersFunction from '../encoder/system/store/personal/orders/getPendingPaymentOrders';
+import getPendingConfirmationOrdersFunction from '../encoder/system/store/personal/orders/getPendingConfirmationOrders';
 
 export class Internal
 {
@@ -238,9 +239,13 @@ export class Internal
    * 获取用户资料
    * @param uid 用户uid
    */
-  async getUserProfile(uid: string): Promise<string | null>
+  /**
+   * 获取用户动态
+   * @param uid 用户uid
+   */
+  async getUserMomentsByUid(uid: string): Promise<string | null>
   {
-    return this.bot.sendAndWaitForResponse(UserProfile(uid), ':*', true);
+    return this.bot.sendAndWaitForResponse(getUserMomentsByUidFunction(uid), ':*', true);
   }
 
   async getUserByName(name: string): Promise<Universal.User | undefined>
@@ -487,6 +492,20 @@ export class Internal
       IIROSE_WSsend(this.bot, data);
     }
   }
+
+  /**
+   * 通过用户名获取用户资料
+   * @param username 用户名
+   */
+  async getUserProfileByName(username: string): Promise<UserProfileByName | null>
+  {
+    const response = await this.bot.sendAndWaitForResponse(getUserProfileByNameFunction(username), '+', true);
+    if (response)
+    {
+      return parseUserProfileByName(response, this.bot);
+    }
+    return null;
+  }
 }
 
 export interface InternalType
@@ -512,7 +531,7 @@ export interface InternalType
   unfollowUser(uid: string): void;
   gradeUser(uid: string, score: number): Promise<string | null>;
   cancelGradeUser(uid: string): Promise<string | null>;
-  getUserProfile(uid: string): Promise<string | null>;
+  getUserMomentsByUid(uid: string): Promise<string | null>;
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserListFile(): Promise<any>;
   getRoomListFile(): Promise<any>;
@@ -540,4 +559,5 @@ export interface InternalType
   getFollowedStores(): Promise<string | null>;
   getBalance(): Promise<string | null>;
   summonDice(diceId: number): void;
+  getUserProfileByName(username: string): Promise<UserProfileByName | null>;
 }
