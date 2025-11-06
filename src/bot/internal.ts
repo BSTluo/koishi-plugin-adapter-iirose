@@ -23,7 +23,28 @@ import unsubscribeRoomFunction from '../encoder/system/room/unsubscribeRoom';
 import { gradeUser, cancelGradeUser } from '../encoder/user/grade';
 import { getFollowAndFansPacket, parseFollowAndFans, FollowList } from '../encoder/user/follow/followList';
 import * as eventType from './event';
-import { IIROSE_Bot } from "./bot";
+import { IIROSE_Bot } from './bot';
+import getSelfInfoFunction from '../encoder/user/profile/getSelfInfo';
+import updateSelfInfoFunction, { ProfileData } from '../encoder/user/profile/updateSelfInfo';
+import getMusicListFunction from '../encoder/system/media/getMusicList';
+import getForumFunction from '../encoder/system/forum/getForum';
+import getTasksFunction from '../encoder/system/tasks/getTasks';
+import getMomentsFunction from '../encoder/user/moments/getMoments';
+import getLeaderboardFunction from '../encoder/system/leaderboard/getLeaderboard';
+import getStoreFunction from '../encoder/system/store/getStore';
+import getSellerCenterFunction from '../encoder/system/store/getSellerCenter';
+import addToCartFunction from '../encoder/system/store/personal/addToCart';
+import removeFromCartFunction from '../encoder/system/store/personal/removeFromCart';
+import getPendingPaymentOrdersFunction from '../encoder/system/store/personal/orders/getPendingPaymentOrders';
+import getPendingReceiptOrdersFunction from '../encoder/system/store/personal/orders/getPendingReceiptOrders';
+import getPendingConfirmationOrdersFunction from '../encoder/system/store/personal/orders/getPendingConfirmationOrders';
+import getPendingReviewOrdersFunction from '../encoder/system/store/personal/orders/getPendingReviewOrders';
+import getCompletedOrdersFunction from '../encoder/system/store/personal/orders/getCompletedOrders';
+import getAfterSaleOrdersFunction from '../encoder/system/store/personal/orders/getAfterSaleOrders';
+import getFavoritesFunction from '../encoder/system/store/personal/getFavorites';
+import getFollowedStoresFunction from '../encoder/system/store/personal/getFollowedStores';
+import getBalanceFunction from '../encoder/user/getBalance';
+import summonDiceFunction from '../encoder/system/summonDice';
 
 export class Internal
 {
@@ -45,8 +66,8 @@ export class Internal
 
   /**
    * 移动到指定房间
-   * @param moveData 
-   * @returns 
+   * @param moveData
+   * @returns
    */
   async moveRoom(moveData: eventType.move)
   {
@@ -286,6 +307,186 @@ export class Internal
     }
     return null;
   }
+
+  /**
+   * 获取自身账号信息
+   */
+  async getSelfInfo(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getSelfInfoFunction(), '$?', true);
+  }
+
+  /**
+   * 修改自身账号信息
+   * @param profileData 个人资料
+   */
+  async updateSelfInfo(profileData: ProfileData): Promise<boolean>
+  {
+    const response = await this.bot.sendAndWaitForResponse(updateSelfInfoFunction(profileData), '$#', true);
+    return response === '$#';
+  }
+
+  /**
+   * 查询当前歌单
+   */
+  async getMusicList(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getMusicListFunction(), '~', true);
+  }
+
+  /**
+   * 查询论坛
+   */
+  async getForum(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getForumFunction(), ':-', true);
+  }
+
+  /**
+   * 查询任务
+   */
+  async getTasks(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getTasksFunction(), ':+', true);
+  }
+
+  /**
+   * 查询朋友圈
+   */
+  async getMoments(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getMomentsFunction(), ':=', true);
+  }
+
+  /**
+   * 查询排行榜
+   */
+  async getLeaderboard(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getLeaderboardFunction(), '`#', true);
+  }
+
+  /**
+   * 查询商店
+   */
+  async getStore(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getStoreFunction(), 'g-', true);
+  }
+
+  /**
+   * 查询卖家中心
+   */
+  async getSellerCenter(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getSellerCenterFunction(), 'g+', true);
+  }
+
+  /**
+   * 加入购物车
+   * @param itemId 商品ID
+   */
+  async addToCart(itemId: string): Promise<boolean>
+  {
+    const response = await this.bot.sendAndWaitForResponse(addToCartFunction(itemId), 'gc', true);
+    return response === 'gc';
+  }
+
+  /**
+   * 移除购物车
+   * @param itemId 商品ID
+   */
+  async removeFromCart(itemId: string): Promise<boolean>
+  {
+    const response = await this.bot.sendAndWaitForResponse(removeFromCartFunction(itemId), 'gc', true);
+    return response === 'gc';
+  }
+
+  /**
+   * 查询等待付款的订单
+   */
+  async getPendingPaymentOrders(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getPendingPaymentOrdersFunction(), 'gu0', true);
+  }
+
+  /**
+   * 查询待收货的订单
+   */
+  async getPendingReceiptOrders(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getPendingReceiptOrdersFunction(), 'gu1', true);
+  }
+
+  /**
+   * 查询等待确认的订单
+   */
+  async getPendingConfirmationOrders(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getPendingConfirmationOrdersFunction(), 'gu2', true);
+  }
+
+  /**
+   * 查询等待评价的订单
+   */
+  async getPendingReviewOrders(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getPendingReviewOrdersFunction(), 'gu3', true);
+  }
+
+  /**
+   * 查询已完成的订单
+   */
+  async getCompletedOrders(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getCompletedOrdersFunction(), 'gu4', true);
+  }
+
+  /**
+   * 查询售后中的订单
+   */
+  async getAfterSaleOrders(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getAfterSaleOrdersFunction(), 'gu5', true);
+  }
+
+  /**
+   * 查询收藏夹
+   */
+  async getFavorites(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getFavoritesFunction(), 'g&', true);
+  }
+
+  /**
+   * 查询关注店铺
+   */
+  async getFollowedStores(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getFollowedStoresFunction(), 'g@', true);
+  }
+
+
+  /**
+   * 查询自身余额
+   */
+  async getBalance(): Promise<string | null>
+  {
+    return this.bot.sendAndWaitForResponse(getBalanceFunction(), '`$', true);
+  }
+
+  /**
+   * 召唤骰子
+   * @param diceId 骰子ID (0-7)
+   */
+  summonDice(diceId: number)
+  {
+    const data = summonDiceFunction(diceId);
+    if (data)
+    {
+      IIROSE_WSsend(this.bot, data);
+    }
+  }
 }
 
 export interface InternalType
@@ -318,4 +519,25 @@ export interface InternalType
   subscribeRoom(roomId: string): void;
   unsubscribeRoom(roomId: string): void;
   getFollowList(uid: string): Promise<FollowList | null>;
+  getSelfInfo(): Promise<string | null>;
+  updateSelfInfo(profileData: ProfileData): Promise<boolean>;
+  getMusicList(): Promise<string | null>;
+  getForum(): Promise<string | null>;
+  getTasks(): Promise<string | null>;
+  getMoments(): Promise<string | null>;
+  getLeaderboard(): Promise<string | null>;
+  getStore(): Promise<string | null>;
+  getSellerCenter(): Promise<string | null>;
+  addToCart(itemId: string): Promise<boolean>;
+  removeFromCart(itemId: string): Promise<boolean>;
+  getPendingPaymentOrders(): Promise<string | null>;
+  getPendingReceiptOrders(): Promise<string | null>;
+  getPendingConfirmationOrders(): Promise<string | null>;
+  getPendingReviewOrders(): Promise<string | null>;
+  getCompletedOrders(): Promise<string | null>;
+  getAfterSaleOrders(): Promise<string | null>;
+  getFavorites(): Promise<string | null>;
+  getFollowedStores(): Promise<string | null>;
+  getBalance(): Promise<string | null>;
+  summonDice(diceId: number): void;
 }
