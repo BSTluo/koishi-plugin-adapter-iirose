@@ -57,7 +57,7 @@ export function apply(ctx: Context, config: Config)
         }
         await Promise.race([
           bot.stop(),
-          new Promise(resolve => setTimeout(resolve, 500))
+          new Promise(resolve => ctx.setTimeout(() => resolve(undefined), 500))
         ]);
       } catch (error)
       {
@@ -97,7 +97,7 @@ export function apply(ctx: Context, config: Config)
           bot.setDisposing(true);
           await Promise.race([
             bot.stop(),
-            new Promise(resolve => setTimeout(resolve, 1000))
+            new Promise(resolve => ctx.setTimeout(() => resolve(undefined), 1000))
           ]);
           bot.loggerInfo('适配器已停止运行。');
         } catch (error)

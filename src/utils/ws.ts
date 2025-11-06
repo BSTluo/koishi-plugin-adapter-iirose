@@ -19,8 +19,8 @@ export class WsClient
   private isStarted: boolean = false;
   private disposed: boolean = false;
 
-  live: NodeJS.Timeout | null = null;
-  private reconnectTimer: NodeJS.Timeout | null = null;
+  live: (() => void) | null = null;
+  private reconnectTimer: (() => void) | null = null;
 
   loginObj: {
     r?: string; // roomId // 机器人上线的房间唯一标识
@@ -113,7 +113,7 @@ export class WsClient
             ).filter(r => r.index !== '')
           ),
           new Promise<{ index: string, speed: 'error'; }[]>(resolve =>
-            setTimeout(() => resolve(iiroseList.map(index => ({ index, speed: 'error' as const }))), 5000)
+            this.ctx.setTimeout(() => resolve(iiroseList.map(index => ({ index, speed: 'error' as const }))), 5000)
           )
         ]);
 
@@ -164,11 +164,11 @@ export class WsClient
         await new Promise<void>((resolve) =>
         {
           let count = 0;
-          const checkInterval = setInterval(() =>
+          const dispose = this.ctx.setInterval(() =>
           {
             if (this.disposed)
             {
-              clearInterval(checkInterval);
+              dispose();
               this.bot.logInfo('websocket准备：插件正在停用，取消连接');
               cancelled = true;
               resolve();
@@ -177,7 +177,7 @@ export class WsClient
             count++;
             if (count >= 50)
             { // 5秒 = 50 * 100ms
-              clearInterval(checkInterval);
+              dispose();
               resolve();
             }
           }, 100);
@@ -322,7 +322,7 @@ export class WsClient
         // 清理旧的心跳定时器（如果存在）
         if (this.live)
         {
-          clearInterval(this.live);
+          this.live();
           this.live = null;
         }
 
@@ -604,13 +604,13 @@ export class WsClient
   {
     if (this.live)
     {
-      clearInterval(this.live);
+      this.live();
       this.live = null;
     }
 
     if (this.reconnectTimer)
     {
-      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer();
       this.reconnectTimer = null;
     }
 
@@ -690,10 +690,10 @@ export class WsClient
   {
     if (this.live)
     {
-      clearInterval(this.live);
+      if (this.live) this.live();
     }
 
-    this.live = setInterval(async () =>
+    this.live = this.ctx.setInterval(async () =>
     {
       if (this.disposed)
       {
@@ -752,7 +752,7 @@ export class WsClient
     this.cleanup();
 
     // 设置重连定时器
-    this.reconnectTimer = setTimeout(async () =>
+    this.reconnectTimer = this.ctx.setTimeout(async () =>
     {
       if (this.disposed)
       {
@@ -775,7 +775,7 @@ export class WsClient
           this.bot.loggerError(`重连失败 实例: ${this.bot.user?.id || 'unknown'}:`, error);
           // 如果重连失败，等待更长时间后再次尝试
           this.isReconnecting = false;
-          setTimeout(() =>
+          this.ctx.setTimeout(() =>
           {
             if (!this.disposed)
             {
@@ -811,13 +811,13 @@ export class WsClient
     // 清理所有定时器
     if (this.live)
     {
-      clearInterval(this.live);
+      this.live();
       this.live = null;
     }
 
     if (this.reconnectTimer)
     {
-      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer();
       this.reconnectTimer = null;
     }
 
@@ -862,20 +862,20 @@ export class WsClient
       }
 
       let ws: WebSocket | null = null;
-      let timeoutId: NodeJS.Timeout | null = null;
-      let disposingCheckId: NodeJS.Timeout | null = null;
+      let timeoutId: (() => void) | null = null;
+      let disposingCheckId: (() => void) | null = null;
       let resolved = false;
 
       const cleanup = () =>
       {
         if (timeoutId)
         {
-          clearTimeout(timeoutId);
+          timeoutId();
           timeoutId = null;
         }
         if (disposingCheckId)
         {
-          clearInterval(disposingCheckId);
+          disposingCheckId();
           disposingCheckId = null;
         }
         if (ws && (ws.readyState === 1 || ws.readyState === 0)) // WebSocket.OPEN || WebSocket.CONNECTING
@@ -911,13 +911,13 @@ export class WsClient
         ws = this.ctx.http.ws(url);
 
         // 设置超时
-        timeoutId = setTimeout(() =>
+        timeoutId = this.ctx.setTimeout(() =>
         {
           safeResolve('error');
         }, timeout);
 
         // 定期检查停用状态
-        disposingCheckId = setInterval(() =>
+        disposingCheckId = this.ctx.setInterval(() =>
         {
           if (this.disposed)
           {

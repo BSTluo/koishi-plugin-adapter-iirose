@@ -218,12 +218,12 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           // 清理可能存在的两种计时器
           if (bot.userLeaveTimers.has(uid))
           {
-            clearTimeout(bot.userLeaveTimers.get(uid));
+            bot.userLeaveTimers.get(uid)(); // 取消计时器
             bot.userLeaveTimers.delete(uid);
           }
           if (bot.userJoinTimers.has(uid))
           {
-            clearTimeout(bot.userJoinTimers.get(uid));
+            bot.userJoinTimers.get(uid)(); // 取消计时器
             bot.userJoinTimers.delete(uid);
           }
           createEvent('iirose/guild-member-refresh');
@@ -239,7 +239,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           {
             // 可能是新加入，也可能是乱序的刷新（join先于leave到达）
             // 启动一个短暂的“等待窗口”
-            const joinTimer = setTimeout(() =>
+            const joinTimer = bot.ctx.setTimeout(() =>
             {
               if (data.joinType === 'new' || data.joinType === 'reconnect')
               {
@@ -261,7 +261,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             createEvent('guild-member-removed');
             if (!data.isMove)
             {
-              const leaveTimer = setTimeout(() =>
+              const leaveTimer = bot.ctx.setTimeout(() =>
               {
                 bot.userLeaveTimers.delete(data.uid);
               }, bot.config.refreshTimeout);

@@ -22,7 +22,7 @@ export class IIROSE_Bot extends Bot<Context>
   public messageIdResolvers: ((messageId: string) => void)[] = [];
   public responseQueue: {
     resolver: (data: string | null) => void;
-    timer: NodeJS.Timeout;
+    timer: () => void;
   }[] = [];
 
   public responseListeners = new Map<string, { listener: (data: string) => void, stopPropagation: boolean; }>();
@@ -35,12 +35,12 @@ export class IIROSE_Bot extends Bot<Context>
   private isStarting: boolean = false;
   private isStarted: boolean = false;
   private disposed: boolean = false;
-  private userInfoTimeout: NodeJS.Timeout | null = null;
+  private userInfoTimeout: (() => void) | null = null;
   private lastStockData: Stock | null = null;
   private lastBankData: BankCallback | null = null;
   public logger: Logger;
-  public userLeaveTimers = new Map<string, NodeJS.Timeout>();
-  public userJoinTimers = new Map<string, NodeJS.Timeout>();
+  public userLeaveTimers = new Map<string, () => void>();
+  public userJoinTimers = new Map<string, () => void>();
 
   constructor(public ctx: Context, config: Config)
   {
@@ -177,16 +177,16 @@ export class IIROSE_Bot extends Bot<Context>
     // 立即清理定时器
     if (this.userInfoTimeout)
     {
-      clearTimeout(this.userInfoTimeout);
+      this.userInfoTimeout();
       this.userInfoTimeout = null;
     }
 
     // 清理所有用户离开计时器
-    this.userLeaveTimers.forEach(timer => clearTimeout(timer));
+    this.userLeaveTimers.forEach(dispose => dispose());
     this.userLeaveTimers.clear();
 
     // 清理所有用户加入计时器
-    this.userJoinTimers.forEach(timer => clearTimeout(timer));
+    this.userJoinTimers.forEach(dispose => dispose());
     this.userJoinTimers.clear();
 
     // 立即下线
@@ -198,7 +198,7 @@ export class IIROSE_Bot extends Bot<Context>
       // 使用 Promise.race 限制等待时间
       await Promise.race([
         this.wsClient.stop(),
-        new Promise(resolve => setTimeout(resolve, 500)) // 最多等待500ms
+        new Promise(resolve => this.ctx.setTimeout(() => resolve(undefined), 500)) // 最多等待500ms
       ]);
     }
   }
@@ -240,7 +240,7 @@ export class IIROSE_Bot extends Bot<Context>
     {
       IIROSE_WSsend(this, payload);
 
-      const timer = setTimeout(() =>
+      const timer = this.ctx.setTimeout(() =>
       {
         // 超时，从队列中移除，null
         const index = this.responseQueue.findIndex(p => p.timer === timer);
@@ -254,7 +254,7 @@ export class IIROSE_Bot extends Bot<Context>
       this.responseQueue.push({
         resolver: (data) =>
         {
-          clearTimeout(timer);
+          timer(); // 取消计时器
           resolve(data);
         },
         timer,
@@ -272,7 +272,7 @@ export class IIROSE_Bot extends Bot<Context>
     const request = this.responseQueue.shift();
     if (request)
     {
-      clearTimeout(request.timer);
+      request.timer(); // 取消计时器
       request.resolver(data);
       return true;
     }
@@ -293,7 +293,7 @@ export class IIROSE_Bot extends Bot<Context>
 
     return new Promise((resolve) =>
     {
-      const timer = setTimeout(() =>
+      const dispose = this.ctx.setTimeout(() =>
       {
         this.responseListeners.delete(responsePrefix);
         resolve(null); // 超时，解析为 null
@@ -302,7 +302,7 @@ export class IIROSE_Bot extends Bot<Context>
       this.responseListeners.set(responsePrefix, {
         listener: (data: string) =>
         {
-          clearTimeout(timer);
+          dispose(); // 取消计时器
           this.responseListeners.delete(responsePrefix); // clean up after resolving
           resolve(data);
         },
@@ -507,7 +507,7 @@ export class IIROSE_Bot extends Bot<Context>
   {
     try
     {
-      await new Promise(resolve => setTimeout(resolve, this.config.deleteMessageDelay));
+      await new Promise(resolve => this.ctx.setTimeout(() => resolve(undefined), this.config.deleteMessageDelay));
 
       // 如果是数组，逐个撤回
       if (Array.isArray(messageId))
