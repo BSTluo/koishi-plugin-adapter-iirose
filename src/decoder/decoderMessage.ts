@@ -193,6 +193,10 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             selfId: uid,
             timestamp: Number(data.timestamp),
             guild: { id: guildId },
+            channel: {
+              id: `public:${guildId}`,
+              type: 0
+            },
             user: {
               id: data.uid,
               name: data.username,
