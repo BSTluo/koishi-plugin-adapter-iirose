@@ -46,11 +46,12 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot): Promise<
         // 使用 " 作为最高层级分隔符，将数据分割成主要部分
         // 根据观察，parts[0]是用户和房间列表，parts[1]是其他用户列表, parts[2]是加载页数据
         const parts = rawData.split('"');
-        if (parts.length < 2)
-        { // 保守检查，至少要有用户/房间列表
-            bot.logger.warn('收到的批量数据包格式不符合预期。');
-            return;
-        }
+
+        // if (parts.length < 2)
+        // { // 保守检查，至少要有用户/房间列表
+        //     bot.logger.warn('收到的批量数据包格式不符合预期。');
+        //     return;
+        // }
 
         const userAndRoomDataRaw = parts[0];
 

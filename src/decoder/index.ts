@@ -19,19 +19,6 @@ import { IIROSE_Bot } from '../bot/bot';
 
 export const decoder = async (bot: IIROSE_Bot, msg: string): Promise<MessageType> =>
 {
-  // 精准处理用户加入和消息回显的复合消息
-  // fix: https://github.com/iirose-plugins/koishi-plugin-adapter-iirose/issues/23
-  if (msg.includes("'1>s>") && msg.includes('>' + bot.config.usename + '>'))
-  {
-    const parts = msg.split('<');
-    const joinMessage = parts.find(part => part.includes("'1>s>"));
-    if (joinMessage)
-    {
-      // 如果找到了加入消息，就只处理这一部分
-      msg = joinMessage;
-    }
-  }
-
   const len: any = {};
 
   len.manyMessage = manyMessage(msg, bot);

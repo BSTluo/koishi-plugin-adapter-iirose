@@ -73,7 +73,7 @@ export const Config: Schema<Config> = Schema.intersect([
 
   Schema.object({
     keepAliveEnable: Schema.boolean().default(true).description('是否开启心跳包'),
-    timeout: Schema.number().min(1 * 1000).max(20 * 1000).default(5 * 1000).description('websocket超时的判定时限 (单位：毫秒)'),
+    timeout: Schema.number().min(1 * 1000).max(20 * 1000).step(500).default(5 * 1000).description('websocket超时的判定时限 (单位：毫秒)'),
     maxRetries: Schema.number().min(1).max(100).default(5).description('连接失败时的最大重试次数。达到后不再重试。'),
   }).description('连接设置'),
 
@@ -101,8 +101,8 @@ export const Config: Schema<Config> = Schema.intersect([
 
   Schema.object({
     sessionCacheSize: Schema.number().min(50).max(1000).default(500).description('消息缓存大小（单位：条）'),
-    deleteMessageDelay: Schema.number().min(0).max(10 * 1000).default(1.5 * 1000).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
-    refreshTimeout: Schema.number().min(0).default(30 * 1000).description('用户刷新事件的超时时间 (单位：毫秒)'),
+    deleteMessageDelay: Schema.number().min(0).max(10 * 1000).step(500).default(1.5 * 1000).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
+    refreshTimeout: Schema.number().min(0).default(30 * 1000).step(500).description('用户刷新事件的超时时间 (单位：毫秒)'),
     onlyHangUpMode: Schema.boolean().default(false).description('是否开启 静默模式（不会发送消息，仅接收消息）').hidden(),
   }).description('调试功能'),
 
