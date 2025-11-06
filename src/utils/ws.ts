@@ -363,71 +363,48 @@ export class WsClient
     {
       const array = new Uint8Array(event.data);
 
-      let rawMessage: string;
+      let message: string;
       if (array[0] === 1)
       {
-        rawMessage = zlib.unzipSync(array.slice(1)).toString();
+        message = zlib.unzipSync(array.slice(1)).toString();
       } else
       {
-        rawMessage = Buffer.from(array).toString("utf8");
+        message = Buffer.from(array).toString("utf8");
       }
 
-      let messages: string[];
-
-      // 根据消息长度判断是“大包”还是“小包”
-      if (rawMessage.length > 1000)
+      if (message.length < 500)
       {
-        // 大于1000个字符，我们认为是“大包”，不进行拆分
-        messages = [rawMessage];
-      } else
-      {
-        // 小于等于1000个字符，我们认为是实时消息，进行拆分处理
-        messages = rawMessage.split('<').map((msg, index) =>
-        {
-          // 对于非第一条的子消息，在前面补上 "
-          if (index > 0)
-          {
-            return msg.startsWith('"') ? msg : `"${msg}`;
-          }
-          return msg;
-        });
+        this.bot.fulllogInfo(`[WS接收]`, message);
       }
 
-      for (const message of messages)
+      // 检查是否有等待特定响应的监听器
+      for (const [prefix, handler] of this.bot.responseListeners.entries())
       {
-        if (message.length < 500)
+        if (message.startsWith(prefix))
         {
-          this.bot.fulllogInfo(`[WS接收]`, message);
-        }
-
-        // 检查是否有等待特定响应的监听器
-        let isResponseHandled = false;
-        for (const [prefix, handler] of this.bot.responseListeners.entries())
-        {
-          if (message.startsWith(prefix))
+          handler.listener(message);
+          if (handler.stopPropagation)
           {
-            handler.listener(message);
-            if (handler.stopPropagation)
-            {
-              isResponseHandled = true;
-              break; // 消息已被作为响应处理，停止进一步解码
-            }
+            return; // 消息已被作为响应处理，停止进一步解码
           }
         }
-        if (isResponseHandled) continue;
+      }
 
-        const currentUsername = this.bot.config.smStart
-          ? this.bot.config.smUsername
-          : this.bot.config.usename;
+      const currentUsername = this.bot.config.smStart
+        ? this.bot.config.smUsername
+        : this.bot.config.usename;
 
-        if (message.includes(">") && message.includes(currentUsername))
+      if (message.includes(">") && message.includes(currentUsername))
+      {
+        const messageIdMatch = message.match(/(\d{12,})$/);
+        if (messageIdMatch)
         {
-          const messageIdMatch = message.match(/(\d{12,})$/);
-          if (messageIdMatch)
+          const messageId = messageIdMatch[1];
+
+          const userPattern = new RegExp(`>${currentUsername}>`, "i");
+          if (userPattern.test(message))
           {
-            const messageId = messageIdMatch[1];
-            const userPattern = new RegExp(`>${currentUsername}>`, "i");
-            if (userPattern.test(message))
+            if (this.bot.messageIdResolvers.length > 0)
             {
               const resolver = this.bot.messageIdResolvers.shift();
               if (resolver)
@@ -437,101 +414,117 @@ export class WsClient
             }
           }
         }
+      }
 
-        // 检查是否是响应消息
-        if (message.startsWith('+') || message.startsWith('i!'))
+      // 检查是否是响应消息
+      if (message.startsWith('+') || message.startsWith('i!'))
+      {
+        if (this.bot.handleResponse(message))
         {
-          if (this.bot.handleResponse(message))
-          {
-            continue; // 如果消息被作为响应处理，则停止进一步解码
-          }
+          return; // 如果消息被作为响应处理，则停止进一步解码
         }
+      }
 
-        if (!this.firstLogin)
+      if (!this.firstLogin)
+      {
+        this.firstLogin = true;
+
+        if (message.startsWith(`%*"0`))
         {
-          this.firstLogin = true;
-
-          if (message.startsWith(`%*"0`))
-          {
-            this.bot.loggerError(`登录失败：名字被占用，用户名：${this.loginObj.n}`);
-            this.bot.status = Universal.Status.OFFLINE;
-            await this.bot.stop();
-            await sleep(1000);
-            this.ctx.scope.dispose();
-            return;
-          } else if (message.startsWith(`%*"1`))
-          {
-            this.bot.loggerError("登录失败：用户名不存在");
-            this.bot.status = Universal.Status.OFFLINE;
-            await this.bot.stop();
-            await sleep(1000);
-            this.ctx.scope.dispose();
-            return;
-          } else if (message.startsWith(`%*"2`))
-          {
-            this.bot.loggerError(`登录失败：密码错误，用户名：${this.loginObj.n}`);
-            this.bot.status = Universal.Status.OFFLINE;
-            await this.bot.stop();
-            await sleep(1000);
-            this.ctx.scope.dispose();
-            return;
-          } else if (message.startsWith(`%*"4`))
-          {
-            this.bot.loggerError(`登录失败：今日可尝试登录次数达到上限，用户名：${this.loginObj.n}。请尝试更换网络后重新登陆。`);
-            this.bot.status = Universal.Status.OFFLINE;
-            await this.bot.stop();
-            await sleep(1000);
-            this.ctx.scope.dispose();
-            return;
-          } else if (message.startsWith(`%*"5`))
-          {
-            this.bot.loggerError(`登录失败：房间密码错误，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
-            this.bot.status = Universal.Status.OFFLINE;
-            await this.bot.stop();
-            await sleep(1000);
-            this.ctx.scope.dispose();
-            return;
-          } else if (message.startsWith(`%*"x`))
-          {
-            this.bot.loggerError(`登录失败：用户被封禁，用户名：${this.loginObj.n}`);
-            this.bot.status = Universal.Status.OFFLINE;
-            await this.bot.stop();
-            await sleep(1000);
-            this.ctx.scope.dispose();
-            return;
-          } else if (message.startsWith(`%*"n0`))
-          {
-            this.bot.loggerError(`登录失败：房间无法进入，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
-            this.bot.status = Universal.Status.OFFLINE;
-            await this.bot.stop();
-            await sleep(1000);
-            this.ctx.scope.dispose();
-            return;
-          } else if (message.startsWith(`%*"`))
-          {
-            this.bot.logInfo(this.loginObj);
-            this.bot.loggerInfo(`[${this.bot.config.uid}] 登陆成功：欢迎回来，${this.loginObj.n}！`);
-            this.bot.online();
-          }
+          this.bot.loggerError(`登录失败：名字被占用，用户名：${this.loginObj.n}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
+        } else if (message.startsWith(`%*"1`))
+        {
+          this.bot.loggerError("登录失败：用户名不存在");
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
+        } else if (message.startsWith(`%*"2`))
+        {
+          this.bot.loggerError(`登录失败：密码错误，用户名：${this.loginObj.n}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
+        } else if (message.startsWith(`%*"4`))
+        {
+          this.bot.loggerError(`登录失败：今日可尝试登录次数达到上限，用户名：${this.loginObj.n}。请尝试更换网络后重新登陆。`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
+        } else if (message.startsWith(`%*"5`))
+        {
+          this.bot.loggerError(`登录失败：房间密码错误，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
+        } else if (message.startsWith(`%*"x`))
+        {
+          this.bot.loggerError(`登录失败：用户被封禁，用户名：${this.loginObj.n}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
+        } else if (message.startsWith(`%*"n0`))
+        {
+          this.bot.loggerError(`登录失败：房间无法进入，用户名：${this.loginObj.n}，房间id：${this.loginObj.r}`);
+          this.bot.status = Universal.Status.OFFLINE;
+          await this.bot.stop();
+          await sleep(1000);
+          this.ctx.scope.dispose();
+          return;
+        } else if (message.startsWith(`%*"`))
+        {
+          // 登录成功
+          this.bot.logInfo(this.loginObj);
+          this.bot.loggerInfo(`[${this.bot.config.uid}] 登陆成功：欢迎回来，${this.loginObj.n}！`);
+          // 设置为在线
+          this.bot.online();
         }
+      }
 
-        const funcObj = await decoder(this.bot, message);
-        if (Object.keys(funcObj).length === 0) continue;
+      const funcObj = await decoder(this.bot, message);
+      // console.log(funcObj)
+      // 将会话上报
 
-        if (funcObj.manyMessage)
+      if (funcObj.manyMessage)
+      {
+        const reversedMessages = funcObj.manyMessage.slice().reverse();
+        for (const element of reversedMessages)
         {
-          const reversedMessages = funcObj.manyMessage.slice().reverse();
-          for (const element of reversedMessages)
+          if (!element.type)
           {
-            if (!element.type) continue;
-            const test: Record<string, any> = {};
-            test[element.type] = element;
-            await decoderMessage(test, this.bot);
+            continue;
           }
-        } else
-        {
-          await decoderMessage(funcObj, this.bot);
+          const test: Record<string, any> = {};
+          const type = element.type;
+
+          // 根据消息类型，正确地准备要传递给 decoderMessage 的数据
+          // 对于 memberUpdate，我们传递 payload，对于其他消息，我们传递 element 本身
+          if (type === 'memberUpdate' && element.payload)
+          {
+            test[type] = element.payload;
+          } else
+          {
+            test[type] = element;
+          }
+          await decoderMessage(test, this.bot);
         }
+      } else
+      {
+        await decoderMessage(funcObj, this.bot);
       }
     });
   }

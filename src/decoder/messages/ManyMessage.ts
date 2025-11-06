@@ -20,6 +20,7 @@ interface data
   title?: string;
   messageId?: number;
   replyMessage?: replyMessage[] | null;
+  payload?: any;
 }
 
 export class ManyMessage
@@ -34,6 +35,7 @@ export class ManyMessage
   public messageId: number;
   public replyMessage: replyMessage[] | null;
   public type: string | null;
+  public payload: any;
 
   constructor(data: data)
   {
@@ -47,6 +49,7 @@ export class ManyMessage
     this.messageId = data.messageId;
     this.replyMessage = data.replyMessage;
     this.type = data.type;
+    this.payload = data.payload;
   }
 }
 
@@ -162,47 +165,71 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
           }
           if (tmp[3] === "'1")
           {
-            const msg = {
-              type: 'joinRoom',
+            const memberUpdateData = {
+              type: 'join',
+              joinType: 'new',
               timestamp: Number(tmp[0]),
               avatar: tmp[1],
               username: decode(tmp[2]),
-              color: tmp[5],
               uid: tmp[8],
+              room: tmp[11].split("'")[0],
+              color: tmp[5],
               title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-              room: tmp[10],
             };
-            // JoinRoom
-            output.push(new ManyMessage(msg));
+            output.push(new ManyMessage({
+              type: 'memberUpdate',
+              payload: memberUpdateData,
+              timestamp: memberUpdateData.timestamp,
+              avatar: memberUpdateData.avatar,
+              username: memberUpdateData.username,
+              uid: memberUpdateData.uid,
+              color: memberUpdateData.color,
+            }));
           } else if (tmp[3].substring(0, 2) === "'2")
           {
-            const msg = {
-              type: 'switchRoom',
+            const memberUpdateData = {
+              type: 'leave',
               timestamp: Number(tmp[0]),
               avatar: tmp[1],
               username: decode(tmp[2]),
-              color: tmp[5],
               uid: tmp[8],
+              room: tmp[11].split("'")[0],
+              color: tmp[5],
               title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-              room: tmp[10],
-              targetRoom: tmp[3].substring(2),
+              isMove: true,
+              targetRoomId: tmp[3].substring(2)
             };
-            // SwitchRoom
-            output.push(new ManyMessage(msg));
+            output.push(new ManyMessage({
+              type: 'memberUpdate',
+              payload: memberUpdateData,
+              timestamp: memberUpdateData.timestamp,
+              avatar: memberUpdateData.avatar,
+              username: memberUpdateData.username,
+              uid: memberUpdateData.uid,
+              color: memberUpdateData.color,
+            }));
           } else if (tmp[3] === "'3")
           {
-            const msg = {
-              type: 'leaveRoom',
+            const memberUpdateData = {
+              type: 'leave',
               timestamp: Number(tmp[0]),
               avatar: tmp[1],
               username: decode(tmp[2]),
-              color: tmp[5],
               uid: tmp[8],
+              room: tmp[11].split("'")[0],
+              color: tmp[5],
               title: tmp[9] === "'108" ? '花瓣' : tmp[9],
-              room: tmp[10],
+              isMove: false
             };
-            // LeaveRoom
-            output.push(new ManyMessage(msg));
+            output.push(new ManyMessage({
+              type: 'memberUpdate',
+              payload: memberUpdateData,
+              timestamp: memberUpdateData.timestamp,
+              avatar: memberUpdateData.avatar,
+              username: memberUpdateData.username,
+              uid: memberUpdateData.uid,
+              color: memberUpdateData.color,
+            }));
           }
         }
       }
