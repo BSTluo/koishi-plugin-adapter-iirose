@@ -38,7 +38,7 @@ jobs:
         run: |
           cd main-repo
           mkdir -p temp
-          curl -L -o temp/ZhuZiAWan-2.ttc https://github.com/BSTluo/koishi-plugin-adapter-iirose/releases/download/v1.0.0/ZhuZiAWan-2.ttc
+          curl -L -o temp/ZhuZiAWan-2.ttc https://github.com/iirose-plugins/koishi-plugin-adapter-iirose/releases/download/v1.0.0/ZhuZiAWan-2.ttc
 
       - name: Create font optimization script
         run: |

@@ -18,13 +18,13 @@
     "shangxueink <1919892171@qq.com>"
   ],
   "bugs": {
-    "url": "https://github.com/BSTluo/koishi-plugin-adapter-iirose/issues/new/choose"
+    "url": "https://github.com/iirose-plugins/koishi-plugin-adapter-iirose/issues/new/choose"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BSTluo/koishi-plugin-adapter-iirose.git"
+    "url": "git+https://github.com/iirose-plugins/koishi-plugin-adapter-iirose.git"
   },
-  "homepage": "https://github.com/BSTluo/koishi-plugin-adapter-iirose",
+  "homepage": "https://github.com/iirose-plugins/koishi-plugin-adapter-iirose",
   "keywords": [
     "koishi",
     "bot",
