@@ -1,6 +1,6 @@
 export interface MemberUpdateData
 {
-    type: 'join' | 'leave';
+    type: 'join' | 'leave' | 'refresh'; // 增加 refresh 类型
     // 公共字段
     timestamp: string;
     avatar: string;
@@ -18,12 +18,11 @@ export interface MemberUpdateData
 }
 
 /**
- * 解析来自 websocket 的成员更新消息。
- * 处理加入、离开、刷新和移动事件。
+ * 解析单个成员更新消息。
  * @param message 原始的 websocket 消息字符串。
  * @returns 一个结构化的成员更新对象，如果消息不是成员更新，则返回 void。
  */
-export const memberUpdate = (message: string): MemberUpdateData | void =>
+const parseSingleMemberUpdate = (message: string): MemberUpdateData | void =>
 {
     const parts = message.split('>');
     if (parts.length < 10) return;
@@ -109,4 +108,16 @@ export const memberUpdate = (message: string): MemberUpdateData | void =>
             }
         }
     }
+};
+
+
+/**
+ * 解析来自 websocket 的成员更新消息。
+ * 处理加入、离开、刷新和移动事件。
+ * @param message 原始的 websocket 消息字符串。
+ * @returns 一个结构化的成员更新对象，如果消息不是成员更新，则返回 void。
+ */
+export const memberUpdate = (message: string): MemberUpdateData | void =>
+{
+    return parseSingleMemberUpdate(message);
 };

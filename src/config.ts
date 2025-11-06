@@ -19,6 +19,7 @@ export interface Config
   maxRetries: number;
   deleteMessageDelay: number;
   sessionCacheSize: number;
+  refreshTimeout: number;
   // 可选
   smStart?: boolean;
   smPassword?: string;
@@ -101,6 +102,7 @@ export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
     sessionCacheSize: Schema.number().min(50).max(1000).default(500).description('消息缓存大小（单位：条）'),
     deleteMessageDelay: Schema.number().min(0).max(10 * 1000).default(1.5 * 1000).description('撤回消息前的延迟时间 (单位：毫秒)<br>不建议低于1000').experimental(),
+    refreshTimeout: Schema.number().min(0).default(30 * 1000).description('用户刷新事件的超时时间 (单位：毫秒)'),
     onlyHangUpMode: Schema.boolean().default(false).description('是否开启 静默模式（不会发送消息，仅接收消息）').hidden(),
   }).description('调试功能'),
 

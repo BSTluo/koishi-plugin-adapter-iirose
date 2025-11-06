@@ -39,6 +39,7 @@ export class IIROSE_Bot extends Bot<Context>
   private lastStockData: Stock | null = null;
   private lastBankData: BankCallback | null = null;
   public logger: Logger;
+  public userLeaveTimers = new Map<string, NodeJS.Timeout>();
 
   constructor(public ctx: Context, config: Config)
   {
@@ -178,6 +179,10 @@ export class IIROSE_Bot extends Bot<Context>
       clearTimeout(this.userInfoTimeout);
       this.userInfoTimeout = null;
     }
+
+    // 清理所有用户离开计时器
+    this.userLeaveTimers.forEach(timer => clearTimeout(timer));
+    this.userLeaveTimers.clear();
 
     // 立即下线
     this.offline();

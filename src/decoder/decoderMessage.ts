@@ -185,7 +185,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId = bot.ctx.config.smRoom;
         }
 
-        const createEvent = (type: 'guild-member-added' | 'guild-member-removed') =>
+        const createEvent = (type: 'guild-member-added' | 'guild-member-removed' | 'iirose/guild-member-refresh') =>
         {
           const session = bot.session({
             type,
@@ -204,21 +204,50 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             }
           });
           bot.fulllogInfo(type, session);
-          bot.dispatch(session);
+          if (type === 'iirose/guild-member-refresh')
+          {
+            bot.ctx.emit('iirose/guild-member-refresh', session);
+          } else
+          {
+            bot.dispatch(session);
+          }
+        };
+
+        const handleRefresh = (uid: string) =>
+        {
+          if (bot.userLeaveTimers.has(uid))
+          {
+            clearTimeout(bot.userLeaveTimers.get(uid));
+            bot.userLeaveTimers.delete(uid);
+          }
+          createEvent('iirose/guild-member-refresh');
         };
 
         if (data.type === 'join')
         {
-          // 仅在 'new' (新加入) 或 'reconnect' (重连) 时触发 guild-member-added
-          if (data.joinType === 'new' || data.joinType === 'reconnect')
+          if (bot.userLeaveTimers.has(data.uid))
           {
-            createEvent('guild-member-added');
+            handleRefresh(data.uid);
+          } else
+          {
+            if (data.joinType === 'new' || data.joinType === 'reconnect')
+            {
+              createEvent('guild-member-added');
+            }
           }
         } else if (data.type === 'leave')
         {
           createEvent('guild-member-removed');
 
-          // 如果是移动事件, 额外触发 iirose/switchRoom
+          if (!data.isMove)
+          {
+            const timer = setTimeout(() =>
+            {
+              bot.userLeaveTimers.delete(data.uid);
+            }, bot.config.refreshTimeout);
+            bot.userLeaveTimers.set(data.uid, timer);
+          }
+
           if (data.isMove)
           {
             const switchRoomData = {
@@ -247,6 +276,9 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             bot.fulllogInfo('iirose/switchRoom', switchRoomSession, switchRoomData);
             bot.ctx.emit('iirose/switchRoom', switchRoomSession, switchRoomData);
           }
+        } else if (data.type === 'refresh')
+        {
+          handleRefresh(data.uid);
         }
         break;
       }
