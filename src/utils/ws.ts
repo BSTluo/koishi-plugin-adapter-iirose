@@ -372,7 +372,10 @@ export class WsClient
         message = Buffer.from(array).toString("utf8");
       }
 
-      this.bot.fulllogInfo(`[WS接收]`, message);
+      if (message.length < 500)
+      {
+        this.bot.fulllogInfo(`[WS接收]`, message);
+      }
 
       // 检查是否有等待特定响应的监听器
       for (const [prefix, handler] of this.bot.responseListeners.entries())
