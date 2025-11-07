@@ -2,10 +2,10 @@
 <div align="center">
 <div style="position: relative; width: 400px; height: 250px; margin: auto;">
 <a href="https://koishi.chat/" target="_blank" style="position: absolute; left: 0; z-index: 1;">
-<img width="250" src="https://i0.hdslb.com/bfs/openplatform/5eacee2f8c31c6a7e85e27c5a3d821785d709acc.png" alt="koishi-logo" style="border-radius: 50%;">
+<img width="250" src="https://github.com/iirose-plugins/koishi-plugin-adapter-iirose/blob/docs/docs/public/assets/icon/koishi.png?raw=true" alt="koishi-logo" style="border-radius: 50%;">
 </a>
 <a href="https://www.iirose.com" target="_blank" style="position: absolute; right: 0;">
-<img width="250" src="https://i0.hdslb.com/bfs/openplatform/7f1996f80550eca114c0d15e33d6a5123cf8b3df.png" alt="iirose-logo" style="border-radius: 50%;">
+<img width="250" src="https://github.com/iirose-plugins/koishi-plugin-adapter-iirose/blob/docs/docs/public/assets/icon/iirose.jpg?raw=true" alt="iirose-logo" style="border-radius: 50%;">
 </a>
 </div>
 
