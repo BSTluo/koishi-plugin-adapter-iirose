@@ -19,7 +19,7 @@ koishi 的 <a href="https://www.iirose.com">IIROSE-蔷薇花园</a> 平台适配
 
 ### 文档
 
-> [iirose-plugins.github.io/adapter-iirose](https://iirose-plugins.github.io/koishi-plugin-adapter-iirose/)
+> [iirose-plugins/iirose-plugins-docs](https://iirose-plugins.github.io/iirose-plugins-docs)
 
 ---
 
