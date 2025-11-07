@@ -1,8 +1,7 @@
 <br />
 <div align="center">
-<a href="https://github.com/initialencounter/mykoishi">
 <a href="https://koishi.chat/" target="_blank">
-<img width="160" src="https://koishi.chat/logo.png" alt="logo">
+<img width="250" src="https://avatars.githubusercontent.com/u/242367295" alt="logo" style="border-radius: 50%;">
 </a>
 </a>
 
@@ -12,18 +11,19 @@ koishi 的 <a href="https://www.iirose.com">IIROSE-蔷薇花园</a> 平台适配
 </p>
 </div>
 
-## IIROSE-蔷薇花园适配器
+<div align="center">
 
-[![npm version](https://img.shields.io/npm/v/koishi-plugin-adapter-iirose?color=blue)](https://www.npmjs.com/package/koishi-plugin-adapter-iirose)
-[![npm downloads](https://img.shields.io/npm/dm/koishi-plugin-adapter-iirose)](https://www.npmjs.com/package/koishi-plugin-adapter-iirose)
-[![platform](https://img.shields.io/badge/platform-Koishi-blueviolet)](https://koishi.chat/)
-[![license](https://img.shields.io/github/license/iirose-plugins/koishi-plugin-adapter-iirose)](https://github.com/iirose-plugins/koishi-plugin-adapter-iirose?tab=MIT-1-ov-file)
+|                                                                    npm version                                                                     |                                                               npm downloads                                                                |                                           platform                                           |                                                                                      license                                                                                      |
+| :------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| [![npm version](https://img.shields.io/npm/v/koishi-plugin-adapter-iirose?color=blue)](https://www.npmjs.com/package/koishi-plugin-adapter-iirose) | [![npm downloads](https://img.shields.io/npm/dm/koishi-plugin-adapter-iirose)](https://www.npmjs.com/package/koishi-plugin-adapter-iirose) | [![platform](https://img.shields.io/badge/platform-Koishi-blueviolet)](https://koishi.chat/) | [![license](https://img.shields.io/github/license/iirose-plugins/koishi-plugin-adapter-iirose)](https://github.com/iirose-plugins/koishi-plugin-adapter-iirose?tab=MIT-1-ov-file) |
+
+</div>
 
 适合在 koishi 平台使用的 [蔷薇花园](https://www.iirose.com) 的宝宝体质适配器
 
 ### 文档
 
-> https://iirose-plugins.github.io/koishi-plugin-adapter-iirose/
+> [iirose-plugins.github.io/adapter-iirose](https://iirose-plugins.github.io/koishi-plugin-adapter-iirose/)
 
 ---
 
