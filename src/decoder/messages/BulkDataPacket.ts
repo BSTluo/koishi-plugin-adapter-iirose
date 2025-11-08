@@ -145,8 +145,8 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot): Promise<
                     online: 0, // 先置空，后续统一计算
                 };
             }
-            // 用户数据字段较多 (>=9)
-            else if (fields.length >= 9)
+            // 用户的第一个字段是头像路径，包含'/'；而频道的第一个字段是ID，不可能包含'/'
+            else if (fields[0].includes('/'))
             {
                 // 解析用户
                 userList.push({
