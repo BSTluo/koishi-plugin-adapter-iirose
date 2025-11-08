@@ -114,12 +114,6 @@ export interface Events
   'iirose/dislike'(session: Session, data: Extract<MailboxMessageData, { type: 'dislike'; }>): void;
   'iirose/payment'(session: Session, data: Extract<MailboxMessageData, { type: 'payment'; }>): void;
   'iirose/broadcast'(session: Session, data: BroadcastMessage): void;
-  'iirose/kick'(kickData: kickData): void;
-  'iirose/cut-one'(cutOne: cutOne): void;
-  'iirose/cut-all'(): void;
-  'iirose/setMaxUser'(setMaxUser: setMaxUser): void;
-  'iirose/whiteList'(whiteList: whiteList): void;
-  'iirose/moveRoom'(move: move): void;
   'iirose/stock-update'(stockData: Stock): void;
   'iirose/bank-update'(bankData: BankCallback): void;
 }

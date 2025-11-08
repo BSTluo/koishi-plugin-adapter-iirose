@@ -75,64 +75,6 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
 {
   let event: (() => boolean)[] = [];
 
-  event.push(bot.ctx.on('iirose/moveRoom', async moveData =>
-  {
-    await bot.internal.moveRoom(moveData);
-  }));
-
-  event.push(bot.ctx.on('iirose/kick', (kickData: EventType.kickData) =>
-  {
-    /* 示例data
-    kickData: {
-        username: '用户名'
-    }
-    */
-    IIROSE_WSsend(bot, kickFunction(kickData.username));
-  }));
-
-  event.push(bot.ctx.on('iirose/cut-one', (cutOne: EventType.cutOne) =>
-  {
-    /* 示例data
-    cutOneData: {
-        id: '歌曲id'
-    }
-    */
-    // eslint-disable-next-line no-prototype-builtins
-    (cutOne.hasOwnProperty('id')) ? IIROSE_WSsend(bot, cutOneFunction(cutOne.id)) : IIROSE_WSsend(bot, cutOneFunction());
-  }));
-
-  event.push(bot.ctx.on('iirose/cut-all', () =>
-  {
-    /* 示例data
-    （无）
-    */
-    IIROSE_WSsend(bot, cutAllFunction());
-  }));
-
-  event.push(bot.ctx.on('iirose/setMaxUser', (setMaxUser: EventType.setMaxUser) =>
-  {
-    /* 示例data
-    setMaxUser: {
-      maxMember: 人数（为空则清除限制？）
-    }
-    */
-    // eslint-disable-next-line no-prototype-builtins
-    (setMaxUser.hasOwnProperty('number')) ? IIROSE_WSsend(bot, setMaxUserFunction(setMaxUser.maxMember)) : IIROSE_WSsend(bot, setMaxUserFunction());
-  }));
-
-  event.push(bot.ctx.on('iirose/whiteList', (whiteList: EventType.whiteList) =>
-  {
-    /* 示例data
-    data: {
-      username: 用户名,
-      time: 持续时间（应该是秒）,
-      intro: 大抵是备注？可忽略不填这一项
-    }
-    */
-
-    // eslint-disable-next-line max-len, no-prototype-builtins
-    (whiteList.hasOwnProperty('intro')) ? IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time));
-  }));
 
 
   // 发音频视频的果然还是直接sendMessage.ts里面改好...
