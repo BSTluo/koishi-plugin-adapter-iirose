@@ -38,6 +38,10 @@ import payment, { parsePaymentCallback, PaymentCallback } from "../encoder/user/
 import getFollowedStoresFunction from '../encoder/system/store/personal/getFollowedStores';
 import updateSelfInfoFunction, { ProfileData } from '../encoder/user/profile/updateSelfInfo';
 import { parseUserProfileByName, UserProfileByName } from '../decoder/messages/UserProfileByName';
+import { Stock, stock as parseStock } from '../decoder/messages/Stock';
+import { BankCallback, bankCallback as parseBankCallback } from '../decoder/messages/BankCallback';
+import { GradeUserCallback, parseGradeUserCallback } from '../decoder/messages/GradeUserCallback';
+import { UserMoments, parseUserMoments } from '../decoder/messages/UserMoments';
 import getCompletedOrdersFunction from '../encoder/system/store/personal/orders/getCompletedOrders';
 import getAfterSaleOrdersFunction from '../encoder/system/store/personal/orders/getAfterSaleOrders';
 import getMusicListFunction, { parseMusicList, MediaListItem } from '../encoder/system/media/getMusicList';
@@ -150,14 +154,28 @@ export class Internal
     IIROSE_WSsend(this.bot, stockSell(numberData));
   }
 
-  async stockGet(): Promise<string | null>
+  async stockGet(): Promise<Stock | null>
   {
-    return this.bot.sendAndWaitForResponse(stockGet(), '>', true);
+    // 等待并获取原始响应
+    const response = await this.bot.sendAndWaitForResponse(stockGet(), '>', true);
+    if (response)
+    {
+      // 解析响应并返回
+      return parseStock(response, this.bot);
+    }
+    return null;
   }
 
-  async bankGet(): Promise<string | null>
+  async bankGet(): Promise<BankCallback | null>
   {
-    return this.bot.sendAndWaitForResponse(bankGet(), '>$', true);
+    // 等待并获取原始响应
+    const response = await this.bot.sendAndWaitForResponse(bankGet(), '>$', true);
+    if (response)
+    {
+      // 解析响应，如果解析失败则返回 null
+      return parseBankCallback(response, this.bot) || null;
+    }
+    return null;
   }
 
   bankDeposit(amount: number)
@@ -226,31 +244,38 @@ export class Internal
    * @param uid 用户uid
    * @param score 分数
    */
-  async gradeUser(uid: string, score: number): Promise<string | null>
+  async gradeUser(uid: string, score: number): Promise<GradeUserCallback | null>
   {
-    return this.bot.sendAndWaitForResponse(gradeUser(uid, score), '|_', true);
+    const response = await this.bot.sendAndWaitForResponse(gradeUser(uid, score), '|_', true);
+    if (response)
+    {
+      return parseGradeUserCallback(response);
+    }
+    return null;
   }
 
   /**
    * 取消为用户打分
    * @param uid 用户uid
    */
-  async cancelGradeUser(uid: string): Promise<string | null>
+  async cancelGradeUser(uid: string): Promise<boolean>
   {
-    return this.bot.sendAndWaitForResponse(cancelGradeUser(uid), '|_', true);
+    const response = await this.bot.sendAndWaitForResponse(cancelGradeUser(uid), '|_', true);
+    return response === '|_0';
   }
 
-  /**
-   * 获取用户资料
-   * @param uid 用户uid
-   */
   /**
    * 获取用户动态
    * @param uid 用户uid
    */
-  async getUserMomentsByUid(uid: string): Promise<string | null>
+  async getUserMomentsByUid(uid: string): Promise<UserMoments | null>
   {
-    return this.bot.sendAndWaitForResponse(getUserMomentsByUidFunction(uid), ':*', true);
+    const response = await this.bot.sendAndWaitForResponse(getUserMomentsByUidFunction(uid), ':*', true);
+    if (response)
+    {
+      return parseUserMoments(response);
+    }
+    return null;
   }
 
   async getUserByName(name: string): Promise<Universal.User | undefined>
@@ -529,8 +554,8 @@ export interface InternalType
   makeMusic(musicOrigin: eventType.musicOrigin): void;
   stockBuy(numberData: number): void;
   stockSell(numberData: number): void;
-  stockGet(): Promise<string | null>;
-  bankGet(): Promise<string | null>;
+  stockGet(): Promise<Stock | null>;
+  bankGet(): Promise<BankCallback | null>;
   bankDeposit(amount: number): void;
   bankWithdraw(amount: number): void;
   payment(uid: string, money: number, message?: string): Promise<PaymentCallback | null>;
@@ -538,9 +563,9 @@ export interface InternalType
   sendDislike(uid: string, message?: string): void;
   followUser(uid: string): void;
   unfollowUser(uid: string): void;
-  gradeUser(uid: string, score: number): Promise<string | null>;
-  cancelGradeUser(uid: string): Promise<string | null>;
-  getUserMomentsByUid(uid: string): Promise<string | null>;
+  gradeUser(uid: string, score: number): Promise<GradeUserCallback | null>;
+  cancelGradeUser(uid: string): Promise<boolean>;
+  getUserMomentsByUid(uid: string): Promise<UserMoments | null>;
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserListFile(): Promise<any>;
   getRoomListFile(): Promise<any>;
