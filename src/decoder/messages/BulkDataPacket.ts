@@ -1,6 +1,6 @@
 import { h } from 'koishi';
 import { IIROSE_Bot } from '../../bot/bot';
-import { parseAvatar, writeWJ } from '../../utils/utils';
+import { parseAvatar, writeWJ, getImageAsBase64 } from '../../utils/utils';
 import { stockGet } from '../../encoder/system/consume/stock';
 import { bankGet } from '../../encoder/system/consume/bank';
 
@@ -209,6 +209,28 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot): Promise<
 
         // 触发一次银行信息查询
         bot.sendAndWaitForResponse(bankGet(), '>$', false);
+
+        // 异步更新机器人自身信息
+        (async () =>
+        {
+            try
+            {
+                const self = await bot.getSelf();
+                if (self)
+                {
+                    bot.user.name = self.name;
+                    bot.user.avatar = await getImageAsBase64(bot, self.avatar);
+                    bot.selfId = self.id;
+                    bot.userId = self.id;
+                } else
+                {
+                    bot.loggerWarn('更新机器人信息失败，未能从 userlist.json 中找到自身数据。请稍后重试。');
+                }
+            } catch (error)
+            {
+                bot.loggerError('更新机器人信息时出错:', error);
+            }
+        })();
 
         // 返回用户列表
         return userList;

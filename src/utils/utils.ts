@@ -324,3 +324,29 @@ export function ensureNewlineBefore(text: string): string
   }
   return text;
 }
+
+/**
+ * 获取图片并将其转换为Base64编码的Data URI
+ * @param bot IIROSE_Bot 实例
+ * @param url 图片的URL
+ * @returns 返回一个Promise，解析为Base64编码的Data URI字符串，或在失败时返回null
+ */
+export async function getImageAsBase64(bot: IIROSE_Bot, url: string): Promise<string | null>
+{
+  if (!url) return null;
+
+  try
+  {
+    const { data, type } = await bot.ctx.http.file(url);
+
+    const buffer = Buffer.from(data);
+    const base64 = buffer.toString('base64');
+
+    const mimeType = type || 'image/jpeg';
+    return `data:${mimeType};base64,${base64}`;
+  } catch (error)
+  {
+    bot.logger.warn(`获取或转换图片失败: ${url}`, error);
+    return null;
+  }
+}
