@@ -49,7 +49,6 @@ export const bulkDataPacket = async (message: string, bot: IIROSE_Bot): Promise<
         // parts[2] 包含加载信息
         const parts = rawData.split('\\"');
 
-
         let userAndRoomDataRaw = parts[0];
         // 处理纯用户列表包末尾可能出现的多余单引号
         if (userAndRoomDataRaw.endsWith("'"))

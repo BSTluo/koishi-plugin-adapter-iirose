@@ -66,7 +66,6 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
   let event: (() => boolean)[] = [];
 
 
-
   // 发音频视频的果然还是直接sendMessage.ts里面改好...
   // system那边真的有东西有用吗
   // user也是！！

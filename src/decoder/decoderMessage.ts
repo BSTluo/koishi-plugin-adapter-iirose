@@ -322,7 +322,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
       }
 
 
-
       case 'selfMove': {
         const data = obj.selfMove;
 

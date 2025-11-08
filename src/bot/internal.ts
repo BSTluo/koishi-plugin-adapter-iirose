@@ -481,7 +481,6 @@ export class Internal
     return this.bot.sendAndWaitForResponse(getFollowedStoresFunction(), 'g@', true);
   }
 
-
   /**
    * 查询自身余额
    */

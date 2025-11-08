@@ -110,7 +110,6 @@ const parseSingleMemberUpdate = (message: string): MemberUpdateData | void =>
     }
 };
 
-
 /**
  * 解析来自 websocket 的成员更新消息。
  * 处理加入、离开、刷新和移动事件。
