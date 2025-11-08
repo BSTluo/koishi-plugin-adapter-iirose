@@ -1,7 +1,6 @@
 import { mailboxMessage, MailboxMessageData } from './messages/MailboxMessage';
 import { BroadcastMessage, broadcastMessage } from './messages/BroadcastMessage';
 import { MessageDeleted, MessageDeletedData } from './messages/MessageDeleted';
-import { paymentCallback, PaymentCallback } from './messages/PaymentCallback';
 import { privateMessage, PrivateMessage } from './messages/PrivateMessage';
 import { MemberUpdateData, memberUpdate } from './messages/MemberUpdate';
 import { publicMessage, PublicMessage } from './messages/PublicMessage';
@@ -27,7 +26,6 @@ export const decoder = async (bot: IIROSE_Bot, msg: string): Promise<MessageType
   len.memberUpdate = memberUpdate(msg);
   // len.switchRoom = switchRoom(msg);
   len.music = music(msg);
-  len.paymentCallback = paymentCallback(msg);
   len.bankCallback = bankCallback(msg, bot);
   len.selfMove = selfMove(msg);
   len.mailboxMessage = mailboxMessage(msg);
@@ -75,7 +73,6 @@ export interface MessageType
   memberUpdate?: MemberUpdateData;
   switchRoom?: SwitchRoom;
   music?: Music;
-  paymentCallback?: PaymentCallback;
   bankCallback?: BankCallback;
   selfMove?: SelfMove;
   mailboxMessage?: MailboxMessageData;

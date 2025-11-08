@@ -321,19 +321,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
-      case 'paymentCallback': {
-        const data = obj.paymentCallback;
-
-        const event = {
-          type: 'paymentCallback',
-          platform: 'iirose',
-          guildId: bot.config.roomId
-        };
-        const session = bot.session(event);
-        bot.fulllogInfo('iirose/before-payment', session, data);
-        bot.ctx.emit('iirose/before-payment', session, data);
-        break;
-      }
 
 
       case 'selfMove': {

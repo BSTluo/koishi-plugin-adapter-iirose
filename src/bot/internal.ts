@@ -3,7 +3,7 @@ import * as eventType from './event';
 import { Universal, User } from "koishi";
 import { IIROSE_WSsend } from '../utils/ws';
 import Like from '../encoder/user/like/Like';
-import payment from "../encoder/user/payment";
+import payment, { parsePaymentCallback, PaymentCallback } from "../encoder/user/payment";
 import Follow from '../encoder/user/follow/Follow';
 import Dislike from '../encoder/user/like/Dislike';
 import Unfollow from '../encoder/user/follow/Unfollow';
@@ -170,10 +170,15 @@ export class Internal
     IIROSE_WSsend(this.bot, bankWithdraw(amount));
   }
 
-  payment(uid: string, money: number, message?: string)
+  async payment(uid: string, money: number, message?: string): Promise<PaymentCallback | null>
   {
     const data = (message) ? payment(uid, money, message) : payment(uid, money);
-    IIROSE_WSsend(this.bot, data);
+    const response = await this.bot.sendAndWaitForResponse(data, '|$', true);
+    if (response)
+    {
+      return parsePaymentCallback(response);
+    }
+    return null;
   }
 
   /**
@@ -529,7 +534,7 @@ export interface InternalType
   bankGet(): Promise<string | null>;
   bankDeposit(amount: number): void;
   bankWithdraw(amount: number): void;
-  payment(uid: string, money: number, message?: string): void;
+  payment(uid: string, money: number, message?: string): Promise<PaymentCallback | null>;
   sendLike(uid: string, message?: string): void;
   sendDislike(uid: string, message?: string): void;
   followUser(uid: string): void;
