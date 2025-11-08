@@ -42,6 +42,8 @@ import { Stock, stock as parseStock } from '../decoder/messages/Stock';
 import { BankCallback, bankCallback as parseBankCallback } from '../decoder/messages/BankCallback';
 import { GradeUserCallback, parseGradeUserCallback } from '../decoder/messages/GradeUserCallback';
 import { UserMoments, parseUserMoments } from '../decoder/messages/UserMoments';
+import { SelfInfo, parseSelfInfo } from '../decoder/messages/SelfInfo';
+import { parseBalance } from '../decoder/messages/Balance';
 import getCompletedOrdersFunction from '../encoder/system/store/personal/orders/getCompletedOrders';
 import getAfterSaleOrdersFunction from '../encoder/system/store/personal/orders/getAfterSaleOrders';
 import getMusicListFunction, { parseMusicList, MediaListItem } from '../encoder/system/media/getMusicList';
@@ -346,9 +348,14 @@ export class Internal
   /**
    * 获取自身账号信息
    */
-  async getSelfInfo(): Promise<string | null>
+  async getSelfInfo(): Promise<SelfInfo | null>
   {
-    return this.bot.sendAndWaitForResponse(getSelfInfoFunction(), '$?', true);
+    const response = await this.bot.sendAndWaitForResponse(getSelfInfoFunction(), '$?', true);
+    if (response)
+    {
+      return parseSelfInfo(response);
+    }
+    return null;
   }
 
   /**
@@ -509,9 +516,14 @@ export class Internal
   /**
    * 查询自身余额
    */
-  async getBalance(): Promise<string | null>
+  async getBalance(): Promise<number | null>
   {
-    return this.bot.sendAndWaitForResponse(getBalanceFunction(), '`$', true);
+    const response = await this.bot.sendAndWaitForResponse(getBalanceFunction(), '`$', true);
+    if (response)
+    {
+      return parseBalance(response);
+    }
+    return null;
   }
 
   /**
@@ -572,7 +584,7 @@ export interface InternalType
   subscribeRoom(roomId: string): void;
   unsubscribeRoom(roomId: string): void;
   getFollowList(uid: string): Promise<FollowList | null>;
-  getSelfInfo(): Promise<string | null>;
+  getSelfInfo(): Promise<SelfInfo | null>;
   updateSelfInfo(profileData: ProfileData): Promise<boolean>;
   getMusicList(): Promise<MediaListItem[] | null>;
   getForum(): Promise<string | null>;
@@ -591,7 +603,7 @@ export interface InternalType
   getAfterSaleOrders(): Promise<string | null>;
   getFavorites(): Promise<string | null>;
   getFollowedStores(): Promise<string | null>;
-  getBalance(): Promise<string | null>;
+  getBalance(): Promise<number | null>;
   summonDice(diceId: number): void;
   getUserProfileByName(username: string): Promise<UserProfileByName | null>;
 }
