@@ -87,7 +87,8 @@ const replyMsg = (msg: string): replyMessage[] | null =>
 export const musicMessageAnalyze = (input: data): MusicMessage =>
 {
   const { timestamp, avatar, username, message, color, uid, title, messageId } = input;
-  const musicData = message.replace(/ /g, '').split('>');
+  // 不要移除空格，因为歌曲或歌手名中可能包含空格
+  const musicData = message.split('>');
 
   return {
     timestamp,
@@ -97,8 +98,9 @@ export const musicMessageAnalyze = (input: data): MusicMessage =>
     uid,
     title,
     messageId,
-    musicName: musicData[1],
-    musicSinger: musicData[2],
+    // 对音乐名称和歌手进行解码
+    musicName: decode(musicData[1]),
+    musicSinger: decode(musicData[2]),
     musicPic: musicData[3],
     musicColor: musicData[4],
   };

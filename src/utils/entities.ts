@@ -51,5 +51,12 @@ const decodeRegex = /&amp;|&lt;|&gt;|&quot;|&#39;|&#x2F;/g;
 export function decode(str: string): string
 {
   if (typeof str !== "string") return "";
-  return str.replace(decodeRegex, (entity) => decodeEntityMap[entity]);
+  let last: string, decoded: string = str;
+  // 循环解码，直到字符串不再变化，用于处理多重转义
+  do
+  {
+    last = decoded;
+    decoded = last.replace(decodeRegex, (entity) => decodeEntityMap[entity]);
+  } while (last !== decoded);
+  return decoded;
 }
