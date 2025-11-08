@@ -107,7 +107,7 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('调试功能'),
 
   Schema.object({
-    oldRoomId: Schema.string().default(null).description('仅内部使用').hidden(),
+    oldRoomId: Schema.string().default(null).description('仅适配器内部处理移动房间的时候使用。不要直接填写内容。').hidden(),
     debugMode: Schema.boolean().default(false).description('是否 开启调试模式<br>提issue时，请务必开启此项，附上复现问题的日志'),
     fullDebugMode: Schema.boolean().default(false).description('是否 开启详细调试模式<br>慎重开启'),
   }).description('开发调试选项'),
