@@ -335,20 +335,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
         break;
       }
 
-      case 'mediaListCallback': {
-        const data = obj.mediaListCallback;
-
-        const event = {
-          type: 'mediaListCallback',
-          platform: 'iirose',
-          guildId: bot.config.roomId
-        };
-
-        const session = bot.session(event);
-        bot.fulllogInfo('iirose/before-mediaList', session, data);
-        bot.ctx.emit('iirose/before-mediaList', session, data);
-        break;
-      }
 
       case 'selfMove': {
         const data = obj.selfMove;

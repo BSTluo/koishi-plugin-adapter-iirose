@@ -1,5 +1,4 @@
 import { mailboxMessage, MailboxMessageData } from './messages/MailboxMessage';
-import { mediaListCallback, MediaListCallback } from './messages/MediaListCallback';
 import { BroadcastMessage, broadcastMessage } from './messages/BroadcastMessage';
 import { MessageDeleted, MessageDeletedData } from './messages/MessageDeleted';
 import { paymentCallback, PaymentCallback } from './messages/PaymentCallback';
@@ -30,7 +29,6 @@ export const decoder = async (bot: IIROSE_Bot, msg: string): Promise<MessageType
   len.music = music(msg);
   len.paymentCallback = paymentCallback(msg);
   len.bankCallback = bankCallback(msg, bot);
-  len.mediaListCallback = mediaListCallback(msg);
   len.selfMove = selfMove(msg);
   len.mailboxMessage = mailboxMessage(msg);
   len.musicMessage = musicMessage(msg);
@@ -79,7 +77,6 @@ export interface MessageType
   music?: Music;
   paymentCallback?: PaymentCallback;
   bankCallback?: BankCallback;
-  mediaListCallback?: MediaListCallback;
   selfMove?: SelfMove;
   mailboxMessage?: MailboxMessageData;
   musicMessage?: MusicMessage;

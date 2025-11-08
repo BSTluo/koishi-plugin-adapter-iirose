@@ -24,7 +24,7 @@ import { gradeUser, cancelGradeUser } from '../encoder/user/grade';
 import getMomentsFunction from '../encoder/user/moments/getMoments';
 import setMaxUserFunction from '../encoder/admin/manage/setMaxUser';
 import getSelfInfoFunction from '../encoder/user/profile/getSelfInfo';
-import getMusicListFunction from '../encoder/system/media/getMusicList';
+import getMusicListFunction, { parseMusicList, MediaListItem } from '../encoder/system/media/getMusicList';
 import subscribeRoomFunction from '../encoder/system/room/subscribeRoom';
 import addToCartFunction from '../encoder/system/store/personal/addToCart';
 import unsubscribeRoomFunction from '../encoder/system/room/unsubscribeRoom';
@@ -332,11 +332,16 @@ export class Internal
   }
 
   /**
-   * 查询当前歌单
+   * 查询当前频道的歌单
    */
-  async getMusicList(): Promise<string | null>
+  async getMusicList(): Promise<MediaListItem[] | null>
   {
-    return this.bot.sendAndWaitForResponse(getMusicListFunction(), '~', true);
+    const response = await this.bot.sendAndWaitForResponse(getMusicListFunction(), '~', true);
+    if (response)
+    {
+      return parseMusicList(response);
+    }
+    return null;
   }
 
   /**
@@ -540,7 +545,7 @@ export interface InternalType
   getFollowList(uid: string): Promise<FollowList | null>;
   getSelfInfo(): Promise<string | null>;
   updateSelfInfo(profileData: ProfileData): Promise<boolean>;
-  getMusicList(): Promise<string | null>;
+  getMusicList(): Promise<MediaListItem[] | null>;
   getForum(): Promise<string | null>;
   getTasks(): Promise<string | null>;
   getMoments(): Promise<string | null>;
