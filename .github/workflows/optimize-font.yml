@@ -202,5 +202,5 @@ jobs:
           cd docs-repo
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add docs/public/fonts/ZhuZiAWan-2.ttc
+          git add -f docs/public/fonts/ZhuZiAWan-2.ttc
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update optimized font file" && git push)
