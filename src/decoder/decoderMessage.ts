@@ -316,8 +316,8 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId: bot.config.roomId
         };
         const session = bot.session(event);
-        bot.fulllogInfo('iirose/newMusic', session, data);
-        bot.ctx.emit('iirose/newMusic', session, data);
+        bot.fulllogInfo('iirose/music-play', session, data);
+        bot.ctx.emit('iirose/music-play', session, data);
         break;
       }
 

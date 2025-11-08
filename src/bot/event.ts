@@ -106,7 +106,7 @@ export interface Events
 {
   'iirose/guild-member-refresh'(session: Session): void;
   'iirose/switchRoom'(session: Session, data: MessageType['switchRoom']): void;
-  'iirose/newMusic'(session: Session, data: MessageType['music']): void;
+  'iirose/music-play'(session: Session, data: MessageType['music']): void;
   'iirose/selfMove'(session: Session, data: MessageType['selfMove']): void;
   'iirose/roomNotice'(session: Session, data: Extract<MailboxMessageData, { type: 'roomNotice'; }>): void;
   'iirose/follower'(session: Session, data: Extract<MailboxMessageData, { type: 'follower'; }>): void;
