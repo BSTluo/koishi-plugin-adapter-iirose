@@ -80,11 +80,6 @@ export class IIROSE_Bot extends Bot<Context>
     this.ctx.logger.info(`[${this.config.uid}]`, message, ...args);
   }
 
-  public loggerDebug(message: any, ...args: any[]): void
-  {
-    this.ctx.logger.debug(`[${this.config.uid}]`, message, ...args);
-  }
-
   public loggerWarn(message: any, ...args: any[]): void
   {
     this.ctx.logger.warn(`[${this.config.uid}]`, message, ...args);
