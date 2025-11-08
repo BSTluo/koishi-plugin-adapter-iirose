@@ -104,7 +104,6 @@ export interface StockSession extends Stock
 
 export interface Events
 {
-  'iirose/member-update'(session: Session, data: MessageType['memberUpdate']): void;
   'iirose/guild-member-refresh'(session: Session): void;
   'iirose/switchRoom'(session: Session, data: MessageType['switchRoom']): void;
   'iirose/newMusic'(session: Session, data: MessageType['music']): void;
