@@ -25,9 +25,12 @@ export default function getMusicList(): string
  */
 export const parseMusicList = (message: string): MediaListItem[] | undefined =>
 {
-    if (message.substring(0, 1) === '~')
+    if (message.startsWith('~'))
     {
-        const result: MediaListItem[] = message.substring(1).split('<').map((e, i) =>
+        const content = message.substring(1);
+        if (!content) return []; // 歌单为空
+
+        const result: MediaListItem[] = content.split('<').map((e, i) =>
         {
             const tmp = e.split('>');
             return {

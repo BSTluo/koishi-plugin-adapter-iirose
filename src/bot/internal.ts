@@ -44,6 +44,12 @@ import { GradeUserCallback, parseGradeUserCallback } from '../decoder/messages/G
 import { UserMoments, parseUserMoments } from '../decoder/messages/UserMoments';
 import { SelfInfo, parseSelfInfo } from '../decoder/messages/SelfInfo';
 import { parseBalance } from '../decoder/messages/Balance';
+import { Forum, parseForum } from '../decoder/messages/Forum';
+import { Tasks, parseTasks } from '../decoder/messages/Tasks';
+import { Moments, parseMoments } from '../decoder/messages/Moments';
+import { Leaderboard, parseLeaderboard } from '../decoder/messages/Leaderboard';
+import { Store, parseStore } from '../decoder/messages/Store';
+import { SellerCenter, parseSellerCenter } from '../decoder/messages/SellerCenter';
 import getCompletedOrdersFunction from '../encoder/system/store/personal/orders/getCompletedOrders';
 import getAfterSaleOrdersFunction from '../encoder/system/store/personal/orders/getAfterSaleOrders';
 import getMusicListFunction, { parseMusicList, MediaListItem } from '../encoder/system/media/getMusicList';
@@ -384,49 +390,79 @@ export class Internal
   /**
    * 查询论坛
    */
-  async getForum(): Promise<string | null>
+  async getForum(): Promise<Forum | null>
   {
-    return this.bot.sendAndWaitForResponse(getForumFunction(), ':-', true);
+    const response = await this.bot.sendAndWaitForResponse(getForumFunction(), ':-', true);
+    if (response)
+    {
+      return parseForum(response);
+    }
+    return null;
   }
 
   /**
    * 查询任务
    */
-  async getTasks(): Promise<string | null>
+  async getTasks(): Promise<Tasks | null>
   {
-    return this.bot.sendAndWaitForResponse(getTasksFunction(), ':+', true);
+    const response = await this.bot.sendAndWaitForResponse(getTasksFunction(), ':+', true);
+    if (response)
+    {
+      return parseTasks(response);
+    }
+    return null;
   }
 
   /**
    * 查询朋友圈
    */
-  async getMoments(): Promise<string | null>
+  async getMoments(): Promise<Moments | null>
   {
-    return this.bot.sendAndWaitForResponse(getMomentsFunction(), ':=', true);
+    const response = await this.bot.sendAndWaitForResponse(getMomentsFunction(), ':=', true);
+    if (response)
+    {
+      return parseMoments(response);
+    }
+    return null;
   }
 
   /**
    * 查询排行榜
    */
-  async getLeaderboard(): Promise<string | null>
+  async getLeaderboard(): Promise<Leaderboard | null>
   {
-    return this.bot.sendAndWaitForResponse(getLeaderboardFunction(), '`#', true);
+    const response = await this.bot.sendAndWaitForResponse(getLeaderboardFunction(), '`#', true);
+    if (response)
+    {
+      return parseLeaderboard(response);
+    }
+    return null;
   }
 
   /**
    * 查询商店
    */
-  async getStore(): Promise<string | null>
+  async getStore(): Promise<Store | null>
   {
-    return this.bot.sendAndWaitForResponse(getStoreFunction(), 'g-', true);
+    const response = await this.bot.sendAndWaitForResponse(getStoreFunction(), 'g-', true);
+    if (response)
+    {
+      return parseStore(response);
+    }
+    return null;
   }
 
   /**
    * 查询卖家中心
    */
-  async getSellerCenter(): Promise<string | null>
+  async getSellerCenter(): Promise<SellerCenter | null>
   {
-    return this.bot.sendAndWaitForResponse(getSellerCenterFunction(), 'g+', true);
+    const response = await this.bot.sendAndWaitForResponse(getSellerCenterFunction(), 'g+', true);
+    if (response)
+    {
+      return parseSellerCenter(response);
+    }
+    return null;
   }
 
   /**
@@ -587,12 +623,12 @@ export interface InternalType
   getSelfInfo(): Promise<SelfInfo | null>;
   updateSelfInfo(profileData: ProfileData): Promise<boolean>;
   getMusicList(): Promise<MediaListItem[] | null>;
-  getForum(): Promise<string | null>;
-  getTasks(): Promise<string | null>;
-  getMoments(): Promise<string | null>;
-  getLeaderboard(): Promise<string | null>;
-  getStore(): Promise<string | null>;
-  getSellerCenter(): Promise<string | null>;
+  getForum(): Promise<Forum | null>;
+  getTasks(): Promise<Tasks | null>;
+  getMoments(): Promise<Moments | null>;
+  getLeaderboard(): Promise<Leaderboard | null>;
+  getStore(): Promise<Store | null>;
+  getSellerCenter(): Promise<SellerCenter | null>;
   addToCart(itemId: string): Promise<boolean>;
   removeFromCart(itemId: string): Promise<boolean>;
   getPendingPaymentOrders(): Promise<string | null>;
