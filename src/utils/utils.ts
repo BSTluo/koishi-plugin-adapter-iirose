@@ -134,23 +134,6 @@ export const startEventsServer = (bot: IIROSE_Bot) =>
     (whiteList.hasOwnProperty('intro')) ? IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : IIROSE_WSsend(bot, whiteListFunction(whiteList.username, whiteList.time));
   }));
 
-  event.push(bot.ctx.on('iirose/makeMusic', (musicOrigin: EventType.musicOrigin) =>
-  {
-    const { type, name, signer, cover, link, url, duration, bitRate, color, lyrics, origin } = musicOrigin;
-    const mediaCardResult = mediaCard(type, name, signer, cover, color, duration, bitRate, origin);
-    IIROSE_WSsend(bot, mediaCardResult.data);
-    IIROSE_WSsend(bot, mediaData(type, name, signer, cover, link, url, duration, lyrics, origin));
-  }));
-
-  event.push(bot.ctx.on('iirose/stockBuy', (numberData: number) =>
-  {
-    IIROSE_WSsend(bot, stockBuy(numberData));
-  }));
-
-  event.push(bot.ctx.on('iirose/stockSell', (numberData: number) =>
-  {
-    IIROSE_WSsend(bot, stockSell(numberData));
-  }));
 
   // 发音频视频的果然还是直接sendMessage.ts里面改好...
   // system那边真的有东西有用吗

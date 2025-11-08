@@ -120,9 +120,6 @@ export interface Events
   'iirose/setMaxUser'(setMaxUser: setMaxUser): void;
   'iirose/whiteList'(whiteList: whiteList): void;
   'iirose/moveRoom'(move: move): void;
-  'iirose/makeMusic'(musicOrigin: musicOrigin): void;
-  'iirose/stockSell'(numberData: number): void;
-  'iirose/stockBuy'(numberData: number): void;
   'iirose/stock-update'(stockData: Stock): void;
   'iirose/bank-update'(bankData: BankCallback): void;
 }
