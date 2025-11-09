@@ -4,6 +4,7 @@ import { comparePassword } from '../utils/password';
 import { MessageType } from '.';
 import { IIROSE_Bot } from '../bot/bot';
 import { clearMsg } from './clearMsg';
+import { parseAvatar } from '../utils/utils';
 
 export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 {
@@ -42,7 +43,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
               user: {
                 id: quotedSession.author.id,
                 name: quotedSession.author.name,
-                avatar: quotedSession.author.avatar,
+                avatar: parseAvatar(quotedSession.author.avatar),
                 nickname: quotedSession.author.nickname,
               },
               channel: {
@@ -72,7 +73,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           user: {
             id: data.uid,
             name: data.username,
-            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
+            avatar: parseAvatar(data.avatar)
           },
           message: {
             id: String(data.messageId),
@@ -125,7 +126,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
               user: {
                 id: quotedSession.author.id,
                 name: quotedSession.author.name,
-                avatar: quotedSession.author.avatar,
+                avatar: parseAvatar(quotedSession.author.avatar),
                 nickname: quotedSession.author.nickname,
               },
               channel: {
@@ -151,7 +152,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           user: {
             id: data.uid,
             name: data.username,
-            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
+            avatar: parseAvatar(data.avatar)
           },
           message: {
             id: String(data.messageId),
@@ -200,7 +201,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             user: {
               id: data.uid,
               name: data.username,
-              avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
+              avatar: parseAvatar(data.avatar)
             }
           });
           bot.fulllogInfo(type, session);
@@ -259,13 +260,38 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           {
             // 正常离开
             createEvent('guild-member-removed');
+            // 只有在不是因为移动房间而离开时，才启动确认离开的逻辑
             if (!data.isMove)
             {
-              const leaveTimer = bot.ctx.setTimeout(() =>
+              // 启动一个计时器，如果在指定时间内用户没有回来，就确认离开
+              const leaveTimerDisposer = bot.ctx.setTimeout(() =>
               {
+                // 派发确认离开事件
+                const session = bot.session({
+                  type: 'iirose/guild-member-leave',
+                  platform: 'iirose',
+                  selfId: uid,
+                  timestamp: Date.now(),
+                  guild: { id: guildId },
+                  channel: {
+                    id: `public:${guildId}`,
+                    type: 0
+                  },
+                  user: {
+                    id: data.uid,
+                    name: data.username,
+                    avatar: parseAvatar(data.avatar)
+                  }
+                });
+                bot.dispatch(session);
+                bot.fulllogInfo('iirose/guild-member-leave', session);
+
+                // 从计时器列表中移除
                 bot.userLeaveTimers.delete(data.uid);
               }, bot.config.refreshTimeout);
-              bot.userLeaveTimers.set(data.uid, leaveTimer);
+
+              // 将计时器(的disposer)存储起来，以便用户重新加入时可以取消
+              bot.userLeaveTimers.set(data.uid, leaveTimerDisposer);
             }
           }
 
@@ -274,7 +300,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           {
             const switchRoomData = {
               timestamp: Number(data.timestamp),
-              avatar: data.avatar,
+              avatar: parseAvatar(data.avatar),
               username: data.username,
               color: data.color,
               uid: data.uid,
@@ -465,7 +491,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           user: {
             id: data.uid,
             name: data.username,
-            avatar: (data.avatar.startsWith('http')) ? data.avatar : `https://static.codemao.cn/rose/v0/images/icon/${data.avatar}`
+            avatar: parseAvatar(data.avatar)
           },
           message: {
             id: String(data.messageId),

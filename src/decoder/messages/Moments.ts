@@ -1,5 +1,7 @@
 // src/decoder/messages/Moments.ts
 
+import { parseAvatar } from "../../utils/utils";
+
 export interface MomentPost
 {
     name: string;
@@ -35,7 +37,7 @@ export const parseMoments = (message: string): Moments | null =>
         const parts = postString.split('>');
         return {
             name: parts[0],
-            avatar: parts[1],
+            avatar: parseAvatar(parts[1]),
             type: parts[2],
             uid: parts[3],
             content: parts[4],

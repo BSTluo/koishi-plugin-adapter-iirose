@@ -1,5 +1,7 @@
 // src/decoder/messages/SelfInfo.ts
 
+import { parseAvatar } from "../../utils/utils";
+
 export interface SelfInfo
 {
     username: string;
@@ -47,7 +49,7 @@ export const parseSelfInfo = (message: string): SelfInfo | null =>
             hobbies: parts[8],
             friends: parts[9],
             uid: parts[10],
-            avatar: parts[11],
+            avatar: parseAvatar(parts[11]),
             currentRoom: parts[12],
             phone: parts[parts.length - 1].split('<')[0], // a bit tricky
         };

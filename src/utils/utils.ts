@@ -289,7 +289,7 @@ export async function cacheSentMessage(bot: IIROSE_Bot, channelId: string, messa
     user: {
       id: bot.user.id,
       name: bot.user.name,
-      avatar: bot.user.avatar,
+      avatar: parseAvatar(bot.user.avatar),
     },
     message: {
       id: messageId,

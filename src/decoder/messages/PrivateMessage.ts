@@ -1,4 +1,5 @@
 import { decode } from '../../utils/entities';
+import { parseAvatar } from '../../utils/utils';
 import { replyMessage, replyMsg } from './PublicMessage';
 
 interface data
@@ -62,7 +63,7 @@ export const privateMessage = (message: string) =>
             timestamp: Number(tmp[0]),
             uid: tmp[1],
             username: decode(tmp[2]),
-            avatar: tmp[3],
+            avatar: parseAvatar(tmp[3]),
             message: decode(realMessage),
             color: tmp[5],
             messageId: Number(tmp[10]),

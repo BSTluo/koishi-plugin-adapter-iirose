@@ -1,4 +1,5 @@
 import { decode } from '../../utils/entities';
+import { parseAvatar } from '../../utils/utils';
 
 export interface replyMessage
 {
@@ -129,7 +130,7 @@ export const musicMessage = (input: string) =>
 
         const msg = {
           timestamp: Number(tmp[0]),
-          avatar: tmp[1],
+          avatar: parseAvatar(tmp[1]),
           username: decode(tmp[2]),
           message: decode(message),
           color: tmp[5],

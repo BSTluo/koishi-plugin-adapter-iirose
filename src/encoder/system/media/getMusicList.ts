@@ -1,4 +1,5 @@
 import { decode } from '../../../utils/entities';
+import { parseAvatar } from '../../../utils/utils';
 
 export interface MediaListItem
 {
@@ -40,7 +41,7 @@ export const parseMusicList = (message: string): MediaListItem[] | undefined =>
                 color: tmp[2].substring(0, 6),
                 name: tmp[2].substring(6),
                 type: Number(tmp[3]),
-                avatar: tmp[4],
+                avatar: parseAvatar(tmp[4]),
                 cover: `http${tmp[5]}`,
             };
         });

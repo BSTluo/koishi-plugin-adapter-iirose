@@ -1,5 +1,7 @@
 // src/decoder/messages/Leaderboard.ts
 
+import { parseAvatar } from "../../utils/utils";
+
 export interface LeaderboardUser
 {
     name: string;
@@ -51,7 +53,7 @@ export const parseLeaderboard = (message: string): Leaderboard | null =>
                 name: parts[0],
                 someNumber: parts[1],
                 unknownData: parts[3],
-                avatar: parts[4],
+                avatar: parseAvatar(parts[4]),
                 uid: parts[5],
                 balance: parts[6],
             };

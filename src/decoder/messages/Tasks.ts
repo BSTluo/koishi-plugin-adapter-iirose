@@ -1,5 +1,7 @@
 // src/decoder/messages/Tasks.ts
 
+import { parseAvatar } from "../../utils/utils";
+
 export interface Task
 {
     name: string;
@@ -34,7 +36,7 @@ export const parseTasks = (message: string): Tasks | null =>
         const parts = taskString.split('>');
         return {
             name: parts[0],
-            avatar: parts[1],
+            avatar: parseAvatar(parts[1]),
             type: parts[2],
             content: parts[3],
             // ... and so on

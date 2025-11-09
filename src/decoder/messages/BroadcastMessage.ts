@@ -1,3 +1,5 @@
+import { parseAvatar } from "../../utils/utils";
+
 export interface BroadcastMessage
 {
     // 用户名
@@ -40,7 +42,7 @@ export const broadcastMessage = (msg: string): BroadcastMessage | undefined =>
         username: parts[0],
         message: parts[1],
         color: parts[2],
-        avatar: parts[5],
+        avatar: parseAvatar(parts[5]),
         timestamp: parts[6],
         messageId: parts[7],
     };

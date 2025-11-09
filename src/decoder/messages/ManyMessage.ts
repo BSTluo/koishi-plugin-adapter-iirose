@@ -1,5 +1,6 @@
 import { decode } from '../../utils/entities';
 import { IIROSE_Bot } from '../../bot/bot';
+import { parseAvatar } from '../../utils/utils';
 
 export interface replyMessage
 {
@@ -130,7 +131,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
             output.push(new ManyMessage({
               type: 'privateMessage',
               timestamp: Number(tmp[0]),
-              avatar: tmp[3],
+              avatar: parseAvatar(tmp[3]),
               username: decode(tmp[2]),
               message: decode(tmp[4]),
               color: tmp[5],
@@ -147,7 +148,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
             output.push(new ManyMessage({
               type: 'publicMessage',
               timestamp: Number(tmp[0]),
-              avatar: tmp[1],
+              avatar: parseAvatar(tmp[1]),
               username: decode(tmp[2]),
               message: decode(reply ? String(reply.shift()) : tmp[3]),
               color: tmp[5],
@@ -169,7 +170,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
               type: 'join',
               joinType: 'new',
               timestamp: Number(tmp[0]),
-              avatar: tmp[1],
+              avatar: parseAvatar(tmp[1]),
               username: decode(tmp[2]),
               uid: tmp[8],
               room: tmp[11].split("'")[0],
@@ -180,7 +181,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
               type: 'memberUpdate',
               payload: memberUpdateData,
               timestamp: memberUpdateData.timestamp,
-              avatar: memberUpdateData.avatar,
+              avatar: parseAvatar(memberUpdateData.avatar),
               username: memberUpdateData.username,
               uid: memberUpdateData.uid,
               color: memberUpdateData.color,
@@ -190,7 +191,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
             const memberUpdateData = {
               type: 'leave',
               timestamp: Number(tmp[0]),
-              avatar: tmp[1],
+              avatar: parseAvatar(tmp[1]),
               username: decode(tmp[2]),
               uid: tmp[8],
               room: tmp[11].split("'")[0],
@@ -203,7 +204,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
               type: 'memberUpdate',
               payload: memberUpdateData,
               timestamp: memberUpdateData.timestamp,
-              avatar: memberUpdateData.avatar,
+              avatar: parseAvatar(memberUpdateData.avatar),
               username: memberUpdateData.username,
               uid: memberUpdateData.uid,
               color: memberUpdateData.color,
@@ -213,7 +214,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
             const memberUpdateData = {
               type: 'leave',
               timestamp: Number(tmp[0]),
-              avatar: tmp[1],
+              avatar: parseAvatar(tmp[1]),
               username: decode(tmp[2]),
               uid: tmp[8],
               room: tmp[11].split("'")[0],
@@ -225,7 +226,7 @@ export const manyMessage = (input: string, bot: IIROSE_Bot) =>
               type: 'memberUpdate',
               payload: memberUpdateData,
               timestamp: memberUpdateData.timestamp,
-              avatar: memberUpdateData.avatar,
+              avatar: parseAvatar(memberUpdateData.avatar),
               username: memberUpdateData.username,
               uid: memberUpdateData.uid,
               color: memberUpdateData.color,

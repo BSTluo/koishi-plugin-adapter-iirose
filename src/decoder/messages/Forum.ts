@@ -1,5 +1,7 @@
 // src/decoder/messages/Forum.ts
 
+import { parseAvatar } from "../../utils/utils";
+
 export interface ForumPost
 {
     name: string;
@@ -34,7 +36,7 @@ export const parseForum = (message: string): Forum | null =>
         const parts = postString.split('>');
         return {
             name: parts[0],
-            avatar: parts[1],
+            avatar: parseAvatar(parts[1]),
             type: parts[2],
             content: parts[3],
             // ... and so on
