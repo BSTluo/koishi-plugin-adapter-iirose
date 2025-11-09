@@ -186,7 +186,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId = bot.ctx.config.smRoom;
         }
 
-        const createEvent = (type: 'guild-member-added' | 'guild-member-removed' | 'iirose/guild-member-leave' | 'iirose/guild-member-refresh' | 'iirose/guild-member-switchRoom') =>
+        const createEvent = (type: 'guild-member-added' | 'iirose/guild-member-refresh') =>
         {
           const session = bot.session({
             type,
@@ -259,7 +259,6 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           } else
           {
             // 正常离开
-            createEvent('guild-member-removed');
             // 只有在不是因为移动房间而离开时，才启动确认离开的逻辑
             if (!data.isMove)
             {
@@ -268,7 +267,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
               {
                 // 派发确认离开事件
                 const session = bot.session({
-                  type: 'iirose/guild-member-leave',
+                  type: 'guild-member-removed',
                   platform: 'iirose',
                   selfId: uid,
                   timestamp: Date.now(),
@@ -284,7 +283,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
                   }
                 });
                 bot.dispatch(session);
-                bot.fulllogInfo('iirose/guild-member-leave', session);
+                bot.fulllogInfo('guild-member-removed', session);
 
                 // 从计时器列表中移除
                 bot.userLeaveTimers.delete(data.uid);
@@ -294,9 +293,9 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
               bot.userLeaveTimers.set(data.uid, leaveTimerDisposer);
             } else
             {
-              // 如果是切换房间，立即触发 guild-member-leave
+              // 如果是切换房间，立即触发 guild-member-removed
               const session = bot.session({
-                type: 'iirose/guild-member-leave',
+                type: 'guild-member-removed',
                 platform: 'iirose',
                 selfId: uid,
                 timestamp: Date.now(),
@@ -312,7 +311,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
                 }
               });
               bot.dispatch(session);
-              bot.fulllogInfo('iirose/guild-member-leave', session);
+              bot.fulllogInfo('guild-member-removed', session);
             }
           }
 
@@ -331,7 +330,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             };
 
             const switchRoomEvent = {
-              type: 'switchRoom',
+              type: 'iirose/guild-member-switchRoom',
               platform: 'iirose',
               guildId: guildId,
               timestamp: Number(data.timestamp),
