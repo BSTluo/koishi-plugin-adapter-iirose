@@ -292,6 +292,27 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
 
               // 将计时器(的disposer)存储起来，以便用户重新加入时可以取消
               bot.userLeaveTimers.set(data.uid, leaveTimerDisposer);
+            } else
+            {
+              // 如果是切换房间，立即触发 guild-member-leave
+              const session = bot.session({
+                type: 'iirose/guild-member-leave',
+                platform: 'iirose',
+                selfId: uid,
+                timestamp: Date.now(),
+                guild: { id: guildId },
+                channel: {
+                  id: `public:${guildId}`,
+                  type: 0
+                },
+                user: {
+                  id: data.uid,
+                  name: data.username,
+                  avatar: parseAvatar(data.avatar)
+                }
+              });
+              bot.dispatch(session);
+              bot.fulllogInfo('iirose/guild-member-leave', session);
             }
           }
 
