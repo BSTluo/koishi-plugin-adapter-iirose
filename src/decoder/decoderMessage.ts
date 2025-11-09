@@ -186,7 +186,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
           guildId = bot.ctx.config.smRoom;
         }
 
-        const createEvent = (type: 'guild-member-added' | 'guild-member-removed' | 'iirose/guild-member-refresh') =>
+        const createEvent = (type: 'guild-member-added' | 'guild-member-removed' | 'iirose/guild-member-leave' | 'iirose/guild-member-refresh' | 'iirose/guild-member-switchRoom') =>
         {
           const session = bot.session({
             type,
