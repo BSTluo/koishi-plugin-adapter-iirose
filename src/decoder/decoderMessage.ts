@@ -342,8 +342,8 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
               _data: switchRoomData
             };
             const switchRoomSession = bot.session(switchRoomEvent);
-            bot.fulllogInfo('iirose/switchRoom', switchRoomSession, switchRoomData);
-            bot.ctx.emit('iirose/switchRoom', switchRoomSession, switchRoomData);
+            bot.fulllogInfo('iirose/guild-member-switchRoom', switchRoomSession, switchRoomData);
+            bot.ctx.emit('iirose/guild-member-switchRoom', switchRoomSession, switchRoomData);
           }
         } else if (data.type === 'refresh')
         {
