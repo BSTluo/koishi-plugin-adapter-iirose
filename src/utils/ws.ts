@@ -493,6 +493,15 @@ export class WsClient
           // 设置为在线
           this.bot.status = Universal.Status.ONLINE;
           this.bot.online();
+
+          // 派发 login-added 事件
+          const session = this.bot.session({
+            type: 'login-added',
+            platform: this.bot.platform,
+            selfId: this.bot.selfId,
+          });
+          this.bot.dispatch(session);
+          this.bot.fulllogInfo('login-added', session);
         }
       }
 

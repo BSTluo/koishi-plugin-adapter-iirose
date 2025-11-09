@@ -187,6 +187,14 @@ export class IIROSE_Bot extends Bot<Context>
     // 立即下线
     this.offline();
 
+    const session = this.session({
+      type: 'login-removed',
+      platform: this.platform,
+      selfId: this.selfId,
+    });
+    this.dispatch(session);
+    this.fulllogInfo('login-removed', session);
+
     // 停止 WebSocket 连接
     if (this.wsClient)
     {
@@ -213,6 +221,19 @@ export class IIROSE_Bot extends Bot<Context>
   async sendPrivateMessage(userId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
   {
     return this.sendMessage(`private:${userId}`, content);
+  }
+
+  online()
+  {
+    super.online();
+    // 派发 login-updated 事件
+    const session = this.session({
+      type: 'login-updated',
+      platform: this.platform,
+      selfId: this.selfId,
+    });
+    this.dispatch(session);
+    this.fulllogInfo('login-updated', session);
   }
 
   async getSelf(): Promise<Universal.User>
