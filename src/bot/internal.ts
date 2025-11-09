@@ -320,6 +320,15 @@ export class Internal
   }
 
   /**
+   * 获取房间地址
+   * @returns {string} 房间ID
+   */
+  getRoomId(): string
+  {
+    return this.bot.config.roomId;
+  }
+
+  /**
    * 订阅房间
    * @param roomId 房间ID
    */
@@ -617,6 +626,7 @@ export interface InternalType
   getUserByName(name: string): Promise<Universal.User | undefined>;
   getUserListFile(): Promise<any>;
   getRoomListFile(): Promise<any>;
+  getRoomId(): string;
   subscribeRoom(roomId: string): void;
   unsubscribeRoom(roomId: string): void;
   getFollowList(uid: string): Promise<FollowList | null>;
