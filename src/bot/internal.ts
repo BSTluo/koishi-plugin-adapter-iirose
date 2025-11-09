@@ -120,9 +120,9 @@ export class Internal
     IIROSE_WSsend(this.bot, kickFunction(kickData.username));
   }
 
-  cutOne(cutOne: eventType.cutOne)
+  cutOne(cutOne?: eventType.cutOne)
   {
-    (cutOne.hasOwnProperty('id')) ? IIROSE_WSsend(this.bot, cutOneFunction(cutOne.id)) : IIROSE_WSsend(this.bot, cutOneFunction());
+    (cutOne && cutOne.hasOwnProperty('id')) ? IIROSE_WSsend(this.bot, cutOneFunction(cutOne.id)) : IIROSE_WSsend(this.bot, cutOneFunction());
   }
 
   cutAll()
@@ -130,14 +130,14 @@ export class Internal
     IIROSE_WSsend(this.bot, cutAllFunction());
   }
 
-  setMaxUser(setMaxUser: eventType.setMaxUser)
+  setMaxUser(setMaxUser?: eventType.setMaxUser)
   {
-    (setMaxUser.hasOwnProperty('number')) ? IIROSE_WSsend(this.bot, setMaxUserFunction(setMaxUser.maxMember)) : IIROSE_WSsend(this.bot, setMaxUserFunction());
+    (setMaxUser && setMaxUser.hasOwnProperty('maxMember')) ? IIROSE_WSsend(this.bot, setMaxUserFunction(setMaxUser.maxMember)) : IIROSE_WSsend(this.bot, setMaxUserFunction());
   }
 
   whiteList(whiteList: eventType.whiteList)
   {
-    (whiteList.hasOwnProperty('intro')) ? IIROSE_WSsend(this.bot, whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : IIROSE_WSsend(this.bot, whiteListFunction(whiteList.username, whiteList.time));
+    (whiteList && whiteList.hasOwnProperty('intro')) ? IIROSE_WSsend(this.bot, whiteListFunction(whiteList.username, whiteList.time, whiteList.intro)) : IIROSE_WSsend(this.bot, whiteListFunction(whiteList.username, whiteList.time));
   }
 
   broadcast(broadcast: eventType.broadcast)
@@ -603,9 +603,9 @@ export interface InternalType
 {
   moveRoom(moveData: eventType.move): Promise<void>;
   kick(kickData: eventType.kickData): void;
-  cutOne(cutOne: eventType.cutOne): void;
+  cutOne(cutOne?: eventType.cutOne): void;
   cutAll(): void;
-  setMaxUser(setMaxUser: eventType.setMaxUser): void;
+  setMaxUser(setMaxUser?: eventType.setMaxUser): void;
   whiteList(whiteList: eventType.whiteList): void;
   broadcast(broadcast: eventType.broadcast): void;
   makeMusic(musicOrigin: eventType.musicOrigin): void;

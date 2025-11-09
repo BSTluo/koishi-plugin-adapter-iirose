@@ -33,7 +33,7 @@ export interface RoomInfo
 export const bulkDataPacket = async (message: string, bot: IIROSE_Bot): Promise<UserList[] | undefined> =>
 {
     // 检查消息是否为大包数据
-    if (message.startsWith('%*"'))
+    if (message.startsWith('%'))
     {
         if (bot.config.debugMode)
         {
