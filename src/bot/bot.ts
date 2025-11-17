@@ -1,4 +1,4 @@
-import { Context, Bot, Fragment, Universal, Logger } from 'koishi';
+import { Context, Bot, Fragment, Universal, Logger, Session } from 'koishi';
 
 import { readJsonData, findRoomInGuild, flattenRooms, findUserNameById, Unknown_User_Name, Unknown_Guild_Name, Unknown_Channel_Name } from '../utils/utils';
 import { IIROSE_BotMessageEncoder } from './sendMessage';
@@ -395,6 +395,17 @@ export class IIROSE_Bot extends Bot<Context>
     return { data: [guild] };
   }
 
+  async getFriendList(next?: string): Promise<Universal.List<Universal.User>>
+  {
+    // 没有好友的概念
+    return null;
+  }
+
+  async handleFriendRequest(messageId: string, approve: boolean, comment?: string): Promise<void>
+  {
+    // 所有用户都可以直接私聊
+  }
+
   async getChannel(channelId: string): Promise<Universal.Channel>
   {
     if (channelId.startsWith('private:'))
@@ -466,6 +477,54 @@ export class IIROSE_Bot extends Bot<Context>
   getMessageKeys(): string[]
   {
     return this.sessionCache.getAllMessageIds();
+  }
+
+  /**
+   * 获取频道消息列表
+   * @param channelId 频道 ID
+   * @param next 分页令牌，未指定时视为从最新消息向前获取（本实现中忽略此参数）
+   * @param direction 消息获取方向，可以为 'before' | 'after' | 'around'
+   * @returns 消息列表
+   */
+  async getMessageList(channelId: string, next?: string, direction: 'before' | 'after' | 'around' = 'before'): Promise<Universal.List<Universal.Message>>
+  {
+    // 从缓存中获取所有消息
+    const allSessions = this.sessionCache.getAllMessageIds().map(id => this.sessionCache.findById(id)).filter(Boolean) as Session[];
+
+    // 过滤出指定频道的消息
+    const channelSessions = allSessions.filter(session => session.channelId === channelId);
+
+    // 根据方向排序消息
+    let sortedSessions: Session[];
+    if (direction === 'after')
+    {
+      // 按时间正序（从旧到新）
+      sortedSessions = [...channelSessions].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+    } else
+    {
+      // 默认按时间倒序（从新到旧）
+      sortedSessions = [...channelSessions].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    }
+
+    // 转换为消息格式
+    const messages = sortedSessions.map(session => ({
+      id: session.messageId,
+      messageId: session.messageId,
+      content: session.content,
+      channel: {
+        id: session.channelId,
+        type: session.channelId.startsWith('private:') ? Universal.Channel.Type.DIRECT : Universal.Channel.Type.TEXT,
+      },
+      guild: session.guildId ? { id: session.guildId } : undefined,
+      user: {
+        id: session.userId,
+        name: session.username,
+      },
+      timestamp: session.timestamp,
+      quote: session.quote,
+    }));
+
+    return { data: messages };
   }
 
   async kickGuildMember(guildId: string, userId: string, permanent?: boolean): Promise<void>
