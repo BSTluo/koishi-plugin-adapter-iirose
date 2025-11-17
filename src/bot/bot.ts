@@ -328,7 +328,7 @@ export class IIROSE_Bot extends Bot<Context>
     });
   }
 
-  async getUser(userId: string, guildId?: string): Promise<Universal.User>
+  async getUser(userId: string): Promise<Universal.User>
   {
     const userlist = await readJsonData(this, 'wsdata/userlist.json');
     if (!userlist)
@@ -349,7 +349,7 @@ export class IIROSE_Bot extends Bot<Context>
 
   async getGuildMember(guildId: string, userId: string): Promise<Universal.GuildMember>
   {
-    const user = await this.getUser(userId, guildId);
+    const user = await this.getUser(userId);
     //  返回基础用户信息
     return {
       ...user,
@@ -397,7 +397,6 @@ export class IIROSE_Bot extends Bot<Context>
 
   async getChannel(channelId: string): Promise<Universal.Channel>
   {
-    // 区分私聊频道和公共频道
     if (channelId.startsWith('private:'))
     {
       const userId = channelId.substring(8);
@@ -515,8 +514,6 @@ export class IIROSE_Bot extends Bot<Context>
     }
   }
 
-  async deleteMessage(channelId: string, messageId: string): Promise<void>;
-  async deleteMessage(channelId: string, messageId: string[]): Promise<void>;
   async deleteMessage(channelId: string, messageId: string | string[]): Promise<void>
   {
     try
