@@ -376,11 +376,12 @@ export class IIROSE_Bot extends Bot<Context>
 
   async getGuild(guildId: string): Promise<Universal.Guild>
   {
+    const rawGuildId = guildId.replace("public:", "");
     const roomlist = await readJsonData(this, 'wsdata/roomlist.json');
-    if (!roomlist) return { id: guildId, name: 'Unknown Guild' };
+    if (!roomlist) return { id: rawGuildId, name: 'Unknown Guild' };
 
-    const guild = findRoomInGuild(roomlist, guildId);
-    if (!guild) return { id: guildId, name: 'Unknown Guild' };
+    const guild = findRoomInGuild(roomlist, rawGuildId);
+    if (!guild) return { id: rawGuildId, name: 'Unknown Guild' };
 
     return {
       id: guild.id,
