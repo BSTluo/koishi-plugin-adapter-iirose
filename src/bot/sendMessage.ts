@@ -267,21 +267,21 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
       }
 
       case 'quote': {
-        let id = attrs.id;
-        if (!id)
+        let quoteId = attrs.id;
+        if (!quoteId)
         {
           const messageKeys = this.bot.getMessageKeys();
-          id = messageKeys[messageKeys.length - 1];
+          quoteId = messageKeys[messageKeys.length - 1];
         }
 
-        const messData = await this.bot.getMessage('', id);
+        const messData = await this.bot.getMessage('', quoteId);
 
         if (messData)
         {
           this.outDataOringin = `${messData.content} (_hr) ${messData.user.name}_${Math.round(new Date().getTime() / 1e3)} (hr_) ` + this.outDataOringin;
         } else
         {
-          this.bot.loggerWarn(`[Quote处理] 未找到消息ID: ${id}`);
+          this.bot.loggerWarn(`[Quote处理] 未找到消息ID: ${quoteId}`);
         }
         break;
       }
@@ -334,11 +334,12 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
           this.outDataOringin += ` [_${attrs.roomId}_] `;
         } else if (attrs.hasOwnProperty('id'))
         {
-          const user = await this.bot.getUser(attrs.id);
+          const userId = `${attrs.id}`.toLowerCase();
+          const user = await this.bot.getUser(userId);
           const name = user?.name;
           if (!name || name == Unknown_User_Name)
           {
-            this.outDataOringin += ` [@${attrs.id}@] `;
+            this.outDataOringin += ` [@${userId}@] `;
           } else
           {
             this.outDataOringin += ` [*${name}*] `;
@@ -349,7 +350,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
       case 'sharp': {
         // 提及频道
-        let channelId = attrs.id;
+        let channelId = `${attrs.id}`.toLowerCase();
         // 如果 id 不在 attrs 中，尝试从子元素获取
         if (!channelId && children.length > 0)
         {
