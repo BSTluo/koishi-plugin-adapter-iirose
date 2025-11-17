@@ -66,14 +66,12 @@ export class Internal
 
   async send(data)
   {
-    if (data.hasOwnProperty('public'))
-    {
-      this.bot.sendMessage('public:', data.public.message);
-    }
-
     if (data.hasOwnProperty('private'))
     {
       this.bot.sendMessage(`private:${data.private.userId}`, data.private.message);
+    } else
+    {
+      this.bot.sendMessage(this.bot.config.roomId, data.public.message);
     }
   }
 

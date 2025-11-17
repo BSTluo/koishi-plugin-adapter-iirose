@@ -59,14 +59,14 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
     }
 
     // 在实际发送消息时生成消息ID和消息对象
-    if (this.channelId.startsWith('public:'))
-    {
-      const result = PublicMessage(this.outDataOringin, rgbaToHex(this.bot.config.color));
-      this.currentMessageId = result.messageId;
-      this.outDataOringinObj = result.data;
-    } else if (this.channelId.startsWith('private:'))
+    if (this.channelId.startsWith('private:'))
     {
       const result = PrivateMessage(this.channelId.split(':')[1], this.outDataOringin, rgbaToHex(this.bot.config.color));
+      this.currentMessageId = result.messageId;
+      this.outDataOringinObj = result.data;
+    } else
+    {
+      const result = PublicMessage(this.outDataOringin, rgbaToHex(this.bot.config.color));
       this.currentMessageId = result.messageId;
       this.outDataOringinObj = result.data;
     }
@@ -200,14 +200,14 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
         let audioMessage: string;
         let audioMessageId: string;
-        if (this.channelId.startsWith('public:'))
-        {
-          const result = PublicMessage(url, rgbaToHex(this.bot.config.color));
-          audioMessage = result.data;
-          audioMessageId = result.messageId;
-        } else if (this.channelId.startsWith('private:'))
+        if (this.channelId.startsWith('private:'))
         {
           const result = PrivateMessage(this.channelId.split(':')[1], url, rgbaToHex(this.bot.config.color));
+          audioMessage = result.data;
+          audioMessageId = result.messageId;
+        } else
+        {
+          const result = PublicMessage(url, rgbaToHex(this.bot.config.color));
           audioMessage = result.data;
           audioMessageId = result.messageId;
         }
@@ -358,7 +358,7 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
 
         if (channelId)
         {
-          this.outDataOringin += ` [_${channelId.replace(/^public:|private:/, '')}_] `;
+          this.outDataOringin += ` [_${channelId.replace(/^private:/, '')}_] `;
         }
         return; // 阻止后续对子节点的重复渲染
       }

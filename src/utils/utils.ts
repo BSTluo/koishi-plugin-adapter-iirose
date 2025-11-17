@@ -299,13 +299,13 @@ export async function cacheSentMessage(bot: IIROSE_Bot, channelId: string, messa
     },
     channel: {
       id: channelId,
-      type: channelId.startsWith('public:') ? 0 : 1,
+      type: channelId.startsWith('private:') ? 1 : 0,
     },
   };
 
-  if (channelId.startsWith('public:'))
+  if (!channelId.startsWith('private:'))
   {
-    event.guild = { id: channelId.substring(7) };
+    event.guild = { id: channelId };
   }
 
   const session = bot.session(event);

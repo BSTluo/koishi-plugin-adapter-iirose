@@ -86,7 +86,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             id: guildId
           },
           channel: {
-            id: `public:${guildId}`,
+            id: guildId,
             type: 0
           },
         };
@@ -195,7 +195,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             timestamp: Number(data.timestamp),
             guild: { id: guildId },
             channel: {
-              id: `public:${guildId}`,
+              id: guildId,
               type: 0
             },
             user: {
@@ -273,7 +273,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
                   timestamp: Date.now(),
                   guild: { id: guildId },
                   channel: {
-                    id: `public:${guildId}`,
+                    id: guildId,
                     type: 0
                   },
                   user: {
@@ -301,7 +301,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
                 timestamp: Date.now(),
                 guild: { id: guildId },
                 channel: {
-                  id: `public:${guildId}`,
+                  id: guildId,
                   type: 0
                 },
                 user: {
@@ -523,7 +523,7 @@ export const decoderMessage = async (obj: MessageType, bot: IIROSE_Bot) =>
             id: guildId
           },
           channel: {
-            id: `public:${guildId}`,
+            id: guildId,
             type: 0
           },
         };

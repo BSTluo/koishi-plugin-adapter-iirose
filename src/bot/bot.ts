@@ -208,12 +208,11 @@ export class IIROSE_Bot extends Bot<Context>
 
   async sendMessage(channelId: string, content: Fragment, guildId?: string, options?: SendOptions): Promise<string[]>
   {
-    if (!channelId || (!channelId.startsWith('public') && !channelId.startsWith('private')))
+    if (!channelId)
     {
       return [];
     }
-    const finalChannelId = guildId ? `${channelId}:${guildId}` : channelId;
-    const encoder = new IIROSE_BotMessageEncoder(this, finalChannelId, guildId, options);
+    const encoder = new IIROSE_BotMessageEncoder(this, channelId, guildId, options);
     const messages = await encoder.send(content);
     return messages.map(m => m.id);
   }
@@ -376,12 +375,11 @@ export class IIROSE_Bot extends Bot<Context>
 
   async getGuild(guildId: string): Promise<Universal.Guild>
   {
-    const rawGuildId = guildId.replace("public:", "");
     const roomlist = await readJsonData(this, 'wsdata/roomlist.json');
-    if (!roomlist) return { id: rawGuildId, name: 'Unknown Guild' };
+    if (!roomlist) return { id: guildId, name: 'Unknown Guild' };
 
-    const guild = findRoomInGuild(roomlist, rawGuildId);
-    if (!guild) return { id: rawGuildId, name: 'Unknown Guild' };
+    const guild = findRoomInGuild(roomlist, guildId);
+    if (!guild) return { id: guildId, name: 'Unknown Guild' };
 
     return {
       id: guild.id,
@@ -411,8 +409,7 @@ export class IIROSE_Bot extends Bot<Context>
       };
     }
 
-    // 默认处理为公共频道
-    const roomId = channelId.replace(/^public:/, '');
+    const roomId = channelId;
     const roomlist = await readJsonData(this, 'wsdata/roomlist.json');
     if (!roomlist) return { id: roomId, name: 'Unknown Channel', type: Universal.Channel.Type.TEXT };
 

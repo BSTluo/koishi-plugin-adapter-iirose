@@ -22,10 +22,10 @@ export function MessageDeleted(bot: IIROSE_Bot, message: string): MessageDeleted
   {
     const [, userId, messageId] = publicDeleteMatch;
     // 公共频道
-    let channelId = `public:${bot.config.roomId}`;
+    let channelId = bot.config.roomId;
     if (bot.config.smStart)
     {
-      channelId = `public:${bot.config.smRoom}`;
+      channelId = bot.config.smRoom;
     }
     return {
       type: 'message-deleted',
