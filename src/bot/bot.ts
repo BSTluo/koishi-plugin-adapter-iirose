@@ -1,6 +1,6 @@
-import { Context, Bot, Fragment, Universal, Logger, Session } from 'koishi';
+import { Context, Bot, Fragment, Universal, Logger } from 'koishi';
 
-import { readJsonData, findRoomInGuild, flattenRooms, findUserNameById } from '../utils/utils';
+import { readJsonData, findRoomInGuild, flattenRooms, findUserNameById, Unknown_User_Name, Unknown_Guild_Name, Unknown_Channel_Name } from '../utils/utils';
 import { IIROSE_BotMessageEncoder } from './sendMessage';
 import { IIROSE_WSsend, WsClient } from '../utils/ws';
 import { Internal, InternalType } from './internal';
@@ -333,12 +333,12 @@ export class IIROSE_Bot extends Bot<Context>
     const userlist = await readJsonData(this, 'wsdata/userlist.json');
     if (!userlist)
     {
-      return { id: userId, name: 'Unknown User' };
+      return { id: userId, name: Unknown_User_Name };
     }
     const user = userlist.find(u => u.uid === userId);
     if (!user)
     {
-      return { id: userId, name: 'Unknown User' };
+      return { id: userId, name: Unknown_User_Name };
     }
     return {
       id: user.uid,
@@ -376,10 +376,10 @@ export class IIROSE_Bot extends Bot<Context>
   async getGuild(guildId: string): Promise<Universal.Guild>
   {
     const roomlist = await readJsonData(this, 'wsdata/roomlist.json');
-    if (!roomlist) return { id: guildId, name: 'Unknown Guild' };
+    if (!roomlist) return { id: guildId, name: Unknown_Guild_Name };
 
     const guild = findRoomInGuild(roomlist, guildId);
-    if (!guild) return { id: guildId, name: 'Unknown Guild' };
+    if (!guild) return { id: guildId, name: Unknown_Guild_Name };
 
     return {
       id: guild.id,
@@ -411,10 +411,10 @@ export class IIROSE_Bot extends Bot<Context>
 
     const roomId = channelId;
     const roomlist = await readJsonData(this, 'wsdata/roomlist.json');
-    if (!roomlist) return { id: roomId, name: 'Unknown Channel', type: Universal.Channel.Type.TEXT };
+    if (!roomlist) return { id: roomId, name: Unknown_Channel_Name, type: Universal.Channel.Type.TEXT };
 
     const room = findRoomInGuild(roomlist, roomId);
-    if (!room) return { id: roomId, name: 'Unknown Channel', type: Universal.Channel.Type.TEXT };
+    if (!room) return { id: roomId, name: Unknown_Channel_Name, type: Universal.Channel.Type.TEXT };
 
     return {
       id: room.id,

@@ -6,6 +6,10 @@ import { IIROSE_Bot } from '../bot/bot';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
+export const Unknown_User_Name: string = "Unknown User";
+export const Unknown_Guild_Name: string = "Unknown Guild";
+export const Unknown_Channel_Name: string = "Unknown Channel";
+
 /**
  * 颜色转换函数：将rgba格式转换为十六进制格式
  * @param rgba - rgba格式的颜色字符串或十六进制格式的颜色字符串

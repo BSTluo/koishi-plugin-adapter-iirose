@@ -3,7 +3,7 @@ import { Context, MessageEncoder, h } from 'koishi';
 
 import { } from '@koishijs/assets';
 
-import { cacheSentMessage, ensureNewlineBefore, getMediaMetadata, rgbaToHex } from '../utils/utils';
+import { cacheSentMessage, ensureNewlineBefore, rgbaToHex, Unknown_User_Name } from '../utils/utils';
 import { decode as unescapeHtml } from '../utils/entities';
 import PrivateMessage from '../encoder/messages/PrivateMessage';
 import PublicMessage from '../encoder/messages/PublicMessage';
@@ -326,23 +326,23 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
       }
 
       case 'at': {
-        if (attrs.hasOwnProperty('id'))
+        if (attrs.hasOwnProperty('name'))
+        {
+          this.outDataOringin += ` [*${attrs.name}*] `;
+        } else if (attrs.hasOwnProperty('roomId') || attrs.hasOwnProperty('roomid'))
+        {
+          this.outDataOringin += ` [_${attrs.roomId}_] `;
+        } else if (attrs.hasOwnProperty('id'))
         {
           const user = await this.bot.getUser(attrs.id);
           const name = user?.name;
-          if (name && name !== ("用户数据库初始化ing"))
-          {
-            this.outDataOringin += ` [*${name}*] `;
-          } else
+          if (!name || name == Unknown_User_Name)
           {
             this.outDataOringin += ` [@${attrs.id}@] `;
+          } else
+          {
+            this.outDataOringin += ` [*${name}*] `;
           }
-        } else if (attrs.hasOwnProperty('name'))
-        {
-          this.outDataOringin += ` [*${attrs.name}*] `;
-        } else if (attrs.hasOwnProperty('roomId'))
-        {
-          this.outDataOringin += ` [_${attrs.roomId}_] `;
         }
         break;
       }
