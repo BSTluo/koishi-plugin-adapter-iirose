@@ -131,26 +131,6 @@ export class IIROSE_BotMessageEncoder extends MessageEncoder<Context, IIROSE_Bot
         this.outDataOringin = ensureNewlineBefore(this.outDataOringin);
         this.outDataOringin += `[${url}]`;
         this.outDataOringin += '\n';
-
-        //  音乐卡片不好用，不用了，直接发视频即可。
-        // const metadata = await getMediaMetadata(url, this.bot.ctx);
-
-        // const obj: musicOrigin = {
-        //   type: "video",
-        //   name: attrs.name || metadata.title,
-        //   signer: attrs.author || metadata.artist,
-        //   cover: attrs.cover || metadata.picture,
-        //   link: url,
-        //   url: url,
-        //   duration: attrs.duration || metadata.duration,
-        //   bitRate: attrs.bitRate || metadata.bitrate,
-        //   color: attrs.color,
-        //   lyrics: (attrs.lyrics) ? attrs.lyrics : (Math.random() > 0.9) ? '' : '俺不中嘞，插件没给俺歌词啊喵',
-        //   origin: (attrs.origin) ? attrs.origin : null
-        // };
-
-        // this.bot.internal.makeMusic(obj);
-        // // ctx.emit('iirose/makeMusic', obj);
         break;
       }
 
