@@ -709,7 +709,6 @@ export class WsClient
         {
           if (this.bot.status == Universal.Status.ONLINE)
           {
-            // this.bot.fulllogInfo(`发送空包（心跳保活） 实例: ${this.bot.user?.id || 'unknown'}`);
             try
             {
               await IIROSE_WSsend(this.bot, ''); // 心跳包不需要严格的错误处理
@@ -721,12 +720,12 @@ export class WsClient
           }
         } else if (this.bot.socket.readyState === 3 || this.bot.socket.readyState === 2) // WebSocket.CLOSED || WebSocket.CLOSING
         {
-          this.bot.loggerWarn(`心跳保活检测到连接异常 实例: ${this.bot.user?.id || 'unknown'}, readyState: ${this.bot.socket.readyState}`);
+          this.bot.loggerWarn(`心跳保活检测到连接异常 实例: ${this.bot.user?.id}, readyState: ${this.bot.socket.readyState}`);
           this.handleConnectionLoss();
         }
       } else
       {
-        this.bot.loggerWarn(`心跳保活检测到socket为空 实例: ${this.bot.user?.id || 'unknown'}`);
+        this.bot.loggerWarn(`心跳保活检测到socket为空 实例: ${this.bot.user?.id}`);
         this.handleConnectionLoss();
       }
     }, 30 * 1000); // 30秒心跳间隔
@@ -742,7 +741,7 @@ export class WsClient
       return; // 避免重复重连
     }
 
-    this.bot.loggerWarn(`检测到连接丢失，准备重连 实例: ${this.bot.user?.id || 'unknown'}`);
+    this.bot.loggerWarn(`检测到连接丢失，准备重连 实例: ${this.bot.user?.id}`);
 
     this.isReconnecting = true;
     this.isStarting = false;
@@ -765,7 +764,7 @@ export class WsClient
 
       try
       {
-        this.bot.loggerInfo(`开始重连 实例: ${this.bot.user?.id || 'unknown'}`);
+        this.bot.loggerInfo(`开始重连 实例: ${this.bot.user?.id}`);
         // 设置为连接中状态
         this.bot.status = Universal.Status.CONNECT;
 
@@ -775,7 +774,7 @@ export class WsClient
       {
         if (!this.disposed)
         {
-          this.bot.loggerError(`重连失败 实例: ${this.bot.user?.id || 'unknown'}:`, error);
+          this.bot.loggerError(`重连失败 实例: ${this.bot.user?.id}:`, error);
           // 如果重连失败，等待更长时间后再次尝试
           this.isReconnecting = false;
           this.ctx.setTimeout(() =>

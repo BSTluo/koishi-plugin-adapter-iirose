@@ -333,12 +333,12 @@ export class IIROSE_Bot extends Bot<Context>
     const userlist = await readJsonData(this, 'wsdata/userlist.json');
     if (!userlist)
     {
-      return { id: userId, name: 'Unknown' };
+      return { id: userId, name: 'Unknown User' };
     }
     const user = userlist.find(u => u.uid === userId);
     if (!user)
     {
-      return { id: userId, name: 'Unknown' };
+      return { id: userId, name: 'Unknown User' };
     }
     return {
       id: user.uid,
@@ -389,7 +389,7 @@ export class IIROSE_Bot extends Bot<Context>
 
   async getGuildList(next?: string): Promise<Universal.List<Universal.Guild>>
   {
-    // 一次只能在一个房间
+    // 机器人所在群组列表，只有一个：当前聊天室
     const currentRoomId = this.config.roomId;
     const guild = await this.getGuild(currentRoomId);
     return { data: [guild] };
